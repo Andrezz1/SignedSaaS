@@ -2,7 +2,7 @@
 
 ## To run the code first run the command 
 
-### wasp start
+### wasp db start
 
 ## if you dont have wasp install run the following command(only for linux, mac or windows WSL)
 
@@ -10,4 +10,9 @@
 
 ## then run the:
 
-### wasp db start
+### wasp start
+
+## You can also run
+
+### wasp db studio , this command opens web-based database managment tool
+
