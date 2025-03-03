@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CodigoPostal {
+  CodigoPostalId Int    @id @default(autoincrement())
+  Localidade     String
+  Moradas        Morada[]
+}
+
+model Comprovativo {
+  ComprovativoId Int        @id @default(autoincrement())
+  Pagamento      Pagamento  @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
+  Subscricao     Subscricao @relation(fields: [SubscricaoSubscricaoId], references: [SubscricaoId])
+  Utilizador     Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
+  
+  PagamentoPagamentoId    Int
+  SubscricaoSubscricaoId  Int
+  UtilizadorUtilizadorId  Int
+}
+
+model Contacto {
+  ContactoId Int     @id @default(autoincrement())
+  Email      String  @unique
+  Telemovel  String
+  Utilizador Utilizador?
+}
+
+model DetalheSubscricao {
+  DetalheSubscricaoId  Int            @id @default(autoincrement())
+  Quantidade           Int
+  Desconto            Float?
+  ValorFinal          Int
+  Subscricao          Subscricao @relation(fields: [SubscricaoSubscricaoId], references: [SubscricaoId])
+  TipoSubscricao      TipoSubscricao @relation(fields: [TipoSubscricaoTipoSubscricaoID], references: [TipoSubscricaoID])
+  
+  SubscricaoSubscricaoId    Int
+  TipoSubscricaoTipoSubscricaoID  Int
+}
+
+model Doacao {
+  DoacaoId    Int       @id @default(autoincrement())
+  ValorDoacao Int
+  DataDoacao  DateTime
+  Nota        String
+  Utilizador  Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
+  
+  UtilizadorUtilizadorId Int
+}
+
+model Morada {
+  MoradaId                 Int           @id @default(autoincrement())
+  Concelho                 String
+  Distrito                 String
+  CodigoPostal             CodigoPostal @relation(fields: [CodigoPostalCodigoPostalId], references: [CodigoPostalId])
+  Utilizadores             Utilizador[]
+  
+  CodigoPostalCodigoPostalId Int
+}
+
+model Pagamento {
+  PagamentoId   Int       @id @default(autoincrement())
+  Valor         Int
+  DataPagamento DateTime
+  EstadoPagamento String
+  NIFPagamento   Int
+  Utilizador     Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
+  Subscricoes    Subscricao[]
+  Comprovativos  Comprovativo[]
+  
+  UtilizadorUtilizadorId Int
+}
+
+model Subscricao {
+  SubscricaoId      Int             @id @default(autoincrement())
+  DataInicio        DateTime
+  DataFim          DateTime
+  EstadoSubscricao Boolean
+  Utilizador       Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
+  Pagamento        Pagamento  @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
+  TipoSubscricao   TipoSubscricao @relation(fields: [TipoSubscricaoTipoSubscricaoID], references: [TipoSubscricaoID])
+  Comprovativos    Comprovativo[]
+  Detalhes         DetalheSubscricao[]
+  
+  UtilizadorUtilizadorId Int
+  PagamentoPagamentoId   Int
+  TipoSubscricaoTipoSubscricaoID Int
+}
+
+model TipoSubscricao {
+  TipoSubscricaoID Int                 @id @default(autoincrement())
+  Descricao        String
+  Preco           Int
+  Subscricoes      Subscricao[]
+  Detalhes         DetalheSubscricao[]
+}
+
+model TipoUtilizador {
+  TipoUtilizadorId Int          @id @default(autoincrement())
+  Descricao        String
+  Utilizadores     Utilizador[]
+}
+
+model Utilizador {
+  UtilizadorId Int             @id @default(autoincrement())
+  Nome         String
+  DataNascimento DateTime
+  NIF          String         @unique
+  PalavraPasse String
+  Morada       Morada         @relation(fields: [MoradaMoradaId], references: [MoradaId])
+  Contacto     Contacto       @relation(fields: [ContactoContactoId], references: [ContactoId])
+  TipoUtilizador TipoUtilizador @relation(fields: [TipoUtilizadorTipoUtilizadorId], references: [TipoUtilizadorId])
+  Pagamentos    Pagamento[]
+  Subscricoes   Subscricao[]
+  Comprovativos Comprovativo[]
+  Doacoes       Doacao[]
+  
+  MoradaMoradaId         Int
+  ContactoContactoId     Int @unique
+  TipoUtilizadorTipoUtilizadorId Int
+}

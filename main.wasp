@@ -1,0 +1,16 @@
+app SignedProject {
+  wasp: {
+    version: "^0.16.2"
+  },
+  title: "SignedProject"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import { MainPage } from "@src/MainPage"
+}
+
+query getUtilizadores {
+  fn: import { getUtilizadores } from "@src/queries",
+  entities: [Utilizador]
+}
