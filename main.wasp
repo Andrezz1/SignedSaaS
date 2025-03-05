@@ -9,6 +9,7 @@ route RootRoute { path: "/", to: MainPage }
 page MainPage {
   component: import { MainPage } from "@src/MainPage"
 }
+// As queries abaixo apenas obtêm os dados de cada tabela
 
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
@@ -65,7 +66,13 @@ query getUtilizadores {
   entities: [Utilizador]
 }
 
-query getUtilizadorTipoUtilizador {
-  fn: import { getUtilizadorTipoUtilizador } from "@src/services/utilizadorTipoUtilizadorService",
-  entities: [Utilizador, TipoUtilizador]
+// As queries Abaixo obtêm os dados de multiplas tabelas
+query getMoradaInfo {
+  fn: import { getMoradaInfo } from "@src/services/moradaService",
+  entities: [Morada, CodigoPostal]
+}
+
+query getUtilizadoresInfo {
+  fn: import { getUtilizadoresInfo } from "@src/services/utilizadorService",
+  entities: [Utilizador, TipoUtilizador, Morada, Contacto]
 }
