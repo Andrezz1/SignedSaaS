@@ -11,6 +11,21 @@ page MainPage {
 }
 
 query getUtilizadores {
-  fn: import { getUtilizadores } from "@src/queries",
+  fn: import { getUtilizadores } from "@src/services/utilizadorService",
   entities: [Utilizador]
+}
+
+query getCP {
+  fn: import { getCP } from "@src/services/cpService",
+  entities: [CodigoPostal]
+}
+
+query getTipoUtilizador {
+  fn: import { getTipoUtilizador } from "@src/services/tipoUtilizadorService",
+  entities: [TipoUtilizador]
+}
+
+query getUtilizadorTipoUtilizador {
+  fn: import { getUtilizadorTipoUtilizador } from "@src/services/utilizadorTipoUtilizadorService",
+  entities: [Utilizador, TipoUtilizador]
 }

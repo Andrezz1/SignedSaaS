@@ -2,11 +2,11 @@ import { Utilizador } from 'wasp/entities'
 import { getUtilizadores, useQuery } from 'wasp/client/operations'
 
 export const MainPage = () => {
-  const { data: tasks, isLoading, error } = useQuery(getUtilizadores)
+  const { data: utilizadores, isLoading, error } = useQuery(getUtilizadores)
 
   return (
     <div>
-      {tasks && <TasksList tasks={tasks} />}
+      {utilizadores && <UtilizadoresList utilizadores={utilizadores} />}
 
       {isLoading && 'Loading...'}
       {error && 'Error: ' + error}
@@ -14,22 +14,22 @@ export const MainPage = () => {
   )
 }
 
-const TaskView = ({ task }: { task: Utilizador }) => {
+const UtilizadorView = ({ utilizador }: { utilizador: Utilizador }) => {
   return (
     <div>
-      <input type="checkbox" id={String(task.UtilizadorId)}/>
-      {task.Nome}
+      <input type="checkbox" id={String(utilizador.UtilizadorId)}/>
+      {utilizador.Nome}
     </div>
   )
 }
 
-const TasksList = ({ tasks }: { tasks: Utilizador[] }) => {
-  if (!tasks?.length) return <div>No Users</div>
+const UtilizadoresList = ({ utilizadores }: { utilizadores: Utilizador[] }) => {
+  if (!utilizadores?.length) return <div>No Users</div>
 
   return (
     <div>
-      {tasks.map((task, idx) => (
-        <TaskView task={task} key={idx} />
+      {utilizadores.map((utilizador, idx) => (
+        <UtilizadorView utilizador={utilizador} key={idx} />
       ))}
     </div>
   )

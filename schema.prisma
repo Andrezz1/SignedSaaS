@@ -27,7 +27,7 @@ model Comprovativo {
 model Contacto {
   ContactoId Int     @id @default(autoincrement())
   Email      String  @unique
-  Telemovel  String
+  Telemovel  String  @unique
   Utilizador Utilizador?
 }
 
