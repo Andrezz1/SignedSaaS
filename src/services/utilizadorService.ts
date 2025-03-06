@@ -27,6 +27,6 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<void, Array<{ utilizador: 
       contacto: contacto || { ContactoId: -1, Email: 'Unknown', Telemovel: 'Unknown' },
     }
   })
-
+  
   return UtilizadoresInfo
 }

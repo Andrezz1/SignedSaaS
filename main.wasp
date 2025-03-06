@@ -67,9 +67,34 @@ query getUtilizadores {
 }
 
 // As queries Abaixo obtêm os dados de multiplas tabelas
+query getComprovativoInfo {
+  fn: import { getComprovativoInfo } from "@src/services/comprovativoService",
+  entities: [Comprovativo, Pagamento, Subscricao, Utilizador]
+}
+
+query getDetalheSubscricaoInfo {
+  fn: import { getDetalheSubscricaoInfo } from "@src/services/detalheSubscricaoService",
+  entities: [DetalheSubscricao, Subscricao, TipoSubscricao]
+}
+
+query getDoacaoInfo {
+  fn: import { getDoacaoInfo } from "@src/services/doacaoService",
+  entities: [Doacao, Utilizador]
+}
+
 query getMoradaInfo {
   fn: import { getMoradaInfo } from "@src/services/moradaService",
   entities: [Morada, CodigoPostal]
+}
+
+query getPagamentoInfo {
+  fn: import { getPagamentoInfo } from "@src/services/pagamentoService",
+  entities: [Pagamento, Utilizador]
+}
+
+query getSubscricaoInfo {
+  fn: import { getSubscricaoInfo } from "@src/services/subscricaoService",
+  entities: [Subscricao, Utilizador, Pagamento, TipoSubscricao]
 }
 
 query getUtilizadoresInfo {

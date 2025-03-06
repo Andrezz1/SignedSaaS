@@ -1,5 +1,4 @@
-import { Morada } from 'wasp/entities'
-import { CodigoPostal } from 'wasp/entities'
+import { Morada, CodigoPostal } from 'wasp/entities'
 import { type GetMorada, type GetMoradaInfo } from 'wasp/server/operations'
 import { getCodigoPostal } from './codigoPostalService'
 
