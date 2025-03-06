@@ -68,7 +68,7 @@ model Pagamento {
   Valor         Int
   DataPagamento DateTime
   EstadoPagamento String
-  NIFPagamento   Int
+  NIFPagamento  String
   Utilizador     Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
   Subscricoes    Subscricao[]
   Comprovativos  Comprovativo[]
