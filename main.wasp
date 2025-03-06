@@ -101,3 +101,6 @@ query getUtilizadoresInfo {
   fn: import { getUtilizadoresInfo } from "@src/services/utilizadorService",
   entities: [Utilizador, TipoUtilizador, Morada, Contacto]
 }
+
+
+

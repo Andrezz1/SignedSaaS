@@ -1,36 +1,46 @@
+import { getUtilizadores, getSubscricaoInfo, useQuery } from 'wasp/client/operations'
 import { Utilizador } from 'wasp/entities'
-import { getUtilizadores, useQuery } from 'wasp/client/operations'
+import "./MainPage.css"
 
 export const MainPage = () => {
-  const { data: utilizadores, isLoading, error } = useQuery(getUtilizadores)
+  // Primeira query: Buscar todos os utilizadores e os dados da subscrição
+  const { data: subscricaoInfo, isLoading, error } = useQuery(getSubscricaoInfo)
 
   return (
-    <div>
-      {utilizadores && <UtilizadoresList utilizadores={utilizadores} />}
-
-      {isLoading && 'Loading...'}
-      {error && 'Error: ' + error}
+    <div className="container">
+      <h1>Lista de Utilizadores</h1>
+      {isLoading && <p>Loading...</p>}
+      {error && <p className="error">Error</p>}
+      {subscricaoInfo && <UtilizadoresTable subscricaoInfo={subscricaoInfo} />}
     </div>
   )
 }
 
-const UtilizadorView = ({ utilizador }: { utilizador: Utilizador }) => {
-  return (
-    <div>
-      <input type="checkbox" id={String(utilizador.UtilizadorId)}/>
-      {utilizador.Nome}
-    </div>
-  )
-}
-
-const UtilizadoresList = ({ utilizadores }: { utilizadores: Utilizador[] }) => {
-  if (!utilizadores?.length) return <div>No Users</div>
+const UtilizadoresTable = ({ subscricaoInfo }: { subscricaoInfo: Array<{ subscricao: any, utilizador: Utilizador, pagamento: any, tipoSubscricao: any }> }) => {
+  if (!subscricaoInfo?.length) return <div>No Users</div>
 
   return (
-    <div>
-      {utilizadores.map((utilizador, idx) => (
-        <UtilizadorView utilizador={utilizador} key={idx} />
-      ))}
-    </div>
+    <table className="utilizadores-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>NIF</th>
+          <th>Estado da Subscrição</th>
+          <th>Detalhes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {subscricaoInfo.map(({ utilizador, subscricao }, idx) => (
+          <tr key={idx}>
+            <td>{utilizador.Nome}</td>
+            <td>{utilizador.NIF}</td>
+            <td>{subscricao ? subscricao.EstadoSubscricao : 'Sem subscrição'}</td>
+            <td>
+              <button className="settings-button">...</button> 
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 }
