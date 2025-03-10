@@ -125,7 +125,7 @@ query getSubscricaoInfo {
 
 query getUtilizadoresInfo {
   fn: import { getUtilizadoresInfo } from "@src/services/utilizadorService",
-  entities: [Utilizador, TipoUtilizador, Morada, Contacto]
+  entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao]
 }
 
 // As actions abaixo servem para adicionar novos dados a base de dados
