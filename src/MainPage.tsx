@@ -3,7 +3,6 @@ import { Utilizador } from 'wasp/entities'
 import "./MainPage.css"
 
 export const MainPage = () => {
-  // Primeira query: Buscar todos os utilizadores e os dados da subscrição
   const { data: subscricaoInfo, isLoading, error } = useQuery(getSubscricaoInfo)
 
   return (
