@@ -28,14 +28,13 @@ const UtilizadoresTable = ({ utilizadores, subscricaoInfo }: { utilizadores: Uti
           <th>Nome</th>
           <th>NIF</th>
           <th>Estado da Subscrição</th>
-          <th>Detalhes</th> {/* Coluna para o botão de detalhes */}
+          <th>Detalhes</th> 
         </tr>
       </thead>
       <tbody>
         {utilizadores.map((utilizador, idx) => {
-          // Buscar a subscrição correspondente ao utilizador
           const subscricao = subscricaoInfo.find(s => s.utilizador.UtilizadorId === utilizador.UtilizadorId)
-          const estadoSubscricao = subscricao ? subscricao.subscricao.EstadoSubscricao : 'Sem subscrição'
+          const estadoSubscricao = subscricao ? subscricao.subscricao.EstadoSubscricao : 'Sem Subscrição'
 
           return (
             <tr key={idx}>
@@ -43,7 +42,7 @@ const UtilizadoresTable = ({ utilizadores, subscricaoInfo }: { utilizadores: Uti
               <td>{utilizador.NIF}</td>
               <td>{estadoSubscricao}</td>
               <td>
-                <button className="settings-button">...</button> {/* Botão de settings para detalhes */}
+                <button className="settings-button">...</button> 
               </td>
             </tr>
           )
