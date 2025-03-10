@@ -48,8 +48,6 @@ const UtilizadoresTable = ({ utilizadoresInfo }: UtilizadoresTableProps) => {
     return matchesNome && matchesNif && matchesSubscricao
   })
 
-  if (!filteredUtilizadores?.length) return <div>No Users</div>
-
   return (
     <table className="utilizadores-table">
       <thead>
