@@ -3,7 +3,9 @@ import { Utilizador } from 'wasp/entities'
 import "./MainPage.css"
 
 export const MainPage = () => {
+  // Buscar todos os utilizadores
   const { data: utilizadores, isLoading: isLoadingUtilizadores, error: errorUtilizadores } = useQuery(getUtilizadores)
+  // Buscar todas as subscrições
   const { data: subscricaoInfo, isLoading: isLoadingSubscricoes, error: errorSubscricoes } = useQuery(getSubscricaoInfo)
 
   return (
@@ -26,11 +28,12 @@ const UtilizadoresTable = ({ utilizadores, subscricaoInfo }: { utilizadores: Uti
           <th>Nome</th>
           <th>NIF</th>
           <th>Estado da Subscrição</th>
-          <th>Detalhes</th>
+          <th>Detalhes</th> {/* Coluna para o botão de detalhes */}
         </tr>
       </thead>
       <tbody>
         {utilizadores.map((utilizador, idx) => {
+          // Buscar a subscrição correspondente ao utilizador
           const subscricao = subscricaoInfo.find(s => s.utilizador.UtilizadorId === utilizador.UtilizadorId)
           const estadoSubscricao = subscricao ? subscricao.subscricao.EstadoSubscricao : 'Sem subscrição'
 
@@ -40,7 +43,7 @@ const UtilizadoresTable = ({ utilizadores, subscricaoInfo }: { utilizadores: Uti
               <td>{utilizador.NIF}</td>
               <td>{estadoSubscricao}</td>
               <td>
-                <button className="settings-button">...</button>
+                <button className="settings-button">...</button> {/* Botão de settings para detalhes */}
               </td>
             </tr>
           )
