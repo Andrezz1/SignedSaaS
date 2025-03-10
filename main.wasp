@@ -129,12 +129,13 @@ query getUtilizadoresInfo {
 }
 
 // As actions abaixo servem para adicionar novos dados a base de dados
-action createMorada {
-  fn: import { createMorada } from "@src/services/moradaService",
-  entities: [CodigoPostal, Morada]
-}
 
 action updateSubscricaoStatus {
   fn: import { updateSubscricaoStatus } from "@src/services/subscricaoService",
   entities: [Subscricao]
+}
+
+action createUtilizador {
+  fn: import { createUtilizador } from "@src/services/utilizadorService",
+  entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
 }

@@ -1,5 +1,5 @@
 import { Morada, CodigoPostal } from 'wasp/entities'
-import { type GetMorada, type GetMoradaInfo, type CreateMorada } from 'wasp/server/operations'
+import { type GetMorada, type GetMoradaInfo } from 'wasp/server/operations'
 import { getCodigoPostal } from './codigoPostalService'
 
 export const getMorada: GetMorada<void, Morada[]> = async (args, context) => {
@@ -23,35 +23,3 @@ export const getMoradaInfo: GetMoradaInfo<void, Array<{ morada: Morada, codigoPo
 
   return MoradaInfo
 }
-
-type CreateMoradaPayLoad = {
-  Concelho: string;               
-  Distrito: string;                
-  CodigoPostal: {                  
-    Localidade: string;            
-  };
-  CodigoPostalCodigoPostalId: number;
-};
-
-export const createMorada: CreateMorada<CreateMoradaPayLoad, Morada> = async (args, context) => {
-
-  let codigoPostal = await context.entities.CodigoPostal.findFirst({
-    where: { Localidade: args.CodigoPostal.Localidade },
-  });
-
-  if (!codigoPostal) {
-    codigoPostal = await context.entities.CodigoPostal.create({
-      data: { Localidade: args.CodigoPostal.Localidade },
-    });
-  }
-
-  const morada = await context.entities.Morada.create({
-    data: {
-      Concelho: args.Concelho,
-      Distrito: args.Distrito,
-      CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
-    },
-  });
-
-  return morada;
-};
