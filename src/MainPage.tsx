@@ -1,5 +1,5 @@
-import { Utilizador, CodigoPostal } from 'wasp/entities'
-import { createCodigoPostal, getUtilizadores, useQuery } from 'wasp/client/operations'
+import { Utilizador } from 'wasp/entities'
+import { getUtilizadores, useQuery } from 'wasp/client/operations'
 import { FormEvent } from 'react'
 
 export const MainPage = () => {
@@ -7,7 +7,6 @@ export const MainPage = () => {
 
   return (
     <div>
-      <NewCodigoPostalForm />
       {utilizadores && <UtilizadoresList utilizadores={utilizadores} />}
 
       {isLoading && 'Loading...'}
@@ -34,26 +33,5 @@ const UtilizadoresList = ({ utilizadores }: { utilizadores: Utilizador[] }) => {
         <UtilizadorView utilizador={utilizador} key={idx} />
       ))}
     </div>
-  )
-}
-
-const NewCodigoPostalForm = () => {
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    try {
-      const target = event.target as HTMLFormElement
-      const Localidade = target.Localidade.value
-      target.reset()
-      await createCodigoPostal({ Localidade })
-    } catch (err: any) {
-      window.alert('Error: ' + err.message)
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <input name="Localidade" type="text" defaultValue="" />
-      <input type="submit" value="Create task" />
-    </form>
   )
 }
