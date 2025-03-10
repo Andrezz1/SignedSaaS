@@ -51,4 +51,8 @@ const UtilizadoresTable = ({ utilizadores, subscricaoInfo }: { utilizadores: Uti
       </tbody>
     </table>
   )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 5b6e6b6830612362594f5fae392639a3181914f4

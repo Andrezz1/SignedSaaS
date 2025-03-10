@@ -24,7 +24,6 @@ route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPa
 page RequestPasswordResetPage {
   component: import { RequestPasswordReset } from "@src/pages/Auth.tsx",
 }
-
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
   component: import { PasswordReset } from "@src/pages/Auth.tsx",
@@ -128,5 +127,13 @@ query getUtilizadoresInfo {
   entities: [Utilizador, TipoUtilizador, Morada, Contacto]
 }
 
+// As actions abaixo servem para adicionar novos dados a base de dados
+action createMorada {
+  fn: import { createMorada } from "@src/services/moradaService",
+  entities: [CodigoPostal, Morada]
+}
 
-
+action updateSubscricaoStatus {
+  fn: import { updateSubscricaoStatus } from "@src/services/subscricaoService",
+  entities: [Subscricao]
+}
