@@ -1,5 +1,5 @@
 import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao } from 'wasp/entities'
-import { type GetUtilizadores, type GetUtilizadoresInfo } from 'wasp/server/operations'
+import { type GetUtilizadores, type GetUtilizadoresInfo, type CreateUtilizador } from 'wasp/server/operations'
 import { getTipoUtilizador } from './tipoUtilizadorService'
 import { getMorada } from './moradaService'
 import { getContacto } from './contactoService'
@@ -29,16 +29,85 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<void, Array<{
     const tipoUtilizador = tipoUtilizadores.find(tu => tu.TipoUtilizadorId === utilizador.TipoUtilizadorTipoUtilizadorId);
     const morada = moradas.find(m => m.MoradaId === utilizador.MoradaMoradaId);
     const contacto = contactos.find(c => c.ContactoId === utilizador.ContactoContactoId);
-    const utilizadorSubscricoes = subscricoes.filter(sub => sub.UtilizadorUtilizadorId === utilizador.UtilizadorId);
+    const subscricao = subscricoes.filter(s => s.UtilizadorUtilizadorId === utilizador.UtilizadorId);
 
     return {
       utilizador,
       tipoUtilizador: tipoUtilizador || { TipoUtilizadorId: -1, Descricao: 'Unknown' },
       morada: morada || { MoradaId: -1, Concelho: 'Unknown', Distrito: 'Unknown', CodigoPostalCodigoPostalId: -1 },
       contacto: contacto || { ContactoId: -1, Email: 'Unknown', Telemovel: 'Unknown' },
-      subscricoes: utilizadorSubscricoes || []
+      subscricoes: subscricao || []
     };
   });
   
   return UtilizadoresInfo;
+};
+
+export type CreateUtilizadorPayload = {
+  Nome: string;
+  DataNascimento: Date;
+  NIF: string;
+  PalavraPasse: string;
+  TipoUtilizadorId: number;
+  Morada: {
+    Concelho: string;
+    Distrito: string;
+    CodigoPostal: {
+      Localidade: string;
+    };
+  };
+  Contacto: {
+    Email: string;
+    Telemovel: string;
+  };
+};
+
+
+export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utilizador> = async (
+  args: CreateUtilizadorPayload,
+  context: { entities: any }
+) => {
+
+  let codigoPostal = await context.entities.CodigoPostal.findFirst({
+    where: { Localidade: args.Morada.CodigoPostal.Localidade },
+  });  
+
+  if (!codigoPostal) {
+    codigoPostal = await context.entities.CodigoPostal.create({
+      data: { Localidade: args.Morada.CodigoPostal.Localidade },
+    });
+  }
+
+  const morada = await context.entities.Morada.create({
+    data: {
+      Concelho: args.Morada.Concelho,
+      Distrito: args.Morada.Distrito,
+      CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
+    },
+  });
+
+  let contacto = await context.entities.Contacto.findUnique({
+    where: { Email: args.Contacto.Email },
+  });
+  
+    contacto = await context.entities.Contacto.create({
+      data: {
+        Email: args.Contacto.Email,
+        Telemovel: args.Contacto.Telemovel,
+      },
+    });
+
+  const utilizador = await context.entities.Utilizador.create({
+    data: {
+      Nome: args.Nome,
+      DataNascimento: new Date(args.DataNascimento),
+      NIF: args.NIF,
+      PalavraPasse: args.PalavraPasse,
+      MoradaMoradaId: morada.MoradaId,
+      ContactoContactoId: contacto.ContactoId,
+      TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId
+    }
+  });
+
+  return utilizador;
 };
