@@ -1,5 +1,5 @@
 import { Subscricao, Utilizador, Pagamento, TipoSubscricao } from 'wasp/entities'
-import { type GetSubscricao, GetSubscricaoInfo } from 'wasp/server/operations'
+import { type GetSubscricao, type GetSubscricaoInfo, type UpdateSubscricaoStatus } from 'wasp/server/operations'
 import { getUtilizadores } from './utilizadorService'
 import { getPagamento } from './pagamentoService'
 import { getTipoSubscricao } from './tipoSubscricaoService'
@@ -30,3 +30,29 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{ subscricao: Subs
   
   return SubscricaoInfo
 }
+
+type UpdateSubscricaoStatusPayLoad = Pick<Subscricao, 'EstadoSubscricao' | 'SubscricaoId'>
+
+export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStatusPayLoad, Subscricao> = async (
+  { SubscricaoId }: any,
+  context: { entities: { Subscricao: { 
+    findUnique: (arg0: { where: { SubscricaoId: any } }) => Promise<{ DataFim: Date | null } | null>,
+    update: (arg0: { where: { SubscricaoId: any }; data: { EstadoSubscricao: boolean } }) => any 
+  } } }
+) => {
+  const subscricao = await context.entities.Subscricao.findUnique({
+    where: { SubscricaoId },
+  });
+
+  if (!subscricao) {
+    throw new Error("Subscription not found");
+  }
+
+  const currentDate = new Date();
+  const estadoAtualizado = subscricao.DataFim && new Date(subscricao.DataFim) < currentDate ? false : true;
+
+  return context.entities.Subscricao.update({
+    where: { SubscricaoId },
+    data: { EstadoSubscricao: estadoAtualizado },
+  });
+};

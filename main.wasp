@@ -101,3 +101,20 @@ query getUtilizadoresInfo {
   fn: import { getUtilizadoresInfo } from "@src/services/utilizadorService",
   entities: [Utilizador, TipoUtilizador, Morada, Contacto]
 }
+
+// As actions abaixo servem para adicionar novos dados a base de dados
+
+action createCodigoPostal {
+  fn: import { createCodigoPostal } from "@src/services/codigoPostalService",
+  entities: [CodigoPostal]
+}
+
+action createMorada {
+  fn: import { createMorada } from "@src/services/moradaService",
+  entities: [CodigoPostal, Morada]
+}
+
+action updateSubscricaoStatus {
+  fn: import { updateSubscricaoStatus } from "@src/services/subscricaoService",
+  entities: [Subscricao]
+}
