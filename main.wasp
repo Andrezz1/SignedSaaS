@@ -2,7 +2,7 @@ app SignedProject {
   wasp: {
     version: "^0.16.2"
   },
-  title: "SignedProject"
+  title: "SignedProject",
 }
 
 route RootRoute { path: "/", to: MainPage }
@@ -36,7 +36,6 @@ page EmailVerificationPage {
 */
 
 // As queries abaixo apenas obtêm os dados de cada tabela
-
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
   entities: [CodigoPostal]

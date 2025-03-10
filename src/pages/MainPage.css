@@ -10,7 +10,7 @@
   
   .utilizadores-table th, .utilizadores-table td {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     text-align: left;
   }
   
@@ -20,4 +20,23 @@
   
   .error {
     color: red;
+  }
+
+  .filters-row th {
+    padding: 5px;
+    background-color: white;
+    border: none;
+  }
+  
+  .filter-input,
+  .filter-select {
+    width: 94%;
+    padding: 5px;
+    font-size: 14px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .filter-select {
+    height: 30px;
   }
