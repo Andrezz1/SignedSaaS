@@ -113,3 +113,8 @@ action createMorada {
   fn: import { createMorada } from "@src/services/moradaService",
   entities: [CodigoPostal, Morada]
 }
+
+action updateSubscricaoStatus {
+  fn: import { updateSubscricaoStatus } from "@src/services/subscricaoService",
+  entities: [Subscricao]
+}
