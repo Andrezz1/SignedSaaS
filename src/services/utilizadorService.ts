@@ -74,7 +74,7 @@ export type CreateUtilizadorPayload = {
 
 export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utilizador> = async (
   args: CreateUtilizadorPayload,
-  context: { entities: any }
+  context
 ) => {
 
   let codigoPostal = await context.entities.CodigoPostal.findFirst({
