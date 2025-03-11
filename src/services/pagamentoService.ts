@@ -8,7 +8,10 @@ export const getPagamento: GetPagamento<void, Pagamento[]> = async (args, contex
   })
 }
 
-export const getPagamentoInfo: GetPagamentoInfo<void, Array<{ pagamento: Pagamento, utilizador: Utilizador }>> = async (args, context) => {
+export const getPagamentoInfo: GetPagamentoInfo<void, Array<{ 
+  pagamento: Pagamento, 
+  utilizador: Utilizador 
+}>> = async (args, context) => {
     const pagamentos = await getPagamento(args, context)
     const utilizadores = await getUtilizadores(args, context)
 

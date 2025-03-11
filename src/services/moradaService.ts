@@ -8,7 +8,10 @@ export const getMorada: GetMorada<void, Morada[]> = async (args, context) => {
   })
 }
 
-export const getMoradaInfo: GetMoradaInfo<void, Array<{ morada: Morada, codigoPostal: CodigoPostal}>> = async (args, context) => {
+export const getMoradaInfo: GetMoradaInfo<void, Array<{ 
+  morada: Morada, 
+  codigoPostal: CodigoPostal
+}>> = async (args, context) => {
   const moradas = await getMorada(args, context)
   const codigosPostais = await getCodigoPostal(args, context)
 

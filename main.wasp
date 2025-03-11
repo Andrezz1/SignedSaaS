@@ -91,7 +91,7 @@ query getUtilizadores {
   entities: [Utilizador]
 }
 
-// As queries Abaixo obtêm os dados de multiplas tabelas
+// As queries Abaixo obtêm dados de multiplas tabelas
 query getComprovativoInfo {
   fn: import { getComprovativoInfo } from "@src/services/comprovativoService",
   entities: [Comprovativo, Pagamento, Subscricao, Utilizador]
@@ -127,14 +127,21 @@ query getUtilizadoresInfo {
   entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao]
 }
 
-// As actions abaixo servem para adicionar novos dados a base de dados
-
-action updateSubscricaoStatus {
-  fn: import { updateSubscricaoStatus } from "@src/services/subscricaoService",
-  entities: [Subscricao]
+query getUtilizadorNIF {
+  fn: import {getUtilizadorNIF } from "@src/services/utilizadorService",
+  entities: [Utilizador]
 }
+
+// As actions abaixo servem para adicionar novos dados a base de dados
 
 action createUtilizador {
   fn: import { createUtilizador } from "@src/services/utilizadorService",
   entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
+}
+
+// As actions abaixo servem para alterar dados da base de dados
+
+action updateSubscricaoStatus {
+  fn: import { updateSubscricaoStatus } from "@src/services/subscricaoService",
+  entities: [Subscricao]
 }

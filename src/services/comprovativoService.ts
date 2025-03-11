@@ -10,7 +10,12 @@ export const getComprovativo: GetComprovativo<void, Comprovativo[]> = async (arg
   })
 }
 
-export const getComprovativoInfo: GetComprovativoInfo<void, Array<{ comprovativo: Comprovativo, utilizador: Utilizador, pagamento: Pagamento, subscricao: Subscricao}>> = async (args, context) => {
+export const getComprovativoInfo: GetComprovativoInfo<void, Array<{ 
+  comprovativo: Comprovativo, 
+  utilizador: Utilizador, 
+  pagamento: Pagamento, 
+  subscricao: Subscricao
+}>> = async (args, context) => {
     const comprovativos = await getComprovativo(args, context)
     const utilizadores = await getUtilizadores(args, context)
     const pagamentos = await getPagamento(args, context)
