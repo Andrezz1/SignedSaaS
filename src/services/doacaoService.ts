@@ -8,7 +8,10 @@ export const getDoacao: GetDoacao<void, Doacao[]> = async (args, context) => {
   })
 }
 
-export const getDoacaoInfo: GetDoacaoInfo<void, Array<{ doacao: Doacao, utilizador: Utilizador }>> = async (args, context) => {
+export const getDoacaoInfo: GetDoacaoInfo<void, Array<{ 
+  doacao: Doacao, 
+  utilizador: Utilizador 
+}>> = async (args, context) => {
     const doacoes = await getDoacao(args, context)
     const utilizadores = await getUtilizadores(args, context)
 

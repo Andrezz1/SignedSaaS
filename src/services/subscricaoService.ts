@@ -10,7 +10,12 @@ export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (args, con
   })
 }
 
-export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{ subscricao: Subscricao, utilizador: Utilizador, pagamento: Pagamento, tipoSubscricao: TipoSubscricao }>> = async (args, context) => {
+export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{ 
+  subscricao: Subscricao, 
+  utilizador: Utilizador, 
+  pagamento: Pagamento, 
+  tipoSubscricao: TipoSubscricao
+}>> = async (args, context) => {
     const subscricoes = await getSubscricao(args, context)
     const utilizadores = await getUtilizadores(args, context)
     const pagamentos = await getPagamento(args, context)
