@@ -8,9 +8,9 @@ export const getDetalheSubscricao: GetDetalheSubscricao<void, DetalheSubscricao[
 }
 
 export const getDetalheSubscricaoInfo: GetDetalheSubscricaoInfo<void, Array<{ 
-  detalheSubscricao: DetalheSubscricao, 
-  subscricao: Subscricao, 
-  tipoSubscricao: TipoSubscricao 
+  detalheSubscricao: DetalheSubscricao,
+  subscricao: Subscricao,
+  tipoSubscricao: TipoSubscricao
 }>> = async (_args, context) => {
   const detalhesSubscricoes = await context.entities.DetalheSubscricao.findMany({
     include: {
