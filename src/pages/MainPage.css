@@ -1,11 +1,14 @@
 .container {
     padding: 20px;
+    overflow-x: auto;
   }
   
   .utilizadores-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: fixed;
+    word-wrap: break-word;
   }
   
   .utilizadores-table th, .utilizadores-table td {
@@ -14,6 +17,31 @@
     text-align: left;
   }
   
+  .utilizadores-table th:nth-child(1), 
+  .utilizadores-table td:nth-child(1) {
+    width: 35%; /* Nome */
+    min-width: 150px;
+  }
+  
+ 
+  .utilizadores-table th:nth-child(2), 
+  .utilizadores-table td:nth-child(2),
+  .utilizadores-table th:nth-child(3), 
+  .utilizadores-table td:nth-child(3), 
+  .utilizadores-table th:nth-child(4), 
+  .utilizadores-table td:nth-child(4) {
+    width: 20%;
+    min-width: 120px;
+  }
+  
+  .utilizadores-table th:nth-child(5), 
+  .utilizadores-table td:nth-child(5) {
+    width: 2%;
+    min-width: 80px;
+    border: none;
+    background-color: white;
+  }
+
   .utilizadores-table th {
     background-color: #f4f4f4;
   }
