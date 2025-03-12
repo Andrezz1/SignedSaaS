@@ -34,10 +34,10 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
 type UpdateSubscricaoStatusPayLoad = Pick<Subscricao, 'EstadoSubscricao' | 'SubscricaoId'>
 
 export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStatusPayLoad, Subscricao> = async (
-  { SubscricaoId }: any,
+  { SubscricaoId },
   context: { entities: { Subscricao: { 
     findUnique: (arg: { where: { SubscricaoId: any } }) => Promise<{ DataFim: Date | null } | null>,
-    update: (arg: { where: { SubscricaoId: any }; data: { EstadoSubscricao: boolean } }) => any 
+    update: (arg: { where: { SubscricaoId: any }; data: { EstadoSubscricao: boolean } }) => any,
   } } }
 ) => {
   const subscricao = await context.entities.Subscricao.findUnique({
