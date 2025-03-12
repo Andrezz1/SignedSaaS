@@ -1,5 +1,5 @@
 import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao } from 'wasp/entities'
-import { type GetUtilizadores, type GetUtilizadorNIF, type GetUtilizadoresInfo, type CreateUtilizador } from 'wasp/server/operations'
+import { type GetUtilizadores, type GetUtilizadorByNIF, type GetUtilizadoresInfo, type CreateUtilizador } from 'wasp/server/operations'
 import { getTipoUtilizador } from './tipoUtilizadorService'
 import { getMorada } from './moradaService'
 import { getContacto } from './contactoService'
@@ -11,7 +11,7 @@ export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (args,
   })
 }
 
-export const getUtilizadorNIF: GetUtilizadorNIF<Pick<Utilizador, 'NIF'>, Utilizador[]
+export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF'>, Utilizador[]
 > = async (args, context) => {
   if(!args.NIF) return []
 
