@@ -1,11 +1,7 @@
 import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao } from 'wasp/entities'
 import { type GetUtilizadores, type GetUtilizadorByNIF, type GetUtilizadoresInfo, type CreateUtilizador } from 'wasp/server/operations'
-import { getTipoUtilizador } from './tipoUtilizadorService'
-import { getMorada } from './moradaService'
-import { getContacto } from './contactoService'
-import { getSubscricao } from './subscricaoService'
 
-export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (args, context) => {
+export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (_args, context) => {
   return context.entities.Utilizador.findMany({
     orderBy: { UtilizadorId: 'asc' },
   })
@@ -26,30 +22,25 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<void, Array<{
   morada: Morada, 
   contacto: Contacto,
   subscricoes: Subscricao[]
-}>> = async (args, context) => {
-  
-  const utilizadores = await getUtilizadores(args, context)
-  const tipoUtilizadores = await getTipoUtilizador(args, context)
-  const moradas = await getMorada(args, context)
-  const contactos = await getContacto(args, context)
-  const subscricoes = await getSubscricao(args, context)
-
-  const UtilizadoresInfo = utilizadores.map(utilizador => {
-    const tipoUtilizador = tipoUtilizadores.find(tu => tu.TipoUtilizadorId === utilizador.TipoUtilizadorTipoUtilizadorId)
-    const morada = moradas.find(m => m.MoradaId === utilizador.MoradaMoradaId)
-    const contacto = contactos.find(c => c.ContactoId === utilizador.ContactoContactoId)
-    const subscricao = subscricoes.filter(s => s.UtilizadorUtilizadorId === utilizador.UtilizadorId)
-
-    return {
-      utilizador,
-      tipoUtilizador: tipoUtilizador || { TipoUtilizadorId: -1, Descricao: 'Unknown' },
-      morada: morada || { MoradaId: -1, Concelho: 'Unknown', Distrito: 'Unknown', CodigoPostalCodigoPostalId: -1 },
-      contacto: contacto || { ContactoId: -1, Email: 'Unknown', Telemovel: 'Unknown' },
-      subscricoes: subscricao || []
+}>> = async (_args, context) => {
+  const utilizadores = await context.entities.Utilizador.findMany({
+    include: {
+      TipoUtilizador: true, 
+      Morada: true,
+      Contacto: true, 
+      Subscricoes: true, 
     }
   })
-  
-  return UtilizadoresInfo
+
+  const UtilizadoresInfo = utilizadores.map(({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
+    utilizador,
+    tipoUtilizador: TipoUtilizador,
+    morada: Morada,
+    contacto: Contacto,
+    subscricoes: Subscricoes, 
+  }))
+
+  return UtilizadoresInfo;
 }
 
 export type CreateUtilizadorPayload = {
@@ -80,7 +71,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
     data: {
       Email: args.Contacto.Email,
       Telemovel: args.Contacto.Telemovel,
-    },
+    }
   })
 
   let codigoPostal = await context.entities.CodigoPostal.findFirst({
@@ -103,7 +94,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
         Concelho: args.Morada.Concelho,
         Distrito: args.Morada.Distrito,
         CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
-      },
+      }
     })
   }
 

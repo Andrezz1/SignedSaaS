@@ -11,19 +11,19 @@ export const getDetalheSubscricaoInfo: GetDetalheSubscricaoInfo<void, Array<{
   detalheSubscricao: DetalheSubscricao, 
   subscricao: Subscricao, 
   tipoSubscricao: TipoSubscricao 
-}>> = async (args, context) => {
+}>> = async (_args, context) => {
   const detalhesSubscricoes = await context.entities.DetalheSubscricao.findMany({
     include: {
       Subscricao: true,
       TipoSubscricao: true,
-    },
-  });
+    }
+  })
 
-  const detalheSubscricaoInfo = detalhesSubscricoes.map(detalheSubscricao => ({
+  const detalheSubscricaoInfo = detalhesSubscricoes.map(({ Subscricao, TipoSubscricao, ...detalheSubscricao }) => ({
     detalheSubscricao,
-    subscricao: detalheSubscricao.Subscricao,
-    tipoSubscricao: detalheSubscricao.TipoSubscricao,
-  }));
+    subscricao: Subscricao,
+    tipoSubscricao: TipoSubscricao,
+  }))
 
-  return detalheSubscricaoInfo;
-};
+  return detalheSubscricaoInfo
+}

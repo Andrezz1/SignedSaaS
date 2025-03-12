@@ -1,8 +1,7 @@
 import { Doacao, Utilizador } from 'wasp/entities'
 import { type GetDoacao, type GetDoacaoInfo } from 'wasp/server/operations'
-import { getUtilizadores } from './utilizadorService'
 
-export const getDoacao: GetDoacao<void, Doacao[]> = async (args, context) => {
+export const getDoacao: GetDoacao<void, Doacao[]> = async (_args, context) => {
   return context.entities.Doacao.findMany({
     orderBy: { DoacaoId: 'asc' },
   })
@@ -11,17 +10,17 @@ export const getDoacao: GetDoacao<void, Doacao[]> = async (args, context) => {
 export const getDoacaoInfo: GetDoacaoInfo<void, Array<{ 
   doacao: Doacao, 
   utilizador: Utilizador 
-}>> = async (args, context) => {
-    const doacoes = await getDoacao(args, context)
-    const utilizadores = await getUtilizadores(args, context)
+}>> = async (_args, context) => {
+    const doacoes = await context.entities.Doacao.findMany({
+      include: {
+        Utilizador: true,
+      }
+    })
 
-    const DoacaoInfo = doacoes.map(doacao => {
-    const utilizador = utilizadores.find(u => u.UtilizadorId === doacao.UtilizadorUtilizadorId)
-    return {
+    const DoacaoInfo = doacoes.map (({ Utilizador, ...doacao }) => ({
       doacao,
-      utilizador: utilizador || { UtilizadorId: -1, Nome: 'Unknown', DataNascimento: new Date(0), NIF: 'Unknown', PalavraPasse: 'Unknown', MoradaMoradaId: -1, ContactoContactoId: -1, TipoUtilizadorTipoUtilizadorId: -1 },
-    }
-  })
-  
+      utilizador: Utilizador,
+  }))
+
   return DoacaoInfo
 }
