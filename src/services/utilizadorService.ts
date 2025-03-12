@@ -93,13 +93,19 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
     })
   }
 
-  const morada = await context.entities.Morada.create({
-    data: {
-      Concelho: args.Morada.Concelho,
-      Distrito: args.Morada.Distrito,
-      CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
-    },
+  let morada = await context.entities.Morada.findFirst({
+    where: { Concelho: args.Morada.Concelho }
   })
+
+  if (!morada) {
+    morada = await context.entities.Morada.create({
+      data: {
+        Concelho: args.Morada.Concelho,
+        Distrito: args.Morada.Distrito,
+        CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
+      },
+    })
+  }
 
   const utilizador = await context.entities.Utilizador.create({
     data: {
