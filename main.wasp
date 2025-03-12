@@ -133,9 +133,16 @@ query getUtilizadoresInfo {
   entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao]
 }
 
-query getUtilizadorNIF {
-  fn: import {getUtilizadorNIF } from "@src/services/utilizadorService",
+// As queries abaixo são queries com filtros
+
+query getUtilizadorByNIF {
+  fn: import { getUtilizadorByNIF } from "@src/services/utilizadorService",
   entities: [Utilizador]
+}
+
+query getComprovativoByUtilizadorId {
+  fn: import { getComprovativoByUtilizadorId } from "@src/services/comprovativoService",
+  entities: [Utilizador, Comprovativo]
 }
 
 // As actions abaixo servem para adicionar novos dados a base de dados

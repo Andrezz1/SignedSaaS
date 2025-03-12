@@ -1,5 +1,5 @@
 import { Comprovativo, Utilizador, Pagamento, Subscricao } from 'wasp/entities'
-import { type GetComprovativo, type GetComprovativoInfo } from 'wasp/server/operations'
+import { type GetComprovativo, type GetComprovativoInfo, type GetComprovativoByUtilizadorId } from 'wasp/server/operations'
 import { getPagamento } from './pagamentoService'
 import { getSubscricao } from './subscricaoService'
 import { getUtilizadores } from './utilizadorService'
@@ -10,10 +10,10 @@ export const getComprovativo: GetComprovativo<void, Comprovativo[]> = async (arg
   })
 }
 
-export const getComprovativoInfo: GetComprovativoInfo<void, Array<{ 
-  comprovativo: Comprovativo, 
-  utilizador: Utilizador, 
-  pagamento: Pagamento, 
+export const getComprovativoInfo: GetComprovativoInfo<void, Array<{
+  comprovativo: Comprovativo,
+  utilizador: Utilizador,
+  pagamento: Pagamento,
   subscricao: Subscricao
 }>> = async (args, context) => {
     const comprovativos = await getComprovativo(args, context)
@@ -35,3 +35,16 @@ export const getComprovativoInfo: GetComprovativoInfo<void, Array<{
   
   return ComprovativoInfo
 }
+
+export const getComprovativoByUtilizadorId: GetComprovativoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Comprovativo[]>
+  = async (args, context) => {
+    if (!args.UtilizadorId) return [];
+
+    return context.entities.Comprovativo.findMany({
+      where: { UtilizadorUtilizadorId: args.UtilizadorId },
+      include: {
+        Pagamento: true,
+        Subscricao: true,
+      },
+    });
+  };

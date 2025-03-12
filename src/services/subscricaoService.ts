@@ -45,7 +45,6 @@ export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStat
     update: (arg: { where: { SubscricaoId: any }; data: { EstadoSubscricao: boolean } }) => any 
   } } }
 ) => {
-  // Isto vai buscar a DataFim igual que pertence ao SubscricaoId
   const subscricao = await context.entities.Subscricao.findUnique({
     where: { SubscricaoId },
   })
@@ -55,8 +54,7 @@ export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStat
   }
   
   const currentDate = new Date()
-  // Isto compara a DataFim com o horário atual e altera o estado da subscricao conforme
-  const estadoAtualizado = subscricao.DataFim && new Date(subscricao.DataFim) < currentDate ? false : true
+    const estadoAtualizado = subscricao.DataFim && new Date(subscricao.DataFim) < currentDate ? false : true
 
   return context.entities.Subscricao.update({
     where: { SubscricaoId },
