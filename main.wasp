@@ -5,10 +5,16 @@ app SignedProject {
   title: "SignedProject",
 }
 
-route RootRoute { path: "/", to: MainPage }
+route MainRoute { path: "/", to: MainPage }
 page MainPage {
   component: import { MainPage } from "@src/pages/MainPage"
 }
+
+route RootRoute { path: "/signup", to: SignUpPage }
+page SignUpPage {
+  component: import { Signup } from "@src/pages/auth/SignUp"
+}
+
 /*
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
