@@ -28,17 +28,17 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<void, Array<{
   subscricoes: Subscricao[]
 }>> = async (args, context) => {
   
-  const utilizadores = await getUtilizadores(args, context);
-  const tipoUtilizadores = await getTipoUtilizador(args, context);
-  const moradas = await getMorada(args, context);
-  const contactos = await getContacto(args, context);
-  const subscricoes = await getSubscricao(args, context);
+  const utilizadores = await getUtilizadores(args, context)
+  const tipoUtilizadores = await getTipoUtilizador(args, context)
+  const moradas = await getMorada(args, context)
+  const contactos = await getContacto(args, context)
+  const subscricoes = await getSubscricao(args, context)
 
   const UtilizadoresInfo = utilizadores.map(utilizador => {
-    const tipoUtilizador = tipoUtilizadores.find(tu => tu.TipoUtilizadorId === utilizador.TipoUtilizadorTipoUtilizadorId);
-    const morada = moradas.find(m => m.MoradaId === utilizador.MoradaMoradaId);
-    const contacto = contactos.find(c => c.ContactoId === utilizador.ContactoContactoId);
-    const subscricao = subscricoes.filter(s => s.UtilizadorUtilizadorId === utilizador.UtilizadorId);
+    const tipoUtilizador = tipoUtilizadores.find(tu => tu.TipoUtilizadorId === utilizador.TipoUtilizadorTipoUtilizadorId)
+    const morada = moradas.find(m => m.MoradaId === utilizador.MoradaMoradaId)
+    const contacto = contactos.find(c => c.ContactoId === utilizador.ContactoContactoId)
+    const subscricao = subscricoes.filter(s => s.UtilizadorUtilizadorId === utilizador.UtilizadorId)
 
     return {
       utilizador,
@@ -46,45 +46,51 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<void, Array<{
       morada: morada || { MoradaId: -1, Concelho: 'Unknown', Distrito: 'Unknown', CodigoPostalCodigoPostalId: -1 },
       contacto: contacto || { ContactoId: -1, Email: 'Unknown', Telemovel: 'Unknown' },
       subscricoes: subscricao || []
-    };
-  });
+    }
+  })
   
-  return UtilizadoresInfo;
-};
+  return UtilizadoresInfo
+}
 
 export type CreateUtilizadorPayload = {
-  Nome: string;
-  DataNascimento: Date;
-  NIF: string;
-  PalavraPasse: string;
-  TipoUtilizadorId: number;
+  Nome: string
+  DataNascimento: Date
+  NIF: string
+  PalavraPasse: string
+  TipoUtilizadorId: number
   Morada: {
-    Concelho: string;
-    Distrito: string;
+    Concelho: string
+    Distrito: string
     CodigoPostal: {
-      Localidade: string;
-    };
-  };
+      Localidade: string
+    }
+  }
   Contacto: {
-    Email: string;
-    Telemovel: string;
-  };
-};
-
+    Email: string
+    Telemovel: string
+  }
+}
 
 export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utilizador> = async (
-  args: CreateUtilizadorPayload,
+  args,
   context
 ) => {
+  
+  const contacto = await context.entities.Contacto.create({
+    data: {
+      Email: args.Contacto.Email,
+      Telemovel: args.Contacto.Telemovel,
+    },
+  })
 
   let codigoPostal = await context.entities.CodigoPostal.findFirst({
     where: { Localidade: args.Morada.CodigoPostal.Localidade },
-  });  
+  })
 
   if (!codigoPostal) {
     codigoPostal = await context.entities.CodigoPostal.create({
       data: { Localidade: args.Morada.CodigoPostal.Localidade },
-    });
+    })
   }
 
   const morada = await context.entities.Morada.create({
@@ -93,18 +99,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
       Distrito: args.Morada.Distrito,
       CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
     },
-  });
-
-  let contacto = await context.entities.Contacto.findUnique({
-    where: { Email: args.Contacto.Email },
-  });
-  
-    contacto = await context.entities.Contacto.create({
-      data: {
-        Email: args.Contacto.Email,
-        Telemovel: args.Contacto.Telemovel,
-      },
-    });
+  })
 
   const utilizador = await context.entities.Utilizador.create({
     data: {
@@ -116,7 +111,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
       ContactoContactoId: contacto.ContactoId,
       TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId
     }
-  });
+  })
 
-  return utilizador;
-};
+  return utilizador
+}
