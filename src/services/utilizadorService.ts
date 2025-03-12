@@ -9,8 +9,6 @@ export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (_args
 
 export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF'>, Utilizador[]
 > = async (args, context) => {
-  if(!args.NIF) return []
-
   return context.entities.Utilizador.findMany({
     where: { NIF: args.NIF}
   })

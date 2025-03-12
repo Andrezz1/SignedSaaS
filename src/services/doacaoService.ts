@@ -11,15 +11,15 @@ export const getDoacaoInfo: GetDoacaoInfo<void, Array<{
   doacao: Doacao, 
   utilizador: Utilizador 
 }>> = async (_args, context) => {
-    const doacoes = await context.entities.Doacao.findMany({
-      include: {
-        Utilizador: true,
-      }
-    })
+  const doacoes = await context.entities.Doacao.findMany({
+    include: {
+      Utilizador: true,
+    }
+  })
 
-    const DoacaoInfo = doacoes.map (({ Utilizador, ...doacao }) => ({
-      doacao,
-      utilizador: Utilizador,
+  const DoacaoInfo = doacoes.map (({ Utilizador, ...doacao }) => ({
+    doacao,
+    utilizador: Utilizador,
   }))
 
   return DoacaoInfo
