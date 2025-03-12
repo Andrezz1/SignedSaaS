@@ -34,8 +34,30 @@ export function Signup() {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "nif" || name === "telemovel") {
+      const numericValue = value.replace(/\D/g, "").slice(0, 9);
+      setFormData({ ...formData, [name]: numericValue });
+      return;
+    }
+    if (name === "name" || name === "concelho" || name === "distrito") {
+      const onlyLetters = value.replace(/[^A-Za-zÀ-ÿ\s]/g, "");
+      setFormData({ ...formData, [name]: onlyLetters });
+      return;
+    }
+    if (name === "localidade") {
+      let numericValue = value.replace(/\D/g, "").slice(0, 7);
+      if (numericValue.length > 4) {
+        numericValue = numericValue.slice(0, 4) + "-" + numericValue.slice(4);
+      }
+      setFormData({ ...formData, [name]: numericValue });
+      return;
+    }
+  
+    setFormData({ ...formData, [name]: value });
   };
+  
+  
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({ ...formData, tipoUtilizadorId: e.target.value }); 
   };
@@ -79,7 +101,7 @@ export function Signup() {
           <input
             type="text"
             name="name"
-            placeholder="Nome"
+            placeholder="Nome Completo"
             value={formData.name}
             onChange={handleChange}
             required
@@ -107,6 +129,7 @@ export function Signup() {
             value={formData.telemovel}
             onChange={handleChange}
             required
+            maxLength={9}
           />
           <input
             type="text"
@@ -115,6 +138,7 @@ export function Signup() {
             value={formData.nif}
             onChange={handleChange}
             required
+            maxLength={9}
           />
           <input
             type="date"
@@ -142,7 +166,7 @@ export function Signup() {
           <input
             type="text"
             name="localidade"
-            placeholder="Código Postal"
+            placeholder="Código Postal (xxxx-xxx)"
             value={formData.localidade}
             onChange={handleChange}
             required
