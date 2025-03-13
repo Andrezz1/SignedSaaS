@@ -143,13 +143,9 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     }
   })
 
-  if (!utilizador) {
-    throw new Error('Utilizador nao encontrado');
-  }
-
   if (args.Contacto) {
     await context.entities.Contacto.update({
-      where: { ContactoId: utilizador.ContactoContactoId },
+      where: { ContactoId: utilizador?.ContactoContactoId },
       data: {
         Email: args.Contacto.Email,
         Telemovel: args.Contacto.Telemovel,
@@ -174,7 +170,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
 
   if (args.Morada) {
     await context.entities.Morada.update({
-      where: { MoradaId: utilizador.MoradaMoradaId },
+      where: { MoradaId: utilizador?.MoradaMoradaId },
       data: {
         Concelho: args.Morada.Concelho,
         Distrito: args.Morada.Distrito,
