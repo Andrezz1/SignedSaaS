@@ -7,7 +7,7 @@ app SignedProject {
 
 route MainRoute { path: "/mainpage", to: MainPage }
 page MainPage {
-  component: import { MainPage } from "@src/pages/MainPage"
+  component: import { MainPage } from "@src/pages/mainPage/MainPage"
 }
 
 route SignUpRoute { path: "/signup", to: SignUpPage }

@@ -57,10 +57,10 @@ export function Signup() {
     setFormData({ ...formData, [name]: value });
   };
   
-  
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({ ...formData, tipoUtilizadorId: e.target.value }); 
   };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -92,11 +92,12 @@ export function Signup() {
       alert("Registo falhou. Por favor, tente novamente.");
     }
   };
+
   return (
     <div className="signup-page">  
       <div className="signup-container">
-        <h2>Registe um novo Utilizador</h2>
-        <p className="subtitle">Preencha os dados</p>
+        <h2 className="signup-title">Registe um novo Utilizador</h2>
+        <p className="signup-subtitle">Preencha os dados</p>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -104,6 +105,7 @@ export function Signup() {
             placeholder="Nome Completo"
             value={formData.name}
             onChange={handleChange}
+            className="signup-input"
             required
           />
           <input
@@ -112,6 +114,7 @@ export function Signup() {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
+            className="signup-input"
             required
           />
           <input
@@ -120,16 +123,19 @@ export function Signup() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            className="signup-input"
             required
           />
           <input
             type="text"
             name="telemovel"
-            placeholder="Telemovel"
+            placeholder="Nº Telemóvel"
             value={formData.telemovel}
             onChange={handleChange}
+            className="signup-input"
             required
             maxLength={9}
+            minLength={9}
           />
           <input
             type="text"
@@ -137,14 +143,18 @@ export function Signup() {
             placeholder="NIF"
             value={formData.nif}
             onChange={handleChange}
+            className="signup-input"
             required
             maxLength={9}
+            minLength={9}
           />
           <input
             type="date"
             name="dataNascimento"
+            placeholder="Data de Nascimento"
             value={formData.dataNascimento}
             onChange={handleChange}
+            className="signup-input"
             required
           />
           <input
@@ -153,6 +163,7 @@ export function Signup() {
             placeholder="Concelho"
             value={formData.concelho}
             onChange={handleChange}
+            className="signup-input"
             required
           />
           <input
@@ -161,30 +172,33 @@ export function Signup() {
             placeholder="Distrito"
             value={formData.distrito}
             onChange={handleChange}
+            className="signup-input"
             required
           />
           <input
             type="text"
             name="localidade"
-            placeholder="Código Postal (xxxx-xxx)"
+            placeholder="Código Postal"
             value={formData.localidade}
             onChange={handleChange}
+            className="signup-input"
             required
+            maxLength={8}
           />
           <select
             name="tipoUtilizadorId"
-            value={formData.tipoUtilizadorId}
             onChange={handleSelectChange}
+            className="signup-select"
             required
           >
-            <option value="">Selecione o tipo de utilizador</option>
+            <option value="">Selecione o Tipo de Utilizador</option>
             {tipoUtilizador.map((tipo) => (
               <option key={tipo.TipoUtilizadorId} value={tipo.TipoUtilizadorId}>
                 {tipo.Descricao}
               </option>
             ))}
           </select>
-          <button type="submit">Adicionar Utilizador</button>
+          <button type="submit" className="signup-submit-button">Registar</button>
         </form>
       </div>
     </div>
