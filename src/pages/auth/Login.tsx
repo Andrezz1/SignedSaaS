@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUtilizadoresInfo } from "wasp/client/operations"; // A sua nova query getUtilizadoresInfo
+import { getUtilizadoresInfo } from "wasp/client/operations"; 
 import './Login.css';
 
 export function Login() {
@@ -50,8 +50,8 @@ export function Login() {
   return (
     <div className="login-page">
       <div className="login-container">
-        <h2>Login</h2>
-        <p className="subtitle">Faça o login na sua conta</p>
+        <h2 className="login-title">Login</h2>
+        <p className="login-subtitle">Faça o login na sua conta</p>
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -59,6 +59,7 @@ export function Login() {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
+            className="login-input"
             required
           />
           <input
@@ -67,9 +68,10 @@ export function Login() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            className="login-input"
             required
           />
-          <button type="submit" disabled={loading}>
+          <button type="submit" className="login-submit-button" disabled={loading}>
             {loading ? "Aguarde..." : "Entrar"}
           </button>
         </form>
