@@ -34,25 +34,23 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
 type UpdateSubscricaoStatusPayLoad = Pick<Subscricao, 'EstadoSubscricao' | 'SubscricaoId'>
 
 export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStatusPayLoad, Subscricao> = async (
-  { SubscricaoId },
-  context: { entities: { Subscricao: { 
-    findUnique: (arg: { where: { SubscricaoId: any } }) => Promise<{ DataFim: Date | null } | null>,
-    update: (arg: { where: { SubscricaoId: any }; data: { EstadoSubscricao: boolean } }) => any,
-  } } }
+  args,
+  context,
 ) => {
   const subscricao = await context.entities.Subscricao.findUnique({
-    where: { SubscricaoId },
+    where: { SubscricaoId: args.SubscricaoId },
   })
 
-  if (!subscricao) {
-    throw new Error("Subscricao nao encontrada")
-  }
-  
   const currentDate = new Date()
-    const estadoAtualizado = subscricao.DataFim && new Date(subscricao.DataFim) < currentDate ? false : true
+  const estadoAtualizado = subscricao?.DataFim && new Date(subscricao.DataFim) < currentDate ? false : true
 
-  return context.entities.Subscricao.update({
-    where: { SubscricaoId },
-    data: { EstadoSubscricao: estadoAtualizado },
+  const updatedSubscricaoStatus = await context.entities.Subscricao.update({
+    where: { SubscricaoId: args.SubscricaoId },
+    data: { 
+      EstadoSubscricao: estadoAtualizado,
+     }
   })
+
+  return updatedSubscricaoStatus
 }
+  

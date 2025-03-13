@@ -168,3 +168,8 @@ action updateUtilizador {
   fn: import { updateUtilizador } from "@src/services/utilizadorService",
   entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
 }
+
+action updateTipoSubscricao {
+  fn:import { updateTipoSubscricao } from "@src/services/tipoSubscricaoService",
+  entities: [TipoSubscricao]
+}
