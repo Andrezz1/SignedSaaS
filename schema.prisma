@@ -110,11 +110,12 @@ model Utilizador {
   UtilizadorId Int             @id @default(autoincrement())
   Nome         String
   DataNascimento DateTime
-  NIF          String         @unique
-  PalavraPasse String
-  Morada       Morada         @relation(fields: [MoradaMoradaId], references: [MoradaId])
-  Contacto     Contacto       @relation(fields: [ContactoContactoId], references: [ContactoId])
-  TipoUtilizador TipoUtilizador @relation(fields: [TipoUtilizadorTipoUtilizadorId], references: [TipoUtilizadorId])
+  NIF          String?         @unique
+  PalavraPasse String?
+  EstadoUtilizador Boolean    @default(true)
+  Morada       Morada?        @relation(fields: [MoradaMoradaId], references: [MoradaId])
+  Contacto     Contacto?      @relation(fields: [ContactoContactoId], references: [ContactoId])
+  TipoUtilizador TipoUtilizador? @relation(fields: [TipoUtilizadorTipoUtilizadorId], references: [TipoUtilizadorId])
   Pagamentos    Pagamento[]
   Subscricoes   Subscricao[]
   Comprovativos Comprovativo[]

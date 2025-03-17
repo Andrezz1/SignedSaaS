@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Utilizador" ADD COLUMN     "EstadoUtilizador" BOOLEAN NOT NULL DEFAULT true,
+ALTER COLUMN "NIF" DROP NOT NULL,
+ALTER COLUMN "PalavraPasse" DROP NOT NULL;

@@ -56,7 +56,7 @@ export const MainPage = () => {
     const filteredUtilizadores = utilizadoresInfo.filter(({ utilizador, subscricoes, contacto }) => {
       const estadoSubscricao = subscricoes.length > 0 ? (subscricoes.find(sub => sub.EstadoSubscricao) ? 'Ativa' : 'Expirada') : 'Sem Subscrição'
       const matchesNome = utilizador.Nome.toLowerCase().includes(nomeFilter.toLowerCase())
-      const matchesNif = utilizador.NIF.includes(nifFilter)
+      const matchesNif = utilizador.NIF?.includes(nifFilter)
       const matchesTelemovel = contacto.Telemovel.includes(telemovelFilter)
       const matchesSubscricao = subscricaoFilter ? estadoSubscricao === subscricaoFilter : true
       return matchesNome && matchesTelemovel && matchesSubscricao && matchesNif
