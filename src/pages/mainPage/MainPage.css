@@ -1,0 +1,157 @@
+/* MainPage.css */
+
+.container {
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.utilizadores-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+
+.utilizadores-table th,
+.utilizadores-table td {
+  padding: 10px;
+  border: 2px solid #ddd;
+  text-align: left;
+}
+
+.utilizadores-table th:nth-child(1),
+.utilizadores-table td:nth-child(1) {
+  width: 35%;
+  min-width: 150px;
+}
+
+.utilizadores-table th:nth-child(2),
+.utilizadores-table td:nth-child(2),
+.utilizadores-table th:nth-child(3),
+.utilizadores-table td:nth-child(3),
+.utilizadores-table th:nth-child(4),
+.utilizadores-table td:nth-child(4) {
+  width: 20%;
+  min-width: 120px;
+}
+
+.utilizadores-table th:nth-child(5),
+.utilizadores-table td:nth-child(5) {
+  width: 2%;
+  min-width: 80px;
+  border: none;
+  background-color: white;
+}
+
+.utilizadores-table th {
+  background-color: #f4f4f4;
+}
+
+.error {
+  color: red;
+}
+
+.filters-row th {
+  padding: 5px;
+  background-color: white;
+  border: none;
+}
+
+.filter-input,
+.filter-select {
+  width: 94%;
+  padding: 5px;
+  font-size: 14px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+}
+
+.filter-select {
+  height: 30px;
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  color: #333;
+  background: #999;
+  border: 1px solid #999;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 120px;
+  z-index: 100;
+}
+
+.dropdown-menu button {
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdown-menu button:hover {
+  background: #a0a0a0;
+}
+
+.settings-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  font-size: 30px;
+  color : #333
+}
+
+.settings-button:hover {
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  .utilizadores-table th,
+  .utilizadores-table td {
+    padding: 8px;
+  }
+
+  .utilizadores-table th:nth-child(1),
+  .utilizadores-table td:nth-child(1) {
+    width: 40%;
+  }
+
+  .utilizadores-table th:nth-child(2),
+  .utilizadores-table td:nth-child(2),
+  .utilizadores-table th:nth-child(3),
+  .utilizadores-table td:nth-child(3),
+  .utilizadores-table th:nth-child(4),
+  .utilizadores-table td:nth-child(4) {
+    width: 15%;
+  }
+
+  .utilizadores-table th:nth-child(5),
+  .utilizadores-table td:nth-child(5) {
+    width: 10%;
+  }
+
+  .filters-row {
+    display: block;
+    margin-top: 20px;
+  }
+
+  .filter-input,
+  .filter-select {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .dropdown-container {
+    width: 100%;
+  }
+}
