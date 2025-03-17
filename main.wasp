@@ -150,6 +150,11 @@ query getComprovativoByUtilizadorId {
   entities: [Utilizador, Comprovativo]
 }
 
+query getDoacaoByUtilizadorId {
+  fn: import { getDoacaoByUtilizadorId } from "@src/services/doacaoService",
+  entities: [Doacao, Utilizador]
+}
+
 // As actions abaixo servem para adicionar novos dados a base de dados
 
 action createUtilizador {

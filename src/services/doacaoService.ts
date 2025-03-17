@@ -1,5 +1,5 @@
-import { Doacao, Utilizador } from 'wasp/entities'
-import { type GetDoacao, type GetDoacaoInfo } from 'wasp/server/operations'
+import { Doacao, Subscricao, Utilizador } from 'wasp/entities'
+import { type GetDoacao, type GetDoacaoInfo, type GetDoacaoByUtilizadorId } from 'wasp/server/operations'
 
 export const getDoacao: GetDoacao<void, Doacao[]> = async (_args, context) => {
   return context.entities.Doacao.findMany({
@@ -23,4 +23,13 @@ export const getDoacaoInfo: GetDoacaoInfo<void, Array<{
   }))
 
   return DoacaoInfo
+}
+
+export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Doacao[]>
+= async (args, context) => {
+  if (!args.UtilizadorId) return []
+
+  return context.entities.Doacao.findMany({
+    where: { UtilizadorUtilizadorId: args.UtilizadorId },
+  })
 }

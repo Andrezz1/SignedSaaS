@@ -59,7 +59,6 @@ export function Login() {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
-            className="login-input"
             required
           />
           <input
