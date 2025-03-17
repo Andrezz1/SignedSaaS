@@ -155,8 +155,12 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     })
   }
 
+  if(!args.Morada?.CodigoPostal) {
+    throw new Error("Codigo Postal nao encontrado")
+  }
+
   let codigoPostalId: number | undefined;
-  if (args.Morada?.CodigoPostal?.Localidade) {
+  if (args.Morada.CodigoPostal.Localidade) {
     let codigoPostal = await context.entities.CodigoPostal.findFirst({
       where: { Localidade: args.Morada.CodigoPostal.Localidade },
     })

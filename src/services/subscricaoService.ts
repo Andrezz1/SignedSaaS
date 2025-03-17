@@ -41,8 +41,12 @@ export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStat
     where: { SubscricaoId: args.SubscricaoId },
   })
 
+  if (!subscricao) {
+    throw new Error("Subscricao nao existente")
+  }
+
   const currentDate = new Date()
-  const estadoAtualizado = subscricao?.DataFim && new Date(subscricao.DataFim) < currentDate ? false : true
+  const estadoAtualizado = !(subscricao?.DataFim && new Date(subscricao.DataFim) < currentDate) 
 
   const updatedSubscricaoStatus = await context.entities.Subscricao.update({
     where: { SubscricaoId: args.SubscricaoId },
@@ -53,4 +57,3 @@ export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStat
 
   return updatedSubscricaoStatus
 }
-  

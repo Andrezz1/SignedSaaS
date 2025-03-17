@@ -10,7 +10,7 @@ export const getMorada: GetMorada<void, Morada[]> = async (_args, context) => {
 export const getMoradaInfo: GetMoradaInfo<void, Array<{ 
   morada: Morada, 
   codigoPostal: CodigoPostal
-}>> = async (args, context) => {
+}>> = async (_args, context) => {
   const moradas = await context.entities.Morada.findMany({
     include: {
       CodigoPostal: true,
