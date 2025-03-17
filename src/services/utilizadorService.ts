@@ -34,9 +34,9 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<void, Array<{
 
   const UtilizadoresInfo = utilizadores.map(({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
     utilizador,
-    tipoUtilizador: TipoUtilizador,
-    morada: Morada,
-    contacto: Contacto,
+    tipoUtilizador: TipoUtilizador!,
+    morada: Morada!,
+    contacto: Contacto!,
     subscricoes: Subscricoes, 
   }))
 
@@ -104,6 +104,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
       DataNascimento: new Date(args.DataNascimento),
       NIF: args.NIF,
       PalavraPasse: args.PalavraPasse,
+      EstadoUtilizador: true,
       MoradaMoradaId: morada.MoradaId,
       ContactoContactoId: contacto.ContactoId,
       TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId
