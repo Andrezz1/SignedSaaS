@@ -160,6 +160,16 @@ query getUtilizadorDesabilitado {
   entities: [Utilizador]
 }
 
+query getPagamentoByUtilizadorId {
+  fn: import { getPagamentoByUtilizadorId } from "@src/services/pagamentoService",
+  entities: [Pagamento, Utilizador]
+}
+
+query getSubscricaoByUtilizadorId {
+  fn: import { getSubscricaoByUtilizadorId } from "@src/services/subscricaoService",
+  entities: [Subscricao, Utilizador]
+}
+
 // As actions abaixo servem para adicionar novos dados a base de dados
 
 action createUtilizador {
