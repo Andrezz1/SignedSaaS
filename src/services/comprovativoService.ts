@@ -1,5 +1,9 @@
 import { Comprovativo, Utilizador, Pagamento, Subscricao } from 'wasp/entities'
-import { type GetComprovativo, type GetComprovativoInfo, type GetComprovativoByUtilizadorId } from 'wasp/server/operations'
+import { 
+  type GetComprovativo, 
+  type GetComprovativoInfo, 
+  type GetComprovativoByUtilizadorId 
+} from 'wasp/server/operations'
 
 export const getComprovativo: GetComprovativo<void, Comprovativo[]> = async (_args, context) => {
   return context.entities.Comprovativo.findMany({

@@ -1,5 +1,8 @@
 import { Morada, CodigoPostal } from 'wasp/entities'
-import { type GetMorada, type GetMoradaInfo } from 'wasp/server/operations'
+import { 
+  type GetMorada, 
+  type GetMoradaInfo 
+} from 'wasp/server/operations'
 
 export const getMorada: GetMorada<void, Morada[]> = async (_args, context) => {
   return context.entities.Morada.findMany({

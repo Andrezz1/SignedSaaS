@@ -1,5 +1,8 @@
 import { DetalheSubscricao, Subscricao, TipoSubscricao } from 'wasp/entities'
-import { type GetDetalheSubscricao, GetDetalheSubscricaoInfo } from 'wasp/server/operations'
+import { 
+  type GetDetalheSubscricao, 
+  type GetDetalheSubscricaoInfo 
+} from 'wasp/server/operations'
 
 export const getDetalheSubscricao: GetDetalheSubscricao<void, DetalheSubscricao[]> = async (args, context) => {
   return context.entities.DetalheSubscricao.findMany({
