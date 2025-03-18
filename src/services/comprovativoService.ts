@@ -36,8 +36,13 @@ export const getComprovativoInfo: GetComprovativoInfo<void, Array<{
 }
 
 export const getComprovativoByUtilizadorId: GetComprovativoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Comprovativo[]>
-= async (args, context) => {
-  if (!args.UtilizadorId) return []
+= async (
+  args,
+ context
+) => {
+  if(!args.UtilizadorId) {
+    throw new Error("UtilizadorId nao foi encontrado")
+  }
 
   return context.entities.Comprovativo.findMany({
     where: { UtilizadorUtilizadorId: args.UtilizadorId },

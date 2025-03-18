@@ -1,7 +1,8 @@
-import { Pagamento, Utilizador } from 'wasp/entities'
+import { Comprovativo, Pagamento, Utilizador } from 'wasp/entities'
 import { 
   type GetPagamento, 
-  type GetPagamentoInfo 
+  type GetPagamentoInfo,
+  type GetPagamentoByUtilizadorId
 } from 'wasp/server/operations'
 
 export const getPagamento: GetPagamento<void, Pagamento[]> = async (_args, context) => {
@@ -26,4 +27,18 @@ export const getPagamentoInfo: GetPagamentoInfo<void, Array<{
   }))
   
   return PagamentoInfo
+}
+
+export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Pagamento[]>
+= async (
+  args,
+  context
+) => {
+  if(!args.UtilizadorId) {
+    throw new Error("UtilizadorId nao foi encontrado")
+  }
+
+  return context.entities.Pagamento.findMany({
+    where: {  UtilizadorUtilizadorId: args.UtilizadorId },
+  })
 }

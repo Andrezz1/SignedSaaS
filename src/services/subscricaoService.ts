@@ -2,7 +2,8 @@ import { Subscricao, Utilizador, Pagamento, TipoSubscricao } from 'wasp/entities
 import { 
   type GetSubscricao, 
   type GetSubscricaoInfo, 
-  type UpdateSubscricaoStatus 
+  type UpdateSubscricaoStatus,
+  type GetSubscricaoByUtilizadorId
 } from 'wasp/server/operations'
 
 export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, context) => {
@@ -61,3 +62,18 @@ export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStat
 
   return updatedSubscricaoStatus
 }
+
+export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Subscricao[]>
+= async (
+  args,
+  context
+) => {
+  if(!args.UtilizadorId) {
+    throw new Error("UtilizadorId nao foi encontrado")
+  }
+
+  return context.entities.Subscricao.findMany({
+    where: {  UtilizadorUtilizadorId: args.UtilizadorId },
+  })
+}
+

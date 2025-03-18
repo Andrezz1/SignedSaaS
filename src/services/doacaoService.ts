@@ -31,7 +31,9 @@ export const getDoacaoInfo: GetDoacaoInfo<void, Array<{
 
 export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Doacao[]>
 = async (args, context) => {
-  if (!args.UtilizadorId) return []
+  if(!args.UtilizadorId) {
+    throw new Error("UtilizadorId nao foi encontrado")
+  }
 
   return context.entities.Doacao.findMany({
     where: { UtilizadorUtilizadorId: args.UtilizadorId },
