@@ -1,5 +1,10 @@
 import { TipoSubscricao } from 'wasp/entities'
-import { type GetTipoSubscricao, type CreateTipoSubscricao, type UpdateTipoSubscricao } from 'wasp/server/operations'
+import { 
+  type GetTipoSubscricao, 
+  type CreateTipoSubscricao, 
+  type UpdateTipoSubscricao 
+} from 'wasp/server/operations'
+import { capitalize } from './utils'
 
 export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = async (_args, context) => {
   return context.entities.TipoSubscricao.findMany({
@@ -15,7 +20,7 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayL
 ) => {
   const tiposSubscricoes = await context.entities.TipoSubscricao.create({
     data: {
-      Descricao: args.Descricao,
+      Descricao: capitalize(args.Descricao),
       Preco: args.Preco,
     }
   })
@@ -32,7 +37,7 @@ export const updateTipoSubscricao: UpdateTipoSubscricao<UpdateTipoSubscricaoPayL
   const updatedTipoSubscricao = await context.entities.TipoSubscricao.update({
     where: { TipoSubscricaoID: args.TipoSubscricaoID },
     data: {
-      Descricao: args.Descricao,
+      Descricao: capitalize(args.Descricao),
       Preco: args.Preco,
     }
   })

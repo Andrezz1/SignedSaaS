@@ -1,5 +1,9 @@
 import { Subscricao, Utilizador, Pagamento, TipoSubscricao } from 'wasp/entities'
-import { type GetSubscricao, type GetSubscricaoInfo, type UpdateSubscricaoStatus } from 'wasp/server/operations'
+import { 
+  type GetSubscricao, 
+  type GetSubscricaoInfo, 
+  type UpdateSubscricaoStatus 
+} from 'wasp/server/operations'
 
 export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, context) => {
   return context.entities.Subscricao.findMany({
@@ -46,7 +50,7 @@ export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStat
   }
 
   const currentDate = new Date()
-  const estadoAtualizado = !(subscricao?.DataFim && new Date(subscricao.DataFim) < currentDate) 
+  const estadoAtualizado = subscricao.DataFim && new Date(subscricao.DataFim) > currentDate
 
   const updatedSubscricaoStatus = await context.entities.Subscricao.update({
     where: { SubscricaoId: args.SubscricaoId },

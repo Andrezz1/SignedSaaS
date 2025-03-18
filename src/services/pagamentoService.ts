@@ -1,5 +1,8 @@
 import { Pagamento, Utilizador } from 'wasp/entities'
-import { type GetPagamento, type GetPagamentoInfo } from 'wasp/server/operations'
+import { 
+  type GetPagamento, 
+  type GetPagamentoInfo 
+} from 'wasp/server/operations'
 
 export const getPagamento: GetPagamento<void, Pagamento[]> = async (_args, context) => {
   return context.entities.Pagamento.findMany({
