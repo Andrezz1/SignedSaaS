@@ -26,9 +26,9 @@ model Comprovativo {
 
 model Contacto {
   ContactoId Int     @id @default(autoincrement())
-  Email      String  @unique
-  Telemovel  String  @unique
-  Utilizador Utilizador?
+  Email      String
+  Telemovel  String
+  Utilizadores Utilizador[]  // One Contacto can belong to multiple Utilizadores
 }
 
 model DetalheSubscricao {
@@ -109,8 +109,8 @@ model TipoUtilizador {
 model Utilizador {
   UtilizadorId Int             @id @default(autoincrement())
   Nome         String
-  DataNascimento DateTime
-  NIF          String?         @unique
+  DataNascimento DateTime?
+  NIF          String         @unique
   PalavraPasse String?
   EstadoUtilizador Boolean    @default(true)
   Morada       Morada?        @relation(fields: [MoradaMoradaId], references: [MoradaId])
@@ -121,7 +121,7 @@ model Utilizador {
   Comprovativos Comprovativo[]
   Doacoes       Doacao[]
   
-  MoradaMoradaId         Int
-  ContactoContactoId     Int @unique
+  MoradaMoradaId         Int?
+  ContactoContactoId     Int?
   TipoUtilizadorTipoUtilizadorId Int
 }
