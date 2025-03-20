@@ -24,7 +24,9 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<void, Utilizad
 
 export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'EstadoUtilizador'>, Utilizador[]
 > = async (args, context) => {
-  if (!args.NIF) return [];
+  if (!args.NIF) {
+    throw new Error("Nif nao encontrado")
+  }
 
   const utilizador = await context.entities.Utilizador.findFirst({
     where: { NIF: args.NIF },
@@ -178,9 +180,17 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     }
   })
 
+  if (!utilizador) {
+    throw new Error("Utilizador não encontrado");
+  }
+
   if (args.Contacto) {
+    if (!utilizador.ContactoContactoId) {
+      throw new Error("ContactoContactoId não encontrado");
+    }
+
     await context.entities.Contacto.update({
-      where: { ContactoId: utilizador?.ContactoContactoId },
+      where: { ContactoId: utilizador.ContactoContactoId },
       data: {
         Email: args.Contacto.Email,
         Telemovel: args.Contacto.Telemovel,
@@ -203,17 +213,12 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     codigoPostalId = codigoPostal.CodigoPostalId;
   }
 
-  if(!utilizador) {
-    throw new Error("Batata")
-  }
-
   if (args.Morada) {
-
     const concelho = capitalize(args.Morada.Concelho || "");
     const distrito = capitalize(args.Morada.Distrito || "");
 
     if (codigoPostalId === undefined) {
-      throw new Error("codigoPostalId nao encontrado");
+      throw new Error("codigoPostalId não encontrado");
     }
 
     let morada = await context.entities.Morada.findFirst({
@@ -221,7 +226,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
         Concelho: concelho,
         Distrito: distrito,
       },
-    });
+    })
 
     if (!morada) {
       morada = await context.entities.Morada.create({
@@ -230,7 +235,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
           Distrito: distrito,
           CodigoPostalCodigoPostalId: codigoPostalId,
         },
-      });
+      })
     }
 
     await context.entities.Utilizador.update({
@@ -238,7 +243,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       data: {
         MoradaMoradaId: morada.MoradaId,
       },
-    });
+    })
   }
 
   const updatedUtilizador = await context.entities.Utilizador.update({
