@@ -34,7 +34,7 @@ export function Login() {
       if (user) {
         console.log("Login bem-sucedido para:", user);
         alert("Login bem-sucedido!");
-        navigate("/mainpage");
+        navigate("/dashboard");
 
       } else {
         alert("Credenciais inválidas. Tente novamente.");
