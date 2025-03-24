@@ -29,13 +29,13 @@ export const getDoacaoInfo: GetDoacaoInfo<void, Array<{
   return DoacaoInfo
 }
 
-export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Doacao[]>
+export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, 'id'>, Doacao[]>
 = async (args, context) => {
-  if(!args.UtilizadorId) {
+  if(!args.id) {
     throw new Error("UtilizadorId nao foi encontrado")
   }
 
   return context.entities.Doacao.findMany({
-    where: { UtilizadorUtilizadorId: args.UtilizadorId },
+    where: { UtilizadorId: args.id },
   })
 }

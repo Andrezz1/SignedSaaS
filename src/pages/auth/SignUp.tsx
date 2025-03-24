@@ -7,7 +7,7 @@ export function Signup() {
   const initialState = {
     name: "",
     email: "",
-    password: "",
+    imagem: "",
     telemovel: "",
     nif: "",
     dataNascimento: "",
@@ -69,7 +69,7 @@ export function Signup() {
         Nome: formData.name,
         DataNascimento: new Date(formData.dataNascimento),
         NIF: formData.nif,
-        PalavraPasse: formData.password,
+        Imagem: formData.imagem,
         Morada: {
           Concelho: formData.concelho,
           Distrito: formData.distrito,
@@ -118,10 +118,10 @@ export function Signup() {
             required
           />
           <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
+            type="imagem"
+            name="imagem"
+            placeholder="Imagem"
+            value={formData.imagem}
             onChange={handleChange}
             className="signup-input"
             required

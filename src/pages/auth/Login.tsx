@@ -27,8 +27,7 @@ export function Login() {
 
       const user = utilizadoresInfo.find(
         (userInfo) =>
-          userInfo.contacto.Email === formData.email &&
-          userInfo.utilizador.PalavraPasse === formData.password
+          userInfo.contacto.Email === formData.email
       );
 
       if (user) {

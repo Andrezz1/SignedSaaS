@@ -17,18 +17,18 @@ model Comprovativo {
   ComprovativoId Int        @id @default(autoincrement())
   Pagamento      Pagamento  @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
   Subscricao     Subscricao @relation(fields: [SubscricaoSubscricaoId], references: [SubscricaoId])
-  Utilizador     Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
+  Utilizador     Utilizador @relation(fields: [UtilizadorId], references: [id])
   
   PagamentoPagamentoId    Int
   SubscricaoSubscricaoId  Int
-  UtilizadorUtilizadorId  Int
+  UtilizadorId  Int
 }
 
 model Contacto {
   ContactoId Int     @id @default(autoincrement())
   Email      String
   Telemovel  String
-  Utilizadores Utilizador[]  // One Contacto can belong to multiple Utilizadores
+  Utilizadores Utilizador[]
 }
 
 model DetalheSubscricao {
@@ -48,9 +48,9 @@ model Doacao {
   ValorDoacao Int
   DataDoacao  DateTime
   Nota        String
-  Utilizador  Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
+  Utilizador  Utilizador @relation(fields: [UtilizadorId], references: [id])
   
-  UtilizadorUtilizadorId Int
+  UtilizadorId Int
 }
 
 model Morada {
@@ -69,11 +69,11 @@ model Pagamento {
   DataPagamento DateTime
   EstadoPagamento String
   NIFPagamento   String
-  Utilizador     Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
+  Utilizador     Utilizador @relation(fields: [UtilizadorId], references: [id])
   Subscricoes    Subscricao[]
   Comprovativos  Comprovativo[]
   
-  UtilizadorUtilizadorId Int
+  UtilizadorId Int
 }
 
 model Subscricao {
@@ -81,13 +81,13 @@ model Subscricao {
   DataInicio        DateTime
   DataFim          DateTime
   EstadoSubscricao Boolean
-  Utilizador       Utilizador @relation(fields: [UtilizadorUtilizadorId], references: [UtilizadorId])
+  Utilizador       Utilizador @relation(fields: [UtilizadorId], references: [id])
   Pagamento        Pagamento  @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
   TipoSubscricao   TipoSubscricao @relation(fields: [TipoSubscricaoTipoSubscricaoID], references: [TipoSubscricaoID])
   Comprovativos    Comprovativo[]
   Detalhes         DetalheSubscricao[]
   
-  UtilizadorUtilizadorId Int
+  UtilizadorId Int
   PagamentoPagamentoId   Int
   TipoSubscricaoTipoSubscricaoID Int
 }
@@ -107,11 +107,11 @@ model TipoUtilizador {
 }
 
 model Utilizador {
-  UtilizadorId Int             @id @default(autoincrement())
-  Nome         String
+  id Int             @id @default(autoincrement())
+  Nome         String?
+  Username     String?
   DataNascimento DateTime?
-  NIF          String         @unique
-  PalavraPasse String?
+  NIF          String?         @unique
   EstadoUtilizador Boolean    @default(true)
   Morada       Morada?        @relation(fields: [MoradaMoradaId], references: [MoradaId])
   Contacto     Contacto?      @relation(fields: [ContactoContactoId], references: [ContactoId])
@@ -120,8 +120,9 @@ model Utilizador {
   Subscricoes   Subscricao[]
   Comprovativos Comprovativo[]
   Doacoes       Doacao[]
+  Imagem        String?
   
   MoradaMoradaId         Int?
   ContactoContactoId     Int?
-  TipoUtilizadorTipoUtilizadorId Int
+  TipoUtilizadorTipoUtilizadorId Int  @default(1)
 }
