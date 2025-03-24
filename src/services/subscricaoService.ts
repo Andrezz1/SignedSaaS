@@ -63,17 +63,17 @@ export const updateSubscricaoStatus: UpdateSubscricaoStatus<UpdateSubscricaoStat
   return updatedSubscricaoStatus
 }
 
-export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Subscricao[]>
+export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, Subscricao[]>
 = async (
   args,
   context
 ) => {
-  if(!args.UtilizadorId) {
+  if(!args.id) {
     throw new Error("UtilizadorId nao foi encontrado")
   }
 
   return context.entities.Subscricao.findMany({
-    where: {  UtilizadorUtilizadorId: args.UtilizadorId },
+    where: {  UtilizadorId: args.id },
   })
 }
 

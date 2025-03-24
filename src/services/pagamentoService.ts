@@ -29,16 +29,16 @@ export const getPagamentoInfo: GetPagamentoInfo<void, Array<{
   return PagamentoInfo
 }
 
-export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<Pick<Utilizador, 'UtilizadorId'>, Pagamento[]>
+export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<Pick<Utilizador, 'id'>, Pagamento[]>
 = async (
   args,
   context
 ) => {
-  if(!args.UtilizadorId) {
+  if(!args.id) {
     throw new Error("UtilizadorId nao foi encontrado")
   }
 
   return context.entities.Pagamento.findMany({
-    where: {  UtilizadorUtilizadorId: args.UtilizadorId },
+    where: {  UtilizadorId: args.id },
   })
 }

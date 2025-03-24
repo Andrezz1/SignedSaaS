@@ -12,7 +12,7 @@ import { capitalize } from './utils'
 
 export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (_args, context) => {
   return context.entities.Utilizador.findMany({
-    orderBy: { UtilizadorId: 'asc' },
+    orderBy: { id: 'asc' },
   })
 }
 
@@ -78,7 +78,7 @@ type CreateUtilizadorPayload = {
   Nome: string
   DataNascimento: Date
   NIF: string
-  PalavraPasse: string
+  Imagem: string
   TipoUtilizadorId: number
   Morada: {
     Concelho: string
@@ -137,7 +137,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
       Nome: args.Nome,
       DataNascimento: new Date(args.DataNascimento),
       NIF: args.NIF,
-      PalavraPasse: args.PalavraPasse,
+      Imagem: args.Imagem,
       EstadoUtilizador: true,
       MoradaMoradaId: morada.MoradaId,
       ContactoContactoId: contacto.ContactoId,
@@ -149,11 +149,11 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 }
 
 type UpdateUtilizadorPayload = {
-  UtilizadorId: number
+  id: number
   Nome?: string
   DataNascimento?: Date
   NIF?: string
-  PalavraPasse?: string
+  Imagem?: string
   TipoUtilizadorId?: number
   Morada?: {
     Concelho?: string
@@ -173,7 +173,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   context
 ) => {
   const utilizador = await context.entities.Utilizador.findUnique({
-    where: { UtilizadorId: args.UtilizadorId },
+    where: { id: args.id },
     include: { 
       Morada: true, 
       Contacto: true,
@@ -239,7 +239,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     }
 
     await context.entities.Utilizador.update({
-      where: { UtilizadorId: utilizador.UtilizadorId },
+      where: { id: utilizador.id },
       data: {
         MoradaMoradaId: morada.MoradaId,
       },
@@ -247,7 +247,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   }
 
   const updatedUtilizador = await context.entities.Utilizador.update({
-    where: { UtilizadorId: args.UtilizadorId },
+    where: { id: args.id },
     data: {
       Nome: args.Nome,
       TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId
@@ -257,14 +257,14 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   return updatedUtilizador
 }
 
-type UpdateEstadoUtilizadorPayLoad = Pick<Utilizador, 'UtilizadorId' | 'EstadoUtilizador'>
+type UpdateEstadoUtilizadorPayLoad = Pick<Utilizador, 'id' | 'EstadoUtilizador'>
 
 export const updateEstadoUtilizador: UpdateEstadoUtilizador<UpdateEstadoUtilizadorPayLoad, Utilizador> = async (
   args,
   context,
 ) => {
   const utilizador = await context.entities.Utilizador.findFirst({
-    where: { UtilizadorId: args.UtilizadorId }
+    where: { id: args.id }
   })
 
   if(!utilizador) {
@@ -272,7 +272,7 @@ export const updateEstadoUtilizador: UpdateEstadoUtilizador<UpdateEstadoUtilizad
   }
 
   const updatedEstadoUtilizador = await context.entities.Utilizador.update({
-    where: { UtilizadorId: args.UtilizadorId },
+    where: { id: args.id },
     data: {
       EstadoUtilizador: !utilizador.EstadoUtilizador,
     }
