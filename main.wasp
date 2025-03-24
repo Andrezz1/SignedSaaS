@@ -21,7 +21,7 @@ page TestePage {
 
 route DashboardRoute { path: "/dashboard", to: DashboardPage }
 page DashboardPage {
-  component: import { Dashboard } from "@src/pages/dashboardPage/Dashboard"
+  component: import { Dashboard } from "@src/pages/Dashboard"
 }
 
 route SignUpRoute { path: "/signup", to: SignUpPage }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../index.css";
 
 interface NavBarProps {
-  navItems: string[];
+  navItems: { name: string; path: string }[];
 }
 
 function NavBar({ navItems }: NavBarProps) {
@@ -21,7 +21,7 @@ function NavBar({ navItems }: NavBarProps) {
                   href="#"
                   className="text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 text-lg md:text-xl font-bold"
                 >
-                  {item}
+                  {item.name}
                 </a>
               </li>
             ))}
