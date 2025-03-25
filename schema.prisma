@@ -109,7 +109,7 @@ model TipoUtilizador {
 model Utilizador {
   id Int             @id @default(autoincrement())
   Nome         String?
-  Username     String?
+  Username     String?         @unique
   DataNascimento DateTime?
   NIF          String?         @unique
   EstadoUtilizador Boolean    @default(true)
