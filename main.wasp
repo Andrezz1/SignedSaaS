@@ -16,22 +16,22 @@ app SignedProject {
 
 route TesteRoute { path: "/teste", to: TestePage }
 page TestePage {
-  component: import { Teste } from "@src/pages/Teste"
+  component: import  Teste  from "@src/pages/Teste"
 }
 
 route DashboardRoute { path: "/dashboard", to: DashboardPage }
 page DashboardPage {
-  component: import { Dashboard } from "@src/pages/Dashboard"
+  component: import  DashboardPage  from "@src/pages/DashboardPage"
 }
 
 route SignUpRoute { path: "/signup", to: SignUpPage }
 page SignUpPage {
-  component: import { Signup } from "@src/pages/auth/SignUp"
+  component: import  Signup  from "@src/pages/auth/SignUp"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@src/pages/auth/Login"
+  component: import  Login  from "@src/pages/auth/Login"
 }
 
 // As queries abaixo apenas obtêm os dados de cada tabela
