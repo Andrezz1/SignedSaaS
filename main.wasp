@@ -172,11 +172,6 @@ action createTipoSubscricao {
 
 // As actions abaixo servem para alterar dados da base de dados
 
-action updateSubscricaoStatus {
-  fn: import { updateSubscricaoStatus } from "@src/services/subscricaoService",
-  entities: [Subscricao]
-}
-
 action updateUtilizador {
   fn: import { updateUtilizador } from "@src/services/utilizadorService",
   entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
@@ -191,13 +186,3 @@ action updateEstadoUtilizador {
   fn: import { updateEstadoUtilizador } from "@src/services/utilizadorService",
   entities: [Utilizador]
 }
-
-// action createAdminUser {
-//   fn: import { createAdminUser } from "@src/services/auth",
-//   entities: [Utilizador]
-// }
-
-// action createNonAdminUser {
-//   fn: import { createNonAdminUser } from "@src/services/auth",
-//   entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
-// }
