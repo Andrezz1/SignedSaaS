@@ -1,11 +1,11 @@
 import { useState } from "react";
 import "../index.css";
 
-interface NavBarProps {
+interface HeaderProps {
   navItems: { name: string; path: string }[];
 }
 
-function NavBar({ navItems }: NavBarProps) {
+function Header({ navItems }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
@@ -68,4 +68,4 @@ function NavBar({ navItems }: NavBarProps) {
   );
 }
 
-export default NavBar;
+export default Header;
