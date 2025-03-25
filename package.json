@@ -2,8 +2,6 @@
   "name": "SignedProject",
   "type": "module",
   "dependencies": {
-    "@tailwindcss/forms": "^0.5.3",
-    "@tailwindcss/typography": "^0.5.7",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "node-cron": "^3.0.3",
@@ -14,16 +12,16 @@
     "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/postcss": "^4.0.15",
-    "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
     "@types/bcryptjs": "^2.4.6",
     "@types/node-cron": "^3.0.11",
     "@types/react": "^18.0.37",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.3",
+    "@types/tailwindcss": "^3.0.11",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
     "prisma": "5.19.1",
-    "tailwindcss": "^4.0.15",
+    "tailwindcss": "^3.3.3",
     "typescript": "^5.1.0",
     "vite": "^6.2.2"
   }
