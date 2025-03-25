@@ -1,4 +1,4 @@
-import { getUtilizadoresInfo, useQuery } from 'wasp/client/operations'
+/*import { getUtilizadoresInfo, useQuery } from 'wasp/client/operations'
 import { Utilizador } from 'wasp/entities'
 import { useState, useEffect } from 'react'
 import UserDetailsModal from '../components/userDetails/UserDetailsModal'
@@ -162,3 +162,5 @@ export const Dashboard = () => {
     </div>
   );
 }
+
+*/
