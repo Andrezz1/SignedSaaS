@@ -81,7 +81,7 @@ export const Dashboard = () => {
                     estadoSubscricao = subscricaoAtiva ? 'Ativa' : 'Expirada'
                   }
 
-                  const isOpen = selectedUser?.utilizador?.UtilizadorId === utilizador.UtilizadorId
+                  const isOpen = selectedUser?.utilizador?.UtilizadorId === utilizador.id
 
                   return (
                     <tr key={idx} className="border-b">
