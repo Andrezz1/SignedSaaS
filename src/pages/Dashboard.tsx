@@ -1,3 +1,4 @@
+/*
 import { getUtilizadoresInfo, useQuery } from 'wasp/client/operations'
 import { Utilizador } from 'wasp/entities'
 import { useState, useEffect } from 'react'
@@ -162,3 +163,4 @@ export const Dashboard = () => {
     </div>
   );
 }
+*/
