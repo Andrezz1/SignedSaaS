@@ -19,8 +19,15 @@ page TestePage {
   component: import  Teste  from "@src/pages/Teste"
 }
 
+route EditProfileRoute { path: "/edit-profile", to: EditProfilePage }
+page EditProfilePage {
+  authRequired: false,
+  component: import  EditProfile  from "@src/pages/EditProfilePage"
+}
+
 route SociosRoute { path: "/socios", to: SociosPage }
 page SociosPage {
+  authRequired: false,
   component: import  SociosPage  from "@src/pages/SociosPage"
 }
 

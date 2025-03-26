@@ -12,7 +12,6 @@ function Header({ navItems }: HeaderProps) {
     <nav className="bg-white border-b border-gray-200 dark:bg-gray-900 w-full">
       <div className="flex items-center justify-between px-4 py-4 w-full">
         
-        {/* Links TOTALMENTE alinhados à esquerda */}
         <div className="flex items-center space-x-6">
           <ul className="flex space-x-6 md:space-x-18">
             {navItems.map((item, index) => (
@@ -28,7 +27,6 @@ function Header({ navItems }: HeaderProps) {
           </ul>
         </div>
 
-        {/* Ícone de utilizador TOTALMENTE alinhado à direita */}
         <div className="flex items-center ml-auto">
           <button
             type="button"
@@ -41,7 +39,6 @@ function Header({ navItems }: HeaderProps) {
             </svg>
           </button>
 
-          {/* Dropdown do utilizador */}
           {dropdownOpen && (
             <div className="absolute top-12 right-4 z-50 bg-white dark:bg-gray-700 rounded-lg shadow-lg w-48">
               <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
@@ -50,8 +47,8 @@ function Header({ navItems }: HeaderProps) {
               </div>
               <ul className="py-2">
                 <li>
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200">
-                    Configurações
+                  <a href="/edit-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200">
+                    Editar Perfil
                   </a>
                 </li>
                 <li>
