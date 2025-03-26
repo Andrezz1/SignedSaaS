@@ -7,6 +7,8 @@ import {
 import { useState } from 'react';
 import LoadingSpinner from '../layout/LoadingSpinner';
 import ExpandedUserDetails from './userDetails';
+import EditUser from './editUserContainer';
+import EditUserContainer from './editUserContainer';
 
 interface UsersTableProps {
   searchFilter: string;
@@ -23,10 +25,11 @@ const UsersTable = ({
 }: UsersTableProps) => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [userToEdit, setUserToEdit] = useState<any>(null); 
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Chama a query paginada usando currentPage e pageSize
   const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfo, {
     page: currentPage,
     pageSize: pageSize,
@@ -34,11 +37,9 @@ const UsersTable = ({
 
   const updateUserEstadoMutation = useAction(updateEstadoUtilizador);
 
-  // Lista de usuários retornados
   const utilizadoresInfo = utilizadoresInfoResponse?.data || [];
   const totalPages = utilizadoresInfoResponse?.totalPages || 1;
 
-  // Filtramos conforme o searchFilter
   const filteredUtilizadores = utilizadoresInfo.filter((user: any) => {
     const { utilizador, contacto } = user;
     return (
@@ -48,7 +49,6 @@ const UsersTable = ({
     );
   });
 
-  // Funções para navegação
   const handlePreviousPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
@@ -71,10 +71,8 @@ const UsersTable = ({
   return (
     <div className="w-full transition-all duration-300">
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        {/* Cabeçalho: Filtros, PageSize e pesquisa */}
         <div className="flex items-center justify-between p-6 gap-3 w-full bg-gray-100/40 dark:bg-gray-700/50">
           <div className="flex items-center gap-8">
-            {/* Botão Filtros */}
             <span
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 text-sm font-bold text-black cursor-pointer hover:text-gray-700"
@@ -100,16 +98,15 @@ const UsersTable = ({
               {showFilters ? "Esconder Filtros" : "Mostrar Filtros"}
             </span>
 
-            {/* Dropdown PageSize */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-black">Por página:</span>
               <select
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
-                  setCurrentPage(1); // opcional: resetar para a página 1
+                  setCurrentPage(1);
                 }}
-                className="w-15 border border-gray-300 rounded px-2 py-1 focus:outline-none 
+                className="w-20 border border-gray-300 rounded px-2 py-1 focus:outline-none 
                            focus:ring-1 focus:ring-blue-500 text-sm"
               >
                 <option value={5}>5</option>
@@ -121,7 +118,6 @@ const UsersTable = ({
             </div>
           </div>
 
-          {/* Barra de pesquisa */}
           <form className="relative w-[400px]">
             <div className="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
               <svg
@@ -154,7 +150,6 @@ const UsersTable = ({
           </form>
         </div>
 
-        {/* Cabeçalho da tabela */}
         <div className="grid grid-cols-12 border-t-4 border-stroke py-4.5 px-4 
                         dark:border-strokedark md:px-6">
           <div className="col-span-3 flex items-center">
@@ -184,10 +179,8 @@ const UsersTable = ({
               estadoSubscricao = subscricaoAtiva ? "Ativa" : "Expirada";
             }
             const isOpen = selectedUser?.utilizador?.id === utilizador.id;
-
             return (
               <div key={utilizador.id}>
-                {/* Linha principal do utilizador */}
                 <div className="grid grid-cols-12 border-t border-stroke py-4.5 px-4 
                                 dark:border-strokedark md:px-6">
                   <div className="col-span-3 flex items-center">
@@ -233,7 +226,7 @@ const UsersTable = ({
                     </button>
                     <button
                       title="Editar"
-                      onClick={() => console.log("Editar", utilizador)}
+                      onClick={() => setUserToEdit(user)} 
                       className="flex items-center justify-center w-10 h-10 
                                  rounded-full transition-colors bg-transparent 
                                  hover:bg-gray-100 text-black"
@@ -314,7 +307,7 @@ const UsersTable = ({
         <ul className="inline-flex -space-x-px text-sm">
           <li>
             <button
-              onClick={handlePreviousPage}
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
               className="flex items-center justify-center px-3 h-8 leading-tight 
                          text-gray-500 bg-white border border-e-0 border-gray-300 
                          rounded-s-lg hover:bg-gray-100 hover:text-gray-700 
@@ -340,7 +333,9 @@ const UsersTable = ({
           ))}
           <li>
             <button
-              onClick={handleNextPage}
+              onClick={() =>
+                currentPage < totalPages && setCurrentPage(currentPage + 1)
+              }
               className="flex items-center justify-center px-3 h-8 leading-tight 
                          text-gray-500 bg-white border border-gray-300 
                          rounded-e-lg hover:bg-gray-100 hover:text-gray-700 
@@ -352,8 +347,6 @@ const UsersTable = ({
           </li>
         </ul>
       </nav>
-
-      {/* Modal de confirmação para remoção */}
       {userToDelete && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
@@ -376,6 +369,13 @@ const UsersTable = ({
             </div>
           </div>
         </div>
+      )}
+
+      {userToEdit && (
+        <EditUserContainer
+          user={userToEdit}
+          onClose={() => setUserToEdit(null)} 
+        />
       )}
     </div>
   );
