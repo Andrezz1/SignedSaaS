@@ -8,6 +8,7 @@ import {
   type GetUtilizadorDesabilitado,
   type UpdateEstadoUtilizador,
   type UpdateUtilizadorByNIFNumSocio,
+  type GetUtilizadorInfoByUtilizadorId,
 } from 'wasp/server/operations'
 import { capitalize } from './utils'
 
@@ -42,6 +43,29 @@ export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'Es
 
   if(!utilizador.EstadoUtilizador) {
     throw new Error("Utilizador Desabilitado, por favor contacte alguem")
+  }
+
+  return [utilizador]
+}
+
+export const getUtilizadorInfoByUtilizadorId: GetUtilizadorInfoByUtilizadorId<Pick<Utilizador, 'id'>, Utilizador[]
+> = async (args, context) => {
+  if (!args.id) {
+    throw new Error("Id do utilizador nao encontrado")
+  }
+
+  const utilizador = await context.entities.Utilizador.findFirst({
+    where: { id: args.id },
+    include: {
+      TipoUtilizador: true, 
+      Morada: true,
+      Contacto: true, 
+      Subscricoes: true, 
+    }
+  })
+
+  if(!utilizador) {
+    throw new Error ("Utilizador nao encontrado")
   }
 
   return [utilizador]
