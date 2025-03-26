@@ -138,26 +138,26 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
   const concelho = capitalize(args.Morada.Concelho)
   const distrito = capitalize(args.Morada.Distrito)
 
-  const ultimoUtilizador = await context.entities.Utilizador.findFirst({
-    orderBy: {
-      NumSocio: 'desc',
-    },
-    select: {
-      NumSocio: true,
-    },
+  let ultimoUtilizador = await context.entities.Utilizador.findFirst({
+    orderBy: { NumSocio: 'desc' },
+    select: { NumSocio: true },
   })
 
-  if(!ultimoUtilizador?.NumSocio) {
-    throw new Error("Erro ao atribuir um numero de socio")
+  if (!ultimoUtilizador || ultimoUtilizador.NumSocio === null) {
+    ultimoUtilizador = await context.entities.Utilizador.findFirst({
+      where: { NumSocio: { not: null } },
+      orderBy: { NumSocio: 'desc' },
+      select: { NumSocio: true },
+    })
   }
 
-  const proxNumSocio = ultimoUtilizador ? ultimoUtilizador.NumSocio + 1 : 1
+  const proxNumSocio = ultimoUtilizador?.NumSocio ? ultimoUtilizador.NumSocio + 1 : 1
 
   const contacto = await context.entities.Contacto.create({
     data: {
       Email: args.Contacto.Email,
       Telemovel: args.Contacto.Telemovel,
-    }
+    },
   })
 
   let codigoPostal = await context.entities.CodigoPostal.findFirst({
@@ -171,8 +171,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
   }
 
   let morada = await context.entities.Morada.findFirst({
-    where: { Concelho: args.Morada.Concelho,
-     }
+    where: { Concelho: args.Morada.Concelho },
   })
 
   if (!morada) {
@@ -181,7 +180,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
         Concelho: concelho,
         Distrito: distrito,
         CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
-      }
+      },
     })
   }
 
@@ -195,12 +194,14 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
       EstadoUtilizador: true,
       MoradaMoradaId: morada.MoradaId,
       ContactoContactoId: contacto.ContactoId,
-      TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId
-    }
+      TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId,
+    },
   })
 
   return utilizador
 }
+
+
 
 type UpdateUtilizadorPayload = {
   id: number
@@ -328,7 +329,7 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
   })
 
   if (!args.NIF || !args.NumSocio) {
-    throw new Error("Necessario NIF e NumSocio para editar os seus dados");
+    throw new Error("Necessario NIF e NumSocio para editar os seus dados")
   }
 
   if (!utilizador) {
