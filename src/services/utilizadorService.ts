@@ -50,7 +50,8 @@ export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'Es
 export const getUtilizadoresInfo: GetUtilizadoresInfo<
   { 
     page: number,
-    pageSize: number
+    pageSize: number,
+    searchTerm?: string
   },
   {
     data: {
@@ -65,12 +66,24 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
     pageSize: number
     totalPages: number
   }
-> = async ({ page, pageSize }, context) => {
+> = async ({ page, pageSize, searchTerm }, context) => {
   const skip = (page - 1) * pageSize
   const take = pageSize
 
+  const utilizadoresAtivos: any = {
+    EstadoUtilizador: true
+  }
+
+  if (searchTerm) {
+    utilizadoresAtivos.OR = [
+      { Nome: { contains: searchTerm, mode: 'insensitive' } },
+      { NIF: { contains: searchTerm, mode: 'insensitive' } },
+      { Contacto: { Telemovel: { contains: searchTerm, mode: 'insensitive' } } }
+    ]
+  }
+
   const utilizadores = await context.entities.Utilizador.findMany({
-    where: { EstadoUtilizador: true },
+    where: utilizadoresAtivos,
     orderBy: {
       NumSocio: 'desc',
     },
@@ -89,7 +102,7 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
   })
 
   const totalUtilizadores = await context.entities.Utilizador.count({
-    where: { EstadoUtilizador: true },
+    where: utilizadoresAtivos, 
   })
 
   const utilizadoresInfo = utilizadores.map(
@@ -110,6 +123,7 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
     totalPages: Math.ceil(totalUtilizadores / pageSize),
   }
 }
+
 
 
 type CreateUtilizadorPayload = {
