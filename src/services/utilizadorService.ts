@@ -6,7 +6,8 @@ import {
   type CreateUtilizador, 
   type UpdateUtilizador, 
   type GetUtilizadorDesabilitado,
-  type UpdateEstadoUtilizador
+  type UpdateEstadoUtilizador,
+  type UpdateUtilizadorByNIFNumSocio,
 } from 'wasp/server/operations'
 import { capitalize } from './utils'
 
@@ -30,6 +31,9 @@ export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'Es
 
   const utilizador = await context.entities.Utilizador.findFirst({
     where: { NIF: args.NIF },
+    include: {
+      Subscricoes: true,
+    }
   })
 
   if(!utilizador) {
@@ -71,7 +75,7 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<void, Array<{
     subscricoes: Subscricoes, 
   }))
 
-  return UtilizadoresInfo;
+  return UtilizadoresInfo
 }
 
 type CreateUtilizadorPayload = {
@@ -99,6 +103,21 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 ) => { 
   const concelho = capitalize(args.Morada.Concelho)
   const distrito = capitalize(args.Morada.Distrito)
+
+  const ultimoUtilizador = await context.entities.Utilizador.findFirst({
+    orderBy: {
+      NumSocio: 'desc',
+    },
+    select: {
+      NumSocio: true,
+    },
+  })
+
+  if(!ultimoUtilizador?.NumSocio) {
+    throw new Error("Erro ao atribuir um numero de socio")
+  }
+
+  const proxNumSocio = ultimoUtilizador ? ultimoUtilizador.NumSocio + 1 : 1
 
   const contacto = await context.entities.Contacto.create({
     data: {
@@ -134,6 +153,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 
   const utilizador = await context.entities.Utilizador.create({
     data: {
+      NumSocio: proxNumSocio,
       Nome: args.Nome,
       DataNascimento: new Date(args.DataNascimento),
       NIF: args.NIF,
@@ -150,6 +170,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 
 type UpdateUtilizadorPayload = {
   id: number
+  NumSocio: number
   Nome?: string
   DataNascimento?: Date
   NIF?: string
@@ -181,12 +202,12 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   })
 
   if (!utilizador) {
-    throw new Error("Utilizador não encontrado");
+    throw new Error("Utilizador não encontrado")
   }
 
   if (args.Contacto) {
     if (!utilizador.ContactoContactoId) {
-      throw new Error("ContactoContactoId não encontrado");
+      throw new Error("ContactoContactoId não encontrado")
     }
 
     await context.entities.Contacto.update({
@@ -210,15 +231,15 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       })
     }
 
-    codigoPostalId = codigoPostal.CodigoPostalId;
+    codigoPostalId = codigoPostal.CodigoPostalId
   }
 
   if (args.Morada) {
-    const concelho = capitalize(args.Morada.Concelho || "");
-    const distrito = capitalize(args.Morada.Distrito || "");
+    const concelho = capitalize(args.Morada.Concelho || "")
+    const distrito = capitalize(args.Morada.Distrito || "")
 
     if (codigoPostalId === undefined) {
-      throw new Error("codigoPostalId não encontrado");
+      throw new Error("codigoPostalId não encontrado")
     }
 
     let morada = await context.entities.Morada.findFirst({
@@ -251,6 +272,104 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     data: {
       Nome: args.Nome,
       TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId
+    }
+  })
+
+  return updatedUtilizador
+}
+
+export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<UpdateUtilizadorPayload, Utilizador> = async (
+  args,
+  context
+) => {
+  const utilizador = await context.entities.Utilizador.findUnique({
+    where: { 
+      NIF: args.NIF,
+      NumSocio: args.NumSocio
+    },
+    include: { 
+      Morada: true, 
+      Contacto: true,
+    }
+  })
+
+  if (!args.NIF || !args.NumSocio) {
+    throw new Error("Necessario NIF e NumSocio para editar os seus dados");
+  }
+
+  if (!utilizador) {
+    throw new Error("Utilizador não encontrado")
+  }
+
+  if (args.Contacto) {
+    if (!utilizador.ContactoContactoId) {
+      throw new Error("ContactoContactoId não encontrado")
+    }
+
+    await context.entities.Contacto.update({
+      where: { ContactoId: utilizador.ContactoContactoId },
+      data: {
+        Email: args.Contacto.Email,
+        Telemovel: args.Contacto.Telemovel,
+      }
+    })
+  }
+
+  let codigoPostalId: number | undefined
+  if (args.Morada?.CodigoPostal?.Localidade) {
+    let codigoPostal = await context.entities.CodigoPostal.findFirst({
+      where: { Localidade: args.Morada.CodigoPostal.Localidade },
+    })
+
+    if (!codigoPostal) {
+      codigoPostal = await context.entities.CodigoPostal.create({
+        data: { Localidade: args.Morada.CodigoPostal.Localidade },
+      })
+    }
+
+    codigoPostalId = codigoPostal.CodigoPostalId
+  }
+
+  if (args.Morada) {
+    const concelho = capitalize(args.Morada.Concelho || "")
+    const distrito = capitalize(args.Morada.Distrito || "")
+
+    if (codigoPostalId === undefined) {
+      throw new Error("codigoPostalId não encontrado")
+    }
+
+    let morada = await context.entities.Morada.findFirst({
+      where: {
+        Concelho: concelho,
+        Distrito: distrito,
+      },
+    })
+
+    if (!morada) {
+      morada = await context.entities.Morada.create({
+        data: {
+          Concelho: concelho,
+          Distrito: distrito,
+          CodigoPostalCodigoPostalId: codigoPostalId,
+        },
+      })
+    }
+
+    await context.entities.Utilizador.update({
+      where: { id: utilizador.id },
+      data: {
+        MoradaMoradaId: morada.MoradaId,
+      },
+    })
+  }
+
+  const updatedUtilizador = await context.entities.Utilizador.update({
+    where: { 
+      NIF: args.NIF,
+      NumSocio: args.NumSocio
+    },
+    data: {
+      Nome: args.Nome,
     }
   })
 

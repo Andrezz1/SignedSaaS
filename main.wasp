@@ -186,3 +186,8 @@ action updateEstadoUtilizador {
   fn: import { updateEstadoUtilizador } from "@src/services/utilizadorService",
   entities: [Utilizador]
 }
+
+action updateUtilizadorByNIFNumSocio {
+  fn: import { updateUtilizadorByNIFNumSocio } from "@src/services/utilizadorService",
+  entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
+}
