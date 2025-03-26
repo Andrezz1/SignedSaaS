@@ -1,4 +1,4 @@
-import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao } from 'wasp/entities'
+import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao, CodigoPostal } from 'wasp/entities'
 import { 
   type GetUtilizadores, 
   type GetUtilizadorByNIF, 
@@ -8,7 +8,6 @@ import {
   type GetUtilizadorDesabilitado,
   type UpdateEstadoUtilizador,
   type UpdateUtilizadorByNIFNumSocio,
-  type GetUtilizadorInfoByUtilizadorId,
 } from 'wasp/server/operations'
 import { capitalize } from './utils'
 
@@ -51,7 +50,8 @@ export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'Es
 export const getUtilizadoresInfo: GetUtilizadoresInfo<
   { 
     page: number,
-    pageSize: number },
+    pageSize: number
+  },
   {
     data: {
       utilizador: Utilizador
@@ -76,7 +76,11 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
     },
     include: {
       TipoUtilizador: true,
-      Morada: true,
+      Morada: {
+        include: {
+          CodigoPostal: true,
+        },
+      },
       Contacto: true,
       Subscricoes: true,
     },
@@ -96,7 +100,7 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
       contacto: Contacto!,
       subscricoes: Subscricoes,
     })
-  );
+  )
 
   return {
     data: utilizadoresInfo,
@@ -106,6 +110,7 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
     totalPages: Math.ceil(totalUtilizadores / pageSize),
   }
 }
+
 
 type CreateUtilizadorPayload = {
   Nome: string
