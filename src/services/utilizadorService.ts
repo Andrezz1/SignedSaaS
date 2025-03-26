@@ -48,58 +48,63 @@ export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'Es
   return [utilizador]
 }
 
-export const getUtilizadorInfoByUtilizadorId: GetUtilizadorInfoByUtilizadorId<Pick<Utilizador, 'id'>, Utilizador[]
-> = async (args, context) => {
-  if (!args.id) {
-    throw new Error("Id do utilizador nao encontrado")
+export const getUtilizadoresInfo: GetUtilizadoresInfo<
+  { 
+    page: number,
+    pageSize: number },
+  {
+    data: {
+      utilizador: Utilizador
+      tipoUtilizador: TipoUtilizador
+      morada: Morada
+      contacto: Contacto
+      subscricoes: Subscricao[]
+    }[]
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
   }
+> = async ({ page, pageSize }, context) => {
+  const skip = (page - 1) * pageSize
+  const take = pageSize
 
-  const utilizador = await context.entities.Utilizador.findFirst({
-    where: { id: args.id },
-    include: {
-      TipoUtilizador: true, 
-      Morada: true,
-      Contacto: true, 
-      Subscricoes: true, 
-    }
-  })
-
-  if(!utilizador) {
-    throw new Error ("Utilizador nao encontrado")
-  }
-
-  return [utilizador]
-}
-
-export const getUtilizadoresInfo: GetUtilizadoresInfo<void, Array<{ 
-  utilizador: Utilizador, 
-  tipoUtilizador: TipoUtilizador,
-  morada: Morada, 
-  contacto: Contacto,
-  subscricoes: Subscricao[]
-}>> = async (_args, context) => {
   const utilizadores = await context.entities.Utilizador.findMany({
-    where: {
-      EstadoUtilizador: true,
+    where: { EstadoUtilizador: true },
+    orderBy: {
+      NumSocio: 'desc',
     },
-
     include: {
-      TipoUtilizador: true, 
+      TipoUtilizador: true,
       Morada: true,
-      Contacto: true, 
-      Subscricoes: true, 
-    }
+      Contacto: true,
+      Subscricoes: true,
+    },
+    skip,
+    take,
   })
 
-  const UtilizadoresInfo = utilizadores.map(({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
-    utilizador,
-    tipoUtilizador: TipoUtilizador!,
-    morada: Morada!,
-    contacto: Contacto!,
-    subscricoes: Subscricoes, 
-  }))
+  const totalUtilizadores = await context.entities.Utilizador.count({
+    where: { EstadoUtilizador: true },
+  })
 
-  return UtilizadoresInfo
+  const utilizadoresInfo = utilizadores.map(
+    ({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
+      utilizador,
+      tipoUtilizador: TipoUtilizador!,
+      morada: Morada!,
+      contacto: Contacto!,
+      subscricoes: Subscricoes,
+    })
+  );
+
+  return {
+    data: utilizadoresInfo,
+    total: totalUtilizadores,
+    page,
+    pageSize,
+    totalPages: Math.ceil(totalUtilizadores / pageSize),
+  }
 }
 
 type CreateUtilizadorPayload = {
