@@ -19,9 +19,9 @@ page TestePage {
   component: import  Teste  from "@src/pages/Teste"
 }
 
-route DashboardRoute { path: "/dashboard", to: DashboardPage }
-page DashboardPage {
-  component: import  DashboardPage  from "@src/pages/DashboardPage"
+route SociosRoute { path: "/socios", to: SociosPage }
+page SociosPage {
+  component: import  SociosPage  from "@src/pages/SociosPage"
 }
 
 route SignUpRoute { path: "/signup", to: SignUpPage }
