@@ -6,7 +6,7 @@ import UsersTable from '../components/usersTable';
 import { useState } from 'react';
 
 const SociosPage = ({ user }: { user: AuthUser }) => {
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
 
   return (

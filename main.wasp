@@ -29,10 +29,10 @@ page SignUpPage {
   component: import  Signup  from "@src/pages/auth/SignUp"
 }
 
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import  Login  from "@src/pages/auth/Login"
-}
+// route LoginRoute { path: "/login", to: LoginPage }
+// page LoginPage {
+//   component: import  Login  from "@src/pages/auth/Login"
+// }
 
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
