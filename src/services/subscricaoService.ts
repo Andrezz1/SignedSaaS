@@ -38,6 +38,20 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
   return SubscricaoInfo
 }
 
+export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, Subscricao[]>
+= async (
+  args,
+  context
+) => {
+  if(!args.id) {
+    throw new Error("UtilizadorId nao foi encontrado")
+  }
+
+  return context.entities.Subscricao.findMany({
+    where: {  UtilizadorId: args.id },
+  })
+}
+
 // Este job não está a utilizar o wasp, não estava a conseguir (tentar implementar no main.wasp futuramente)
 
 const prisma = new PrismaClient()
@@ -66,18 +80,3 @@ cron.schedule('0 0 * * *', async () => {
   console.log('A procurar subscricoes...')
   await updateAllSubscricoesStatus()
 })
-
-export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, Subscricao[]>
-= async (
-  args,
-  context
-) => {
-  if(!args.id) {
-    throw new Error("UtilizadorId nao foi encontrado")
-  }
-
-  return context.entities.Subscricao.findMany({
-    where: {  UtilizadorId: args.id },
-  })
-}
-
