@@ -38,16 +38,14 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
   return SubscricaoInfo
 }
 
+// Este job não está a utilizar o wasp, não estava a conseguir (tentar implementar no main.wasp futuramente)
 
-
-// Este job não está a utilizar o wasp, não estava a conseguir, tentar implementar no main.wasp futuramente
-
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 const updateAllSubscricoesStatus = async () => {
   try {
     const currentDate = new Date()
-    const subscricoes = await prisma.subscricao.findMany();
+    const subscricoes = await prisma.subscricao.findMany()
 
     for (const subscricao of subscricoes) {
       const estadoAtualizado = subscricao.DataFim && new Date(subscricao.DataFim) > currentDate
@@ -55,19 +53,19 @@ const updateAllSubscricoesStatus = async () => {
       await prisma.subscricao.update({
         where: { SubscricaoId: subscricao.SubscricaoId },
         data: { EstadoSubscricao: estadoAtualizado },
-      });
+      })
 
-      console.log(`Updated Subscricao ${subscricao.SubscricaoId} to estado ${estadoAtualizado}`)
+      console.log(`Subscricao: ${subscricao.SubscricaoId} estado: ${estadoAtualizado}`)
     }
   } catch (error) {
     console.error('Erro ao atualizar subscrições:', error)
   }
 }
 
-cron.schedule('* * * * *', async () => {
-  console.log('Executando job de atualização de subscrições...')
+cron.schedule('0 0 * * *', async () => {
+  console.log('A procurar subscricoes...')
   await updateAllSubscricoesStatus()
-});
+})
 
 export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, Subscricao[]>
 = async (

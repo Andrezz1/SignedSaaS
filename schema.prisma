@@ -108,6 +108,7 @@ model TipoUtilizador {
 
 model Utilizador {
   id Int             @id @default(autoincrement())
+  NumSocio     Int?            @unique
   Nome         String?
   Username     String?         @unique
   DataNascimento DateTime?
