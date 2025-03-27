@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import { updateUtilizador, useAction } from 'wasp/client/operations';
+import {
+  updateUtilizador,
+  getTipoUtilizador, 
+  useQuery,
+  useAction
+} from 'wasp/client/operations';
 
 const EditUserContainer = ({ user, onClose }: any) => {
   const { utilizador, morada, contacto } = user;
-  
+
+  const { data: tiposUtilizador = [] } = useQuery(getTipoUtilizador);
+
   const [nome, setNome] = useState(utilizador.Nome || '');
   const [tipoUtilizadorId, setTipoUtilizadorId] = useState(utilizador.TipoUtilizadorTipoUtilizadorId || '');
   const [email, setEmail] = useState(contacto?.Email || '');
@@ -11,111 +18,141 @@ const EditUserContainer = ({ user, onClose }: any) => {
   const [concelho, setConcelho] = useState(morada?.Concelho || '');
   const [distrito, setDistrito] = useState(morada?.Distrito || '');
   const [localidade, setLocalidade] = useState(morada?.CodigoPostal?.Localidade || '');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const updateUserAction = useAction(updateUtilizador);
 
+  const validateFields = () => {
+    if (!/^\d{9}$/.test(telemovel)) {
+      setErrorMsg('Telemóvel deve conter exatamente 9 dígitos.');
+      return false;
+    }
+    if (!email.includes('@') || !email.includes('.')) {
+      setErrorMsg('Email inválido.');
+      return false;
+    }
+    if (!/^\d{4}-\d{3}$/.test(localidade)) {
+      setErrorMsg('Código Postal deve estar no formato XXXX-XXX.');
+      return false;
+    }
+    setErrorMsg('');
+    return true;
+  };
+
   const handleSave = async () => {
+    if (!validateFields()) return;
     const payload = {
       id: utilizador.id,
       Nome: nome,
-      NumSocio: user.utilizador.NumSocio,
+      NumSocio: utilizador.NumSocio,
       TipoUtilizadorId: tipoUtilizadorId,
       Contacto: { Email: email, Telemovel: telemovel },
-      Morada: { Concelho: concelho, Distrito: distrito, CodigoPostal: { Localidade: localidade } }
+      Morada: {
+        Concelho: concelho,
+        Distrito: distrito,
+        CodigoPostal: { Localidade: localidade }
+      }
     };
     try {
       await updateUserAction(payload);
       onClose();
     } catch (error) {
       console.error('Erro ao atualizar o utilizador:', error);
+      setErrorMsg('Erro ao atualizar o utilizador. Por favor, tente novamente.');
     }
+  };
+
+  const handleTelemovelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const numericValue = e.target.value.replace(/\D/g, '').slice(0, 9);
+    setTelemovel(numericValue);
+  };
+
+  const handleLocalidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 4) {
+      value = value.slice(0, 4) + '-' + value.slice(4, 7);
+    }
+    setLocalidade(value);
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded shadow-md max-w-lg w-full">
-        <h2 className="text-lg font-semibold mb-4">Editar Utilizador</h2>
-        
-        <div className="space-y-4">
+      <div className="bg-white w-[850px] max-h-[85vh] overflow-y-auto p-10 rounded-xl shadow-lg">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-800">Editar Utilizador</h2>
+        {errorMsg && <p className="mb-4 text-red-500 text-sm">{errorMsg}</p>}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nome:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
             <input
               type="text"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          
           <div>
-            <label className="block text-sm font-medium text-gray-700">NIF (não editável):</label>
-            <input
-              type="text"
-              value={utilizador.NIF || ''}
-              disabled
-              className="mt-1 block w-full p-2 border rounded bg-gray-100 text-gray-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tipo de Utilizador:</label>
-            <input
-              type="text"
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Utilizador</label>
+            <select
               value={tipoUtilizadorId}
-              onChange={(e) => setTipoUtilizadorId(e.target.value)}
-              className="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+              onChange={(e) => setTipoUtilizadorId(parseInt(e.target.value))}
+              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              {tiposUtilizador.map((tipo: any) => (
+                <option key={tipo.TipoUtilizadorId} value={tipo.TipoUtilizadorId}>
+                  {tipo.Descricao}
+                </option>
+              ))}
+            </select>
           </div>
-          
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Telemóvel:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Telemóvel</label>
             <input
               type="text"
               value={telemovel}
-              onChange={(e) => setTelemovel(e.target.value)}
-              className="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              onChange={handleTelemovelChange}
+              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              maxLength={9}
             />
           </div>
-          
           <div>
-            <label className="block text-sm font-medium text-gray-700">Concelho:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Concelho</label>
             <input
               type="text"
               value={concelho}
               onChange={(e) => setConcelho(e.target.value)}
-              className="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Distrito:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Distrito</label>
             <input
               type="text"
               value={distrito}
               onChange={(e) => setDistrito(e.target.value)}
-              className="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Localidade:</label>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Código Postal</label>
             <input
               type="text"
               value={localidade}
-              onChange={(e) => setLocalidade(e.target.value)}
-              className="mt-1 block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              onChange={handleLocalidadeChange}
+              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              maxLength={8}
             />
           </div>
         </div>
-
-        <div className="mt-6 flex justify-end gap-4">
+        <div className="mt-8 flex justify-end gap-4">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
@@ -126,7 +163,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
             onClick={handleSave}
             className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
           >
-            Salvar
+            Guardar
           </button>
         </div>
       </div>
