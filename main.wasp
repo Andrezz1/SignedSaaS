@@ -10,36 +10,38 @@ app SignedProject {
         userSignupFields: import { getUserFields } from "@src/services/auth/userSignupFields"
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: "/login",
+    onAuthSucceededRedirectTo: "/dashboard"
   }
 }
 
-route TesteRoute { path: "/teste", to: TestePage }
-page TestePage {
-  component: import  Teste  from "@src/pages/Teste"
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@src/pages/LoginPage"
+}
+
+route CreateAdminRoute { path: "/create-admin", to: CreateAdminPage }
+page CreateAdminPage {
+  component: import { CreateAdminPage } from "@src/pages/CreateAdminPage"
 }
 
 route EditProfileRoute { path: "/edit-profile", to: EditProfilePage }
 page EditProfilePage {
-  authRequired: false,
+  authRequired: true,
   component: import  EditProfile  from "@src/pages/EditProfilePage"
 }
 
 route SociosRoute { path: "/socios", to: SociosPage }
 page SociosPage {
-  authRequired: false,
+  authRequired: true,
   component: import  SociosPage  from "@src/pages/SociosPage"
 }
 
-route SignUpRoute { path: "/signup", to: SignUpPage }
-page SignUpPage {
-  component: import  Signup  from "@src/pages/auth/SignUp"
+route DashboardRoute { path: "/dashboard", to: DashboardPage }
+page DashboardPage {
+  authRequired: true,
+  component: import { DashboardPage } from "@src/pages/DashboardPage"
 }
-
-// route LoginRoute { path: "/login", to: LoginPage }
-// page LoginPage {
-//   component: import  Login  from "@src/pages/auth/Login"
-// }
 
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
