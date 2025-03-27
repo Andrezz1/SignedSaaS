@@ -5,10 +5,10 @@ import {
   useQuery,
   useAction
 } from 'wasp/client/operations';
+import MyPhoneInput from '../components/phoneInput';
 
 const EditUserContainer = ({ user, onClose }: any) => {
   const { utilizador, morada, contacto } = user;
-
   const { data: tiposUtilizador = [] } = useQuery(getTipoUtilizador);
 
   const [nome, setNome] = useState(utilizador.Nome || '');
@@ -23,8 +23,8 @@ const EditUserContainer = ({ user, onClose }: any) => {
   const updateUserAction = useAction(updateUtilizador);
 
   const validateFields = () => {
-    if (!/^\d{9}$/.test(telemovel)) {
-      setErrorMsg('Telemóvel deve conter exatamente 9 dígitos.');
+    if (!telemovel) {
+      setErrorMsg('Telemóvel inválido.');
       return false;
     }
     if (!email.includes('@') || !email.includes('.')) {
@@ -41,12 +41,13 @@ const EditUserContainer = ({ user, onClose }: any) => {
 
   const handleSave = async () => {
     if (!validateFields()) return;
+    const formattedTelemovel = telemovel.replace(/^(\+\d{1,3})(\d+)/, '$1 $2');
     const payload = {
       id: utilizador.id,
       Nome: nome,
       NumSocio: utilizador.NumSocio,
       TipoUtilizadorId: tipoUtilizadorId,
-      Contacto: { Email: email, Telemovel: telemovel },
+      Contacto: { Email: email, Telemovel: formattedTelemovel },
       Morada: {
         Concelho: concelho,
         Distrito: distrito,
@@ -60,11 +61,6 @@ const EditUserContainer = ({ user, onClose }: any) => {
       console.error('Erro ao atualizar o utilizador:', error);
       setErrorMsg('Erro ao atualizar o utilizador. Por favor, tente novamente.');
     }
-  };
-
-  const handleTelemovelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const numericValue = e.target.value.replace(/\D/g, '').slice(0, 9);
-    setTelemovel(numericValue);
   };
 
   const handleLocalidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,12 +111,9 @@ const EditUserContainer = ({ user, onClose }: any) => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Telemóvel</label>
-            <input
-              type="text"
+            <MyPhoneInput
               value={telemovel}
-              onChange={handleTelemovelChange}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-              maxLength={9}
+              onChange={(value: string) => setTelemovel(value)}
             />
           </div>
           <div>
