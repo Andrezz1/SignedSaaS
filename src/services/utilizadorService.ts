@@ -85,7 +85,7 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
   const utilizadores = await context.entities.Utilizador.findMany({
     where: utilizadoresAtivos,
     orderBy: {
-      NumSocio: 'desc',
+      id: 'desc',
     },
     include: {
       TipoUtilizador: true,
@@ -123,8 +123,6 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
     totalPages: Math.ceil(totalUtilizadores / pageSize),
   }
 }
-
-
 
 type CreateUtilizadorPayload = {
   Nome: string
@@ -215,8 +213,6 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
   return utilizador
 }
 
-
-
 type UpdateUtilizadorPayload = {
   id: number
   NumSocio: number
@@ -295,6 +291,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       where: {
         Concelho: concelho,
         Distrito: distrito,
+        CodigoPostalCodigoPostalId: codigoPostalId,
       },
     })
 
@@ -391,6 +388,7 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
       where: {
         Concelho: concelho,
         Distrito: distrito,
+        CodigoPostalCodigoPostalId: codigoPostalId,
       },
     })
 
