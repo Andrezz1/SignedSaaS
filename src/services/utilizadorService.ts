@@ -1,4 +1,4 @@
-import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao, CodigoPostal } from 'wasp/entities'
+import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao} from 'wasp/entities'
 import { 
   type GetUtilizadores, 
   type GetUtilizadorByNIF, 
@@ -10,8 +10,12 @@ import {
   type UpdateUtilizadorByNIFNumSocio,
 } from 'wasp/server/operations'
 import { capitalize } from './utils'
+import { HttpError } from 'wasp/server'
 
 export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
   return context.entities.Utilizador.findMany({
     orderBy: { id: 'asc' },
   })
@@ -67,6 +71,10 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
     totalPages: number
   }
 > = async ({ page, pageSize, searchTerm }, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const skip = (page - 1) * pageSize
   const take = pageSize
 
@@ -158,8 +166,6 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
   if (!ultimoUtilizador || ultimoUtilizador.NumSocio === null) {
     ultimoUtilizador = await context.entities.Utilizador.findFirst({
       where: { NumSocio: { not: null } },
-      orderBy: { NumSocio: 'desc' },
-      select: { NumSocio: true },
     })
   }
 
