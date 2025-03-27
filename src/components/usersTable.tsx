@@ -22,9 +22,10 @@ const UsersTable = ({
   setShowFilters,
   setSearchFilter,
 }: UsersTableProps) => {
+  const [tempSearch, setTempSearch] = useState(searchFilter);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [userToDelete, setUserToDelete] = useState<any>(null);
-  const [userToEdit, setUserToEdit] = useState<any>(null); 
+  const [userToEdit, setUserToEdit] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -35,7 +36,6 @@ const UsersTable = ({
   });
 
   const updateUserEstadoMutation = useAction(updateEstadoUtilizador);
-
   const utilizadoresInfo = utilizadoresInfoResponse?.data || [];
   const totalPages = utilizadoresInfoResponse?.totalPages || 1;
 
@@ -76,19 +76,8 @@ const UsersTable = ({
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 text-sm font-bold text-black cursor-pointer hover:text-gray-700"
             >
-              <svg
-                className="w-5 h-5 text-black"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5.586L3.293 6.707A1 1 0 013 6V4z"
-                />
+              <svg className="w-5 h-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5.586L3.293 6.707A1 1 0 013 6V4z" />
               </svg>
               {showFilters ? "Esconder Filtros" : "Mostrar Filtros"}
             </span>
@@ -110,31 +99,41 @@ const UsersTable = ({
               </select>
             </div>
           </div>
-          <form className="relative w-[400px]">
+          <form
+            className="relative w-[400px]"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setSearchFilter(tempSearch);
+              setCurrentPage(1);
+            }}
+          >
             <div className="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
-              <svg
-                className="w-4 h-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                />
+              <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
               </svg>
             </div>
             <input
               type="search"
               placeholder="Pesquisar..."
-              value={searchFilter}
-              onChange={(e) => setSearchFilter(e.target.value)}
+              value={tempSearch}
+              onChange={(e) => setTempSearch(e.target.value)}
               className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
             />
+            {tempSearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTempSearch("");
+                  setSearchFilter("");
+                  setCurrentPage(1);
+                }}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </form>
         </div>
         <div className="grid grid-cols-12 border-t-4 border-stroke py-4.5 px-4 dark:border-strokedark md:px-6">
@@ -187,13 +186,7 @@ const UsersTable = ({
                       onClick={() => setUserToDelete(user)}
                       className="flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-transparent hover:bg-gray-100 text-red-400"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M10 3h4a1 1 0 011 1v1H9V4a1 1 0 011-1z" />
                       </svg>
                     </button>
@@ -254,9 +247,7 @@ const UsersTable = ({
           ))}
           <li>
             <button
-              onClick={() =>
-                currentPage < totalPages && setCurrentPage(currentPage + 1)
-              }
+              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
               className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               Next
