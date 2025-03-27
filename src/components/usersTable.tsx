@@ -7,7 +7,6 @@ import {
 import { useState } from 'react';
 import LoadingSpinner from '../layout/LoadingSpinner';
 import ExpandedUserDetails from './userDetails';
-import EditUser from './editUserContainer';
 import EditUserContainer from './editUserContainer';
 
 interface UsersTableProps {
@@ -26,13 +25,13 @@ const UsersTable = ({
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [userToDelete, setUserToDelete] = useState<any>(null);
   const [userToEdit, setUserToEdit] = useState<any>(null); 
-
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfo, {
     page: currentPage,
     pageSize: pageSize,
+    searchTerm: searchFilter,
   });
 
   const updateUserEstadoMutation = useAction(updateEstadoUtilizador);
@@ -88,16 +87,11 @@ const UsersTable = ({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M3 4a1 1 0 011-1h16a1 1 0 
-                     011 1v2a1 1 0 01-.293.707L15 
-                     13.414V19a1 1 0 01-1 1h-4a1 
-                     1 0 01-1-1v-5.586L3.293 
-                     6.707A1 1 0 013 6V4z"
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5.586L3.293 6.707A1 1 0 013 6V4z"
                 />
               </svg>
               {showFilters ? "Esconder Filtros" : "Mostrar Filtros"}
             </span>
-
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-black">Por página:</span>
               <select
@@ -106,8 +100,7 @@ const UsersTable = ({
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="w-20 border border-gray-300 rounded px-2 py-1 focus:outline-none 
-                           focus:ring-1 focus:ring-blue-500 text-sm"
+                className="w-15 border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -117,7 +110,6 @@ const UsersTable = ({
               </select>
             </div>
           </div>
-
           <form className="relative w-[400px]">
             <div className="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
               <svg
@@ -132,9 +124,7 @@ const UsersTable = ({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 
-                     1 1 1 8a7 7 0 0 1 14 
-                     0Z"
+                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                 />
               </svg>
             </div>
@@ -143,15 +133,11 @@ const UsersTable = ({
               placeholder="Pesquisar..."
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              className="block w-full p-2 ps-10 text-sm text-gray-900 border 
-                         border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 
-                         focus:border-blue-500"
+              className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
             />
           </form>
         </div>
-
-        <div className="grid grid-cols-12 border-t-4 border-stroke py-4.5 px-4 
-                        dark:border-strokedark md:px-6">
+        <div className="grid grid-cols-12 border-t-4 border-stroke py-4.5 px-4 dark:border-strokedark md:px-6">
           <div className="col-span-3 flex items-center">
             <p className="font-medium">Nome</p>
           </div>
@@ -168,7 +154,6 @@ const UsersTable = ({
             <p className="font-medium">Ações</p>
           </div>
         </div>
-
         {isLoading && <LoadingSpinner />}
         {!isLoading &&
           filteredUtilizadores.map((user: any) => {
@@ -181,8 +166,7 @@ const UsersTable = ({
             const isOpen = selectedUser?.utilizador?.id === utilizador.id;
             return (
               <div key={utilizador.id}>
-                <div className="grid grid-cols-12 border-t border-stroke py-4.5 px-4 
-                                dark:border-strokedark md:px-6">
+                <div className="grid grid-cols-12 border-t border-stroke py-4.5 px-4 dark:border-strokedark md:px-6">
                   <div className="col-span-3 flex items-center">
                     <p className="text-sm text-black dark:text-white">{utilizador.Nome}</p>
                   </div>
@@ -201,9 +185,7 @@ const UsersTable = ({
                     <button
                       title="Eliminar"
                       onClick={() => setUserToDelete(user)}
-                      className="flex items-center justify-center w-10 h-10 
-                                 rounded-full transition-colors bg-transparent 
-                                 hover:bg-gray-100 text-red-400"
+                      className="flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-transparent hover:bg-gray-100 text-red-400"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -212,85 +194,30 @@ const UsersTable = ({
                         viewBox="0 0 24 24"
                         stroke="currentColor"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M19 7l-.867 12.142A2 2 0 
-                             0116.138 21H7.862a2 2 0 
-                             01-1.995-1.858L5 7m5 4v6m4-6v6M1 
-                             7h22M10 3h4a1 1 0 011 1v1H9V4a1 1 
-                             0 011-1z"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M10 3h4a1 1 0 011 1v1H9V4a1 1 0 011-1z" />
                       </svg>
                     </button>
                     <button
                       title="Editar"
-                      onClick={() => setUserToEdit(user)} 
-                      className="flex items-center justify-center w-10 h-10 
-                                 rounded-full transition-colors bg-transparent 
-                                 hover:bg-gray-100 text-black"
+                      onClick={() => setUserToEdit(user)}
+                      className="flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-transparent hover:bg-gray-100 text-black"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 640 512"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path d="M224 256A128 128 0 1 0 
-                                 96 128a128 128 0 0 0 
-                                 128 128zm90.5 32h-11.7a174.08 
-                                 174.08 0 0 1-157.6 0h-11.7A133.53 
-                                 133.53 0 0 0 0 421.5V464a48 
-                                 48 0 0 0 48 48h232.81a172.08 
-                                 172.08 0 0 1 33.7-81.56l81.12-81.12c-9.63-3.6-19.8-5.32-30.13-5.32zm
-                                 317.4-73.4L586.3 161.9a31.9 
-                                 31.9 0 0 0-45.2 0L505 
-                                 198l79.1 79.1 36.1-36.1a31.9 
-                                 31.9 0 0 0 0-45.2zM493.7 
-                                 253.4l-142 142a31.87 31.87 
-                                 0 0 0-8.4 13.9l-22.2 
-                                 66.3a16 16 0 0 0 20.2 
-                                 20.2l66.3-22.2a31.87 
-                                 31.87 0 0 0 13.9-8.4l142-142z" />
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" className="w-5 h-5">
+                        <path d="M224 256A128 128 0 1 0 96 128a128 128 0 0 0 128 128zm90.5 32h-11.7a174.08 174.08 0 0 1-157.6 0h-11.7A133.53 133.53 0 0 0 0 421.5V464a48 48 0 0 0 48 48h232.81a172.08 172.08 0 0 1 33.7-81.56l81.12-81.12c-9.63-3.6-19.8-5.32-30.13-5.32zm317.4-73.4L586.3 161.9a31.9 31.9 0 0 0-45.2 0L505 198l79.1 79.1 36.1-36.1a31.9 31.9 0 0 0 0-45.2zM493.7 253.4l-142 142a31.87 31.87 0 0 0-8.4 13.9l-22.2 66.3a16 16 0 0 0 20.2 20.2l66.3-22.2a31.87 31.87 0 0 0 13.9-8.4l142-142z" />
                       </svg>
                     </button>
                     <button
                       title="Ver mais"
                       onClick={() => setSelectedUser(isOpen ? null : user)}
-                      className="flex items-center justify-center w-10 h-10 
-                                 rounded-full transition-colors bg-transparent 
-                                 hover:bg-gray-100 text-black"
+                      className="flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-transparent hover:bg-gray-100 text-black"
                     >
                       {isOpen ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-5 h-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M5 15l7-7 7 7"
-                          />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" />
                         </svg>
                       ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-5 h-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M19 9l-7 7-7-7"
-                          />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                         </svg>
                       )}
                     </button>
@@ -301,18 +228,12 @@ const UsersTable = ({
             );
           })}
       </div>
-
-      {/* Paginação */}
       <nav aria-label="Page navigation" className="mt-4 flex justify-center">
         <ul className="inline-flex -space-x-px text-sm">
           <li>
             <button
               onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-              className="flex items-center justify-center px-3 h-8 leading-tight 
-                         text-gray-500 bg-white border border-e-0 border-gray-300 
-                         rounded-s-lg hover:bg-gray-100 hover:text-gray-700 
-                         dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 
-                         dark:hover:bg-gray-700 dark:hover:text-white"
+              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               Previous
             </button>
@@ -336,11 +257,7 @@ const UsersTable = ({
               onClick={() =>
                 currentPage < totalPages && setCurrentPage(currentPage + 1)
               }
-              className="flex items-center justify-center px-3 h-8 leading-tight 
-                         text-gray-500 bg-white border border-gray-300 
-                         rounded-e-lg hover:bg-gray-100 hover:text-gray-700 
-                         dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 
-                         dark:hover:bg-gray-700 dark:hover:text-white"
+              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               Next
             </button>
@@ -370,11 +287,10 @@ const UsersTable = ({
           </div>
         </div>
       )}
-
       {userToEdit && (
         <EditUserContainer
           user={userToEdit}
-          onClose={() => setUserToEdit(null)} 
+          onClose={() => setUserToEdit(null)}
         />
       )}
     </div>
