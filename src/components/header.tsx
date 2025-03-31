@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { useLocation } from "react-router-dom";
-import { logout } from "wasp/client/auth";
+import { logout, useAuth} from "wasp/client/auth";
 import "../index.css";
 
 interface HeaderProps {
@@ -8,8 +8,8 @@ interface HeaderProps {
 }
 
 function Header({ navItems }: HeaderProps) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
+  const { data:user } = useAuth();
 
   return (
     <nav className="bg-white border-b border-gray-200 dark:bg-gray-900 w-full">
@@ -32,50 +32,39 @@ function Header({ navItems }: HeaderProps) {
             ))}
           </ul>
         </div>
-        <div className="flex items-center ml-auto relative">
-          <button
-            type="button"
-            className="flex items-center justify-center w-12 h-12 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-full transition duration-200 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-          >
-            <span className="sr-only">Abrir menu do utilizador</span>
+        <div className="flex items-center ml-auto space-x-4">
+          <p className="text-gray-900 dark:text-white font-medium">
+            {user?.Username || "Guest"}
+          </p>
+          <div className="flex items-center justify-center w-12 h-12 bg-gray-800 text-white font-bold rounded-full transition duration-200 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
+            <span className="sr-only">Ícone de utilizador</span>
             <svg
-              className="w-8 h-8 text-white"
+              className="w-6 h-6 text-white"
               fill="currentColor"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path d="M12 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm0 14c4.418 0 8 3.582 8 8H4c0-4.418 3.582-8 8-8Z" />
             </svg>
+          </div>
+          <button
+            onClick={logout}
+            className="flex items-center justify-center w-12 h-12 bg-red-400 hover:bg-red-200 text-white font-bold rounded-full transition duration-200 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+          >
+            <span className="sr-only">Terminar sessão</span>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 9V5.25a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h6.75a2.25 2.25 0 002.25-2.25V15m-3-3h8.25m0 0-3-3m3 3-3 3"
+              />
+            </svg>
           </button>
-          {dropdownOpen && (
-            <div className="absolute top-14 right-0 z-50 bg-white dark:bg-gray-700 rounded-lg shadow-lg w-48">
-              <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                <p className="font-medium">Bonnie Green</p>
-                <p className="text-gray-500 dark:text-gray-400 text-xs">
-                  name@flowbite.com
-                </p>
-              </div>
-              <ul className="py-2">
-                <li>
-                  <a
-                    href="/edit-profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200"
-                  >
-                    Editar Perfil
-                  </a>
-                </li>
-                <li>
-                  <button
-                    onClick={logout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200"
-                  >
-                    Sair
-                  </button>
-                </li>
-              </ul>
-            </div>
-          )}
         </div>
       </div>
     </nav>
