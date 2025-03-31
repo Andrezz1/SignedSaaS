@@ -4,8 +4,13 @@ import {
   type GetDoacaoInfo, 
   type GetDoacaoByUtilizadorId 
 } from 'wasp/server/operations'
+import { HttpError } from 'wasp/server'
 
 export const getDoacao: GetDoacao<void, Doacao[]> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   return context.entities.Doacao.findMany({
     orderBy: { DoacaoId: 'asc' },
   })
@@ -15,6 +20,10 @@ export const getDoacaoInfo: GetDoacaoInfo<void, Array<{
   doacao: Doacao, 
   utilizador: Utilizador 
 }>> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const doacoes = await context.entities.Doacao.findMany({
     include: {
       Utilizador: true,
@@ -31,6 +40,10 @@ export const getDoacaoInfo: GetDoacaoInfo<void, Array<{
 
 export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, 'id'>, Doacao[]>
 = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   if(!args.id) {
     throw new Error("UtilizadorId nao foi encontrado")
   }
