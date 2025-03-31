@@ -48,7 +48,7 @@ function Header({ navItems }: HeaderProps) {
           </div>
           <button
             onClick={logout}
-            className="flex items-center justify-center w-12 h-12 bg-red-400 hover:bg-red-200 text-white font-bold rounded-full transition duration-200 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+            className="flex items-center justify-center w-12 h-12 bg-red-400 hover:bg-red-600 text-white font-bold rounded-full transition duration-200 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
           >
             <span className="sr-only">Terminar sessão</span>
             <svg

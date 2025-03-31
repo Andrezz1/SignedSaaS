@@ -44,6 +44,12 @@ page DashboardPage {
   component: import { DashboardPage } from "@src/pages/DashboardPage"
 }
 
+route CreateSocioRoute { path: "/create-socio", to: CreateSocioPage }
+page CreateSocioPage {
+  authRequired: true,
+  component: import  CreateSocioPage  from "@src/pages/CreateSocioPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",

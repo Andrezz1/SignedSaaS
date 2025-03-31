@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { LoginForm } from 'wasp/client/auth'
 
 export const LoginPage = () => {
