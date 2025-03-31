@@ -9,14 +9,20 @@ export function capitalize(str: string): string {
 const prisma = new PrismaClient()
 
 type SendSmsParams = {
-  accountSid: string
-  authToken: string
-  from: string
   to: string
   message: string
 }
 
-export async function sendSms({ accountSid, authToken, from, to, message }: SendSmsParams): Promise<void> {
+export async function sendSms({ to, message }: SendSmsParams): Promise<void> {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID as string
+  const authToken = process.env.TWILIO_AUTH_TOKEN as string
+  const from = process.env.TWILIO_PHONE_NUMBER as string
+
+  if (!accountSid || !authToken || !from) {
+    console.error('Twilio credentials are missing in environment variables.')
+    return
+  }
+
   const client = twilio(accountSid, authToken)
 
   try {
@@ -25,21 +31,26 @@ export async function sendSms({ accountSid, authToken, from, to, message }: Send
       from,
       to,
     })
-    console.log(`SMS enviadopara:${to}`)
+    console.log(`SMS enviado para: ${to}`)
   } catch (error) {
-    console.error('Erro ao enviar SMS:', error)
+    console.error(`Erro ao enviar SMS para ${to}:`, error)
     throw error
   }
 }
 
 export async function notifyExpiringSubscriptions() {
-  const mesFim = new Date()
-  mesFim.setMonth(mesFim.getMonth() + 1)
+  const inicioMesFim = new Date()
+  inicioMesFim.setMonth(inicioMesFim.getMonth() + 1)
+  inicioMesFim.setHours(0, 0, 0, 0)
+
+  const fimMesFim = new Date(inicioMesFim)
+  fimMesFim.setHours(23, 59, 59, 999)
 
   const expiraSubscricao = await prisma.subscricao.findMany({
     where: {
       DataFim: {
-        lte: mesFim,
+        gte: inicioMesFim,
+        lte: fimMesFim,
       },
     },
     include: {
@@ -53,7 +64,6 @@ export async function notifyExpiringSubscriptions() {
 
   if (expiraSubscricao.length === 0) {
     console.log('Nenhuma subscricao prestes a expirar')
-    return
   }
 
   for (const subscricao of expiraSubscricao) {
@@ -64,9 +74,6 @@ export async function notifyExpiringSubscriptions() {
       const message = `Ola ${utilizador.Nome}, a sua subscrição expira em breve (${subscricao.DataFim.toDateString()}).`
       
       await sendSms({
-        accountSid: 'AC9d32a745fc94d94bcd1248337ed8dcfb',
-        authToken: '49ed2a547cecf3578fe085e9e67d6d9c',
-        from: '+12543543854',
         to: "+" + nrTelemovel,
         message,
       })
@@ -74,7 +81,7 @@ export async function notifyExpiringSubscriptions() {
   }
 }
 
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('1 0 * * *', async () => {
   console.log('A procurar subscricoes...')
   await notifyExpiringSubscriptions().catch(console.error)
 })

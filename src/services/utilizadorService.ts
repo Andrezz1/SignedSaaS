@@ -22,6 +22,10 @@ export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (_args
 }
 
 export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<void, Utilizador[]> = async(_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   return context.entities.Utilizador.findMany({
     where: { EstadoUtilizador: false }
   })
@@ -155,6 +159,10 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
   args,
   context
 ) => { 
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const concelho = capitalize(args.Morada.Concelho)
   const distrito = capitalize(args.Morada.Distrito)
 
@@ -244,6 +252,10 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   args,
   context
 ) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.id },
     include: { 
@@ -334,6 +346,10 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
   args,
   context
 ) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { 
       NIF: args.NIF,
@@ -435,6 +451,10 @@ export const updateEstadoUtilizador: UpdateEstadoUtilizador<UpdateEstadoUtilizad
   args,
   context,
 ) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const utilizador = await context.entities.Utilizador.findFirst({
     where: { id: args.id }
   })

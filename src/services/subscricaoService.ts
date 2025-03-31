@@ -6,9 +6,14 @@ import {
 } from 'wasp/server/operations'
 import { PrismaClient } from '@prisma/client'
 import cron from 'node-cron'
+import { HttpError } from 'wasp/server'
 
 
 export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   return context.entities.Subscricao.findMany({
     orderBy: { SubscricaoId: 'asc' },
   })
@@ -20,6 +25,10 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
   pagamento: Pagamento, 
   tipoSubscricao: TipoSubscricao
 }>> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const subscricoes = await context.entities.Subscricao.findMany({
     include: {
       Utilizador: true,
@@ -43,6 +52,10 @@ export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utili
   args,
   context
 ) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   if(!args.id) {
     throw new Error("UtilizadorId nao foi encontrado")
   }
@@ -76,7 +89,7 @@ const updateAllSubscricoesStatus = async () => {
   }
 }
 
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('1 0 * * *', async () => {
   console.log('A procurar subscricoes...')
   await updateAllSubscricoesStatus()
 })

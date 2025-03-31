@@ -5,8 +5,13 @@ import {
   type UpdateTipoSubscricao 
 } from 'wasp/server/operations'
 import { capitalize } from './utils'
+import { HttpError } from 'wasp/server'
 
 export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   return context.entities.TipoSubscricao.findMany({
     orderBy: { TipoSubscricaoID: 'asc' },
   })
@@ -18,6 +23,10 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayL
   args,
   context
 ) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const tiposSubscricoes = await context.entities.TipoSubscricao.create({
     data: {
       Descricao: capitalize(args.Descricao),
@@ -34,6 +43,10 @@ export const updateTipoSubscricao: UpdateTipoSubscricao<UpdateTipoSubscricaoPayL
   args,
   context,
 ) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const updatedTipoSubscricao = await context.entities.TipoSubscricao.update({
     where: { TipoSubscricaoID: args.TipoSubscricaoID },
     data: {
