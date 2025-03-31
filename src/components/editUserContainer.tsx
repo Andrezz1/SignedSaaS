@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   updateUtilizador,
-  getTipoUtilizador, 
+  getTipoUtilizador,
   useQuery,
   useAction
 } from 'wasp/client/operations';
@@ -14,7 +14,12 @@ const EditUserContainer = ({ user, onClose }: any) => {
   const [nome, setNome] = useState(utilizador.Nome || '');
   const [tipoUtilizadorId, setTipoUtilizadorId] = useState(utilizador.TipoUtilizadorTipoUtilizadorId || '');
   const [email, setEmail] = useState(contacto?.Email || '');
-  const [telemovel, setTelemovel] = useState(contacto?.Telemovel || '');
+  const [countryCode, setCountryCode] = useState(
+    contacto?.Telemovel ? contacto.Telemovel.split(' ')[0] : '+351'
+  );
+  const [phoneNumber, setPhoneNumber] = useState(
+    contacto?.Telemovel ? contacto.Telemovel.split(' ')[1] || '' : ''
+  );
   const [concelho, setConcelho] = useState(morada?.Concelho || '');
   const [distrito, setDistrito] = useState(morada?.Distrito || '');
   const [localidade, setLocalidade] = useState(morada?.CodigoPostal?.Localidade || '');
@@ -23,7 +28,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
   const updateUserAction = useAction(updateUtilizador);
 
   const validateFields = () => {
-    if (!telemovel) {
+    if (!phoneNumber || !countryCode.startsWith('+')) {
       setErrorMsg('Telemóvel inválido.');
       return false;
     }
@@ -41,7 +46,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
 
   const handleSave = async () => {
     if (!validateFields()) return;
-    const formattedTelemovel = telemovel.replace(/^(\+\d{1,3})(\d+)/, '$1 $2');
+    const formattedTelemovel = `${countryCode} ${phoneNumber}`;
     const payload = {
       id: utilizador.id,
       Nome: nome,
@@ -76,9 +81,13 @@ const EditUserContainer = ({ user, onClose }: any) => {
       <div className="bg-white w-[850px] max-h-[85vh] overflow-y-auto p-10 rounded-xl shadow-lg">
         <h2 className="text-2xl font-semibold mb-6 text-gray-800">Editar Utilizador</h2>
         {errorMsg && <p className="mb-4 text-red-500 text-sm">{errorMsg}</p>}
+
         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+          {/* Nome Completo ocupando as 2 colunas */}
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nome Completo
+            </label>
             <input
               type="text"
               value={nome}
@@ -86,8 +95,12 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
+
+          {/* Tipo de Utilizador (col 1) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Utilizador</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tipo de Utilizador
+            </label>
             <select
               value={tipoUtilizadorId}
               onChange={(e) => setTipoUtilizadorId(parseInt(e.target.value))}
@@ -100,8 +113,12 @@ const EditUserContainer = ({ user, onClose }: any) => {
               ))}
             </select>
           </div>
+
+          {/* Email (col 2) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
             <input
               type="email"
               value={email}
@@ -109,15 +126,25 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
+
+          {/* Telemóvel (col 1) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Telemóvel</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Telemóvel
+            </label>
             <MyPhoneInput
-              value={telemovel}
-              onChange={(value: string) => setTelemovel(value)}
+              countryCode={countryCode}
+              phoneNumber={phoneNumber}
+              onCountryCodeChange={setCountryCode}
+              onPhoneNumberChange={setPhoneNumber}
             />
           </div>
+
+          {/* Concelho (col 2) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Concelho</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Concelho
+            </label>
             <input
               type="text"
               value={concelho}
@@ -125,8 +152,12 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
+
+          {/* Distrito (col 1) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Distrito</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Distrito
+            </label>
             <input
               type="text"
               value={distrito}
@@ -134,8 +165,12 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Código Postal</label>
+
+          {/* Código Postal (col 2) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Código Postal
+            </label>
             <input
               type="text"
               value={localidade}
@@ -145,6 +180,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
             />
           </div>
         </div>
+
         <div className="mt-8 flex justify-end gap-4">
           <button
             onClick={onClose}
