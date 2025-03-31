@@ -83,7 +83,6 @@ const EditUserContainer = ({ user, onClose }: any) => {
         {errorMsg && <p className="mb-4 text-red-500 text-sm">{errorMsg}</p>}
 
         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-          {/* Nome Completo ocupando as 2 colunas */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nome Completo
@@ -95,8 +94,6 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-
-          {/* Tipo de Utilizador (col 1) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tipo de Utilizador
@@ -113,8 +110,6 @@ const EditUserContainer = ({ user, onClose }: any) => {
               ))}
             </select>
           </div>
-
-          {/* Email (col 2) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
@@ -126,8 +121,6 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-
-          {/* Telemóvel (col 1) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Telemóvel
@@ -139,8 +132,6 @@ const EditUserContainer = ({ user, onClose }: any) => {
               onPhoneNumberChange={setPhoneNumber}
             />
           </div>
-
-          {/* Concelho (col 2) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Concelho
@@ -152,8 +143,6 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-
-          {/* Distrito (col 1) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Distrito
@@ -165,8 +154,6 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-
-          {/* Código Postal (col 2) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Código Postal
