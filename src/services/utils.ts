@@ -13,7 +13,7 @@ type SendSmsParams = {
   message: string
 }
 
-export async function sendSms({ to, message }: SendSmsParams): Promise<void> {
+export async function enviarSms({ to, message }: SendSmsParams): Promise<void> {
   const accountSid = process.env.TWILIO_ACCOUNT_SID as string
   const authToken = process.env.TWILIO_AUTH_TOKEN as string
   const from = process.env.TWILIO_PHONE_NUMBER as string
@@ -38,7 +38,7 @@ export async function sendSms({ to, message }: SendSmsParams): Promise<void> {
   }
 }
 
-export async function notifyExpiringSubscriptions() {
+export async function enviarNotificacao() {
   const inicioMesFim = new Date()
   inicioMesFim.setMonth(inicioMesFim.getMonth() + 1)
   inicioMesFim.setHours(0, 0, 0, 0)
@@ -73,8 +73,8 @@ export async function notifyExpiringSubscriptions() {
     if (nrTelemovel) {
       const message = `Ola ${utilizador.Nome}, a sua subscrição expira em breve (${subscricao.DataFim.toDateString()}).`
       
-      await sendSms({
-        to: "+" + nrTelemovel,
+      await enviarSms({
+        to: nrTelemovel,
         message,
       })
     }
@@ -83,5 +83,5 @@ export async function notifyExpiringSubscriptions() {
 
 cron.schedule('1 0 * * *', async () => {
   console.log('A procurar subscricoes...')
-  await notifyExpiringSubscriptions().catch(console.error)
+  await enviarNotificacao().catch(console.error)
 })
