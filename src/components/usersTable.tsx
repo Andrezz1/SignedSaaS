@@ -33,6 +33,7 @@ const UsersTable = ({
     page: currentPage,
     pageSize: pageSize,
     searchTerm: searchFilter,
+    tipoUtilizadorId: 3
   });
 
   const updateUserEstadoMutation = useAction(updateEstadoUtilizador);

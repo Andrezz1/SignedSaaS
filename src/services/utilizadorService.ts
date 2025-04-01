@@ -59,7 +59,8 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
   { 
     page: number,
     pageSize: number,
-    searchTerm?: string
+    searchTerm?: string,
+    tipoUtilizadorId?: number
   },
   {
     data: {
@@ -74,7 +75,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     pageSize: number
     totalPages: number
   }
-> = async ({ page, pageSize, searchTerm }, context) => {
+> = async ({ page, pageSize, searchTerm, tipoUtilizadorId }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -84,8 +85,11 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
 
   const utilizadoresAtivos: any = {
     EstadoUtilizador: true,
-    TipoUtilizador: {
-      TipoUtilizadorId: 3,
+  }
+
+  if (tipoUtilizadorId) {
+    utilizadoresAtivos.TipoUtilizador = {
+      TipoUtilizadorId: tipoUtilizadorId,
     }
   }
 
@@ -138,6 +142,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     totalPages: Math.ceil(totalUtilizadores / pageSize),
   }
 }
+
 
 type CreateUtilizadorPayload = {
   Nome: string
