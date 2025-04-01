@@ -9,7 +9,7 @@ import {
   type UpdateEstadoUtilizador,
   type UpdateUtilizadorByNIFNumSocio,
 } from 'wasp/server/operations'
-import { capitalize } from './utils'
+import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
 
 export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (_args, context) => {
@@ -217,13 +217,18 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
     })
   }
 
+  let imageUrl = args.Imagem
+  if (args.Imagem && !args.Imagem.startsWith("http")) {
+    imageUrl = await saveImageLocally(args.Imagem)
+  }
+
   const utilizador = await context.entities.Utilizador.create({
     data: {
       NumSocio: proxNumSocio,
       Nome: args.Nome,
       DataNascimento: new Date(args.DataNascimento),
       NIF: args.NIF,
-      Imagem: args.Imagem,
+      Imagem: imageUrl,
       EstadoUtilizador: true,
       MoradaMoradaId: morada.MoradaId,
       ContactoContactoId: contacto.ContactoId,
@@ -233,6 +238,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 
   return utilizador
 }
+
 
 type UpdateUtilizadorPayload = {
   id: number
