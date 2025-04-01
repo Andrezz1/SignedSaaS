@@ -137,8 +137,8 @@ query getSubscricaoInfo {
   entities: [Subscricao, Utilizador, Pagamento, TipoSubscricao]
 }
 
-query getSocios {
-  fn: import { getSocios } from "@src/services/utilizadorService",
+query getUtilizadoresInfoByTipo {
+  fn: import { getUtilizadoresInfoByTipo } from "@src/services/utilizadorService",
   entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao]
 }
 
