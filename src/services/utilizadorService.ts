@@ -159,9 +159,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
   args,
   context
 ) => { 
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+
 
   const concelho = capitalize(args.Morada.Concelho)
   const distrito = capitalize(args.Morada.Distrito)
@@ -169,15 +167,10 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
   let ultimoUtilizador = await context.entities.Utilizador.findFirst({
     orderBy: { NumSocio: 'desc' },
     select: { NumSocio: true },
-  })
+    where: { NumSocio: { not: null } }
+})
 
-  if (!ultimoUtilizador || ultimoUtilizador.NumSocio === null) {
-    ultimoUtilizador = await context.entities.Utilizador.findFirst({
-      where: { NumSocio: { not: null } },
-    })
-  }
-
-  const proxNumSocio = ultimoUtilizador?.NumSocio ? ultimoUtilizador.NumSocio + 1 : 1
+const proxNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1;
 
   const contacto = await context.entities.Contacto.create({
     data: {

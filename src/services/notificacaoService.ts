@@ -1,6 +1,7 @@
 import twilio from 'twilio'
 import { PrismaClient } from '@prisma/client'
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
+import { HttpError } from 'wasp/server'
 
 const prisma = new PrismaClient()
 
@@ -67,15 +68,14 @@ type SendEmailParams = {
     }
   
     try {
-      const command = new SendEmailCommand(params);
+      const command = new SendEmailCommand(params)
       await sesClient.send(command);
-      console.log(`Email enviado para: ${to}`);
+      console.log(`Email enviado para: ${to}`)
     } catch (error) {
-        console.error(`Erro ao enviar email para ${to}:`, error);
-        throw error;
+        console.error(`Erro ao enviar email para ${to}:`, error)
+        throw error
     }
   }
-
 
 // a chamada desta função está no utils.ts
 export async function enviarNotificacao() {
@@ -108,15 +108,28 @@ export async function enviarNotificacao() {
 
   for (const subscricao of expiraSubscricao) {
     const utilizador = subscricao.Utilizador
-    const nrTelemovel = utilizador.Contacto?.Telemovel
 
-    if (nrTelemovel) {
-      const message = `Ola ${utilizador.Nome}, a sua subscrição expira em breve (${subscricao.DataFim.toDateString()}).`
-      
-      await enviarSms({
-        to: nrTelemovel,
-        message,
+    if(!utilizador.Contacto) {
+      throw new Error("Nenhum contacto encontrado")
+    }
+
+    const nrTelemovel = utilizador.Contacto.Telemovel
+    const email = utilizador.Contacto?.Email
+    const message = `Ola ${utilizador.Nome}, a sua subscrição expira em breve (${subscricao.DataFim.toDateString()}).`
+    const body = message
+    const subject = `Atualização subscrição`
+
+    if(email) {
+      await enviarEmail({
+        to: email,
+        subject,
+        body,
       })
+    } else {
+        await enviarSms({
+          to: nrTelemovel,
+          message,
+        })
     }
   }
 }
