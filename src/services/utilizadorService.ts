@@ -2,7 +2,7 @@ import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao} from 'wasp/en
 import { 
   type GetUtilizadores, 
   type GetUtilizadorByNIF, 
-  type GetSocios, 
+  type GetUtilizadoresInfoByTipo, 
   type CreateUtilizador, 
   type UpdateUtilizador, 
   type GetUtilizadorDesabilitado,
@@ -55,7 +55,7 @@ export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'Es
   return [utilizador]
 }
 
-export const getSocios: GetSocios<
+export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
   { 
     page: number,
     pageSize: number,

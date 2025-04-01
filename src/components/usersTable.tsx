@@ -1,5 +1,5 @@
 import { 
-  getSocios, 
+  getUtilizadoresInfoByTipo, 
   updateEstadoUtilizador, 
   useQuery, 
   useAction 
@@ -29,7 +29,7 @@ const UsersTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const { data: utilizadoresInfoResponse, isLoading } = useQuery(getSocios, {
+  const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfoByTipo, {
     page: currentPage,
     pageSize: pageSize,
     searchTerm: searchFilter,
