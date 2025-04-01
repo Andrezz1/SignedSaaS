@@ -158,8 +158,10 @@ type CreateUtilizadorPayload = {
 export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utilizador> = async (
   args,
   context
-) => { 
-
+) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
 
   const concelho = capitalize(args.Morada.Concelho)
   const distrito = capitalize(args.Morada.Distrito)
@@ -168,9 +170,9 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
     orderBy: { NumSocio: 'desc' },
     select: { NumSocio: true },
     where: { NumSocio: { not: null } }
-})
+  })
 
-const proxNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1;
+  const proxNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
 
   const contacto = await context.entities.Contacto.create({
     data: {
@@ -190,7 +192,11 @@ const proxNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1;
   }
 
   let morada = await context.entities.Morada.findFirst({
-    where: { Concelho: args.Morada.Concelho },
+    where: { 
+      Concelho: concelho,
+      Distrito: distrito,
+      CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId
+    },
   })
 
   if (!morada) {
