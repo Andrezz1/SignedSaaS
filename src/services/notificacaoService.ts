@@ -69,7 +69,7 @@ type SendEmailParams = {
   
     try {
       const command = new SendEmailCommand(params)
-      await sesClient.send(command);
+      await sesClient.send(command)
       console.log(`Email enviado para: ${to}`)
     } catch (error) {
         console.error(`Erro ao enviar email para ${to}:`, error)

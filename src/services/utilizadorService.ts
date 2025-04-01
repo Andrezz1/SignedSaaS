@@ -83,7 +83,10 @@ export const getUtilizadoresInfo: GetUtilizadoresInfo<
   const take = pageSize
 
   const utilizadoresAtivos: any = {
-    EstadoUtilizador: true
+    EstadoUtilizador: true,
+    TipoUtilizador: {
+      TipoUtilizadorId: 3,
+    }
   }
 
   if (searchTerm) {
