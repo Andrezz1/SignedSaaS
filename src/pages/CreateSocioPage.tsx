@@ -51,7 +51,7 @@ const CreateSocioPage = () => {
       DataNascimento: new Date(dataNascimento),
       NIF: nif,
       Imagem: '',
-      TipoUtilizadorId: 1,
+      TipoUtilizadorId: 3,
       Morada: {
         Concelho: concelho,
         Distrito: distrito,
