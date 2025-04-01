@@ -1,10 +1,15 @@
-/*import { type AuthUser } from 'wasp/auth';
-import { useQuery, getUtilizadores } from 'wasp/client/operations';
+import { type AuthUser } from 'wasp/auth';
+import { useQuery, getUtilizadoresInfoByTipo } from 'wasp/client/operations';
 import TotalSociosCard from '../components/totalSociosCard';
 import DefaultLayout from '../layout/DefaultLayout';
 
 const DashboardPage = ({ user }: { user: AuthUser }) => {
-  const { data, isLoading, error } = useQuery(getUtilizadores);
+  // Aqui definimos page e pageSize conforme necessário; no caso de apenas mostrar o total, pode ser suficiente 1 e um pageSize pequeno.
+  const { data, isLoading, error } = useQuery(getUtilizadoresInfoByTipo, {
+    page: 1,
+    pageSize: 10,
+    tipoUtilizadorId: 3, // Filtra para apenas os utilizadores cujo tipo é 3
+  });
 
   return (
     <DefaultLayout user={user}>
@@ -14,7 +19,8 @@ const DashboardPage = ({ user }: { user: AuthUser }) => {
         ) : error ? (
           <div>Error: {error.message}</div>
         ) : (
-          <TotalSociosCard totalSocios={data?.totalSocios} />
+          // Utilizamos o total retornado da query para o card
+          <TotalSociosCard totalSocios={data?.total} />
         )}
       </div>
     </DefaultLayout>
@@ -22,4 +28,5 @@ const DashboardPage = ({ user }: { user: AuthUser }) => {
 };
 
 export default DashboardPage;
-*/
+
+

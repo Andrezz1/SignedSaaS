@@ -38,11 +38,11 @@ page SociosPage {
   component: import  SociosPage  from "@src/pages/SociosPage"
 }
 
-// route DashboardRoute { path: "/dashboard", to: DashboardPage }
-// page DashboardPage {
-//   authRequired: true,
-//   component: import { DashboardPage } from "@src/pages/DashboardPage"
-// }
+route DashboardRoute { path: "/dashboard", to: DashboardPage }
+page DashboardPage {
+  authRequired: true,
+  component: import  DashboardPage  from "@src/pages/DashboardPage"
+}
 
 route CreateSocioRoute { path: "/create-socio", to: CreateSocioPage }
 page CreateSocioPage {
