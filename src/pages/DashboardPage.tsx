@@ -1,14 +1,25 @@
+/*import { type AuthUser } from 'wasp/auth';
+import { useQuery, getUtilizadores } from 'wasp/client/operations';
+import TotalSociosCard from '../components/totalSociosCard';
+import DefaultLayout from '../layout/DefaultLayout';
 
-export function DashboardPage() {
+const DashboardPage = ({ user }: { user: AuthUser }) => {
+  const { data, isLoading, error } = useQuery(getUtilizadores);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-3xl font-bold underline text-blue-500">
-        Hello, Tailwind + Vite + TypeScript! 🚀
-      </h1>
-    </div>
-  )
-}
+    <DefaultLayout user={user}>
+      <div className="p-4 flex justify-center items-center min-h-screen">
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : error ? (
+          <div>Error: {error.message}</div>
+        ) : (
+          <TotalSociosCard totalSocios={data?.totalSocios} />
+        )}
+      </div>
+    </DefaultLayout>
+  );
+};
 
-export default DashboardPage
-
-
+export default DashboardPage;
+*/
