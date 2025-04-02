@@ -314,9 +314,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   args,
   context
 ) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+
 
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.id },
@@ -393,16 +391,28 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     })
   }
 
+  let novoNumSocio = utilizador.NumSocio
+  if (!utilizador.NumSocio) {
+    const ultimoUtilizador = await context.entities.Utilizador.findFirst({
+      orderBy: { NumSocio: 'desc' },
+      select: { NumSocio: true },
+      where: { NumSocio: { not: null } }
+    })
+    novoNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
+  }
+
   const updatedUtilizador = await context.entities.Utilizador.update({
     where: { id: args.id },
     data: {
       Nome: args.Nome,
-      TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId
+      NIF: args.NIF,
+      NumSocio: novoNumSocio,
     }
   })
 
   return updatedUtilizador
 }
+
 
 export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<UpdateUtilizadorPayload, Utilizador> = async (
   args,
