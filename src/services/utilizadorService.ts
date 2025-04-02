@@ -49,35 +49,39 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
     throw new HttpError(401, "Não tem permissão")
   }
 
-    if(!args.id) {
-      throw new Error("ID do utilizador é obrigatório")
-    }
+  if(!args.id) {
+    throw new Error("ID do utilizador é obrigatório")
+  }
 
-    const utilizadores = await context.entities.Utilizador.findMany({
-      where: {
-        id: args.id,
+  const utilizadores = await context.entities.Utilizador.findMany({
+    where: {
+      id: args.id,
+    },
+    include: {
+      TipoUtilizador: true, 
+      Morada: {
+        include: {
+          CodigoPostal: true
+        }
       },
-      include: {
-        TipoUtilizador: true, 
-        Morada: true,
-        Contacto: true, 
-        Subscricoes: true, 
-      },
-    })
+      Contacto: true, 
+      Subscricoes: true, 
+    },
+  })
 
-    if (!utilizadores || utilizadores.length === 0) {
-      return []
-    }
+  if (!utilizadores || utilizadores.length === 0) {
+    return []
+  }
 
-    const result = utilizadores.map(({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
-      utilizador,
-      tipoUtilizador: TipoUtilizador ?? null,
-      morada: Morada ?? null,
-      contacto: Contacto ?? null,
-      subscricoes: Subscricoes ?? [],
-    }))
+  const result = utilizadores.map(({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
+    utilizador,
+    tipoUtilizador: TipoUtilizador ?? null,
+    morada: Morada ?? null,
+    contacto: Contacto ?? null,
+    subscricoes: Subscricoes ?? [],
+  }))
 
-    return result
+  return result
 }
 
 export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'EstadoUtilizador'>, Utilizador[]
