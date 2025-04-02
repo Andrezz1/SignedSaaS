@@ -7,7 +7,7 @@ const DashboardPage = ({ user }: { user: AuthUser }) => {
   // Aqui definimos page e pageSize conforme necessário; no caso de apenas mostrar o total, pode ser suficiente 1 e um pageSize pequeno.
   const { data, isLoading, error } = useQuery(getUtilizadoresInfoByTipo, {
     page: 1,
-    pageSize: 10,
+    pageSize: 1,
     tipoUtilizadorId: 3, // Filtra para apenas os utilizadores cujo tipo é 3
   });
 
