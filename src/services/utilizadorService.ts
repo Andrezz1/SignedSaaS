@@ -8,6 +8,7 @@ import {
   type GetUtilizadorDesabilitado,
   type UpdateEstadoUtilizador,
   type UpdateUtilizadorByNIFNumSocio,
+  type GetUtilizadorInfoById,
 } from 'wasp/server/operations'
 import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
@@ -29,6 +30,53 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<void, Utilizad
   return context.entities.Utilizador.findMany({
     where: { EstadoUtilizador: false }
   })
+}
+
+export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<{ 
+  utilizador: Utilizador, 
+  tipoUtilizador: TipoUtilizador | null,
+  morada: Morada | null, 
+  contacto: Contacto | null,
+  subscricoes: Subscricao[]
+}>> = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
+  try {
+    if(!args.id) {
+      throw new Error("ID do utilizador é obrigatório");
+    }
+
+    const utilizadores = await context.entities.Utilizador.findMany({
+      where: {
+        id: args.id,
+      },
+      include: {
+        TipoUtilizador: true, 
+        Morada: true,
+        Contacto: true, 
+        Subscricoes: true, 
+      },
+    });
+
+    if (!utilizadores || utilizadores.length === 0) {
+      return []
+    }
+
+    const result = utilizadores.map(({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
+      utilizador,
+      tipoUtilizador: TipoUtilizador ?? null,
+      morada: Morada ?? null,
+      contacto: Contacto ?? null,
+      subscricoes: Subscricoes ?? [],
+    }));
+
+    return result;
+  } catch (error) {
+    console.error("Erro ao buscar utilizador:", error);
+    throw error; 
+  }
 }
 
 export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'EstadoUtilizador'>, Utilizador[]
