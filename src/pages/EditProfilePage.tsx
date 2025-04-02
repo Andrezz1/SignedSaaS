@@ -1,160 +1,174 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from 'wasp/client/auth';
+import {
+  useQuery,
+  useAction,
+  getUtilizadorInfoById,
+  updateUtilizador
+} from 'wasp/client/operations';
+import DefaultLayout from '../layout/DefaultLayout';
 
 const EditProfile: React.FC = () => {
-  // Valores iniciais simulados; no uso real, estes dados virão do auth do Wasp.
-  const [profilePicture, setProfilePicture] = useState<string>('https://i.pravatar.cc/300');
-  const [name, setName] = useState<string>('John Doe');
-  const [title, setTitle] = useState<string>('Software Developer');
-  const [organization, setOrganization] = useState<string>('Estep Bilişim');
-  const [email, setEmail] = useState<string>('john.doe@example.com');
-  const [phone, setPhone] = useState<string>('+1 (555) 123-4567');
-  const [location, setLocation] = useState<string>('San Francisco, CA');
+  // Obter usuário autenticado e garantir que ele existe
+  const { data: authUser } = useAuth();
+  if (!authUser) {
+    return <div>Carregando utilizador...</div>;
+  }
+  const userId = authUser.id;
 
-  const handleProfilePictureChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setProfilePicture(URL.createObjectURL(file));
+  // Buscar dados do utilizador a partir do id
+  const { data, isLoading, error } = useQuery(getUtilizadorInfoById, { id: userId });
+  // Criar a action para update
+  const updateUserAction = useAction(updateUtilizador);
+
+  // Estados dos campos do formulário
+  const [nome, setNome] = useState('');
+  const [nif, setNif] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [concelho, setConcelho] = useState('');
+  const [distrito, setDistrito] = useState('');
+  const [localidade, setLocalidade] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  // Preenche os estados quando os dados estiverem disponíveis
+  useEffect(() => {
+    if (data && data.length > 0) {
+      const userInfo = data[0];
+      setNome(userInfo.utilizador.Nome ?? '');
+      setNif(userInfo.utilizador.NIF ?? '');
+      setEmail(userInfo.contacto?.Email ?? '');
+      setPhone(userInfo.contacto?.Telemovel ?? '');
+      setConcelho(userInfo.morada?.Concelho ?? '');
+      setDistrito(userInfo.morada?.Distrito ?? '');
+      setLocalidade(userInfo.codigoPostal?.Localidade ?? '');
+    }
+  }, [data]);
+
+  // Função para salvar os dados atualizados
+  const handleSave = async () => {
+    if (!data || data.length === 0) return;
+    const userInfo = data[0];
+
+    const payload = {
+      id: userInfo.utilizador.id,
+      Nome: nome,
+      NIF: nif,
+      NumSocio: userInfo.utilizador.NumSocio ?? 0,
+      Contacto: { Email: email, Telemovel: phone },
+      Morada: {
+        Concelho: concelho,
+        Distrito: distrito,
+        CodigoPostal: { Localidade: localidade }
+      }
+    };
+
+    try {
+      await updateUserAction(payload);
+      console.log('Perfil atualizado com sucesso!');
+      // Aqui você pode redirecionar ou notificar o usuário sobre o sucesso da operação.
+    } catch (err: any) {
+      console.error('Erro ao atualizar o utilizador:', err);
+      setErrorMsg('Erro ao atualizar o perfil. Por favor, tente novamente.');
     }
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log({ name, title, organization, email, phone, location });
+  // Função para cancelar (pode ser utilizada para redirecionar ou simplesmente resetar os campos)
+  const handleCancel = () => {
+    console.log('Cancel clicked');
+    // Aqui você pode, por exemplo, redirecionar para outra página.
   };
 
-  const handleCancel = () => {
-    console.log("Cancel clicked");
-  };
+  if (isLoading) return <div>Carregando...</div>;
+  if (error) return <div>Erro: {error.message}</div>;
 
   return (
-    <div className="bg-gradient-to-r from-indigo-800 to-blue-900 min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl rounded-2xl bg-white p-8 shadow-lg">
-        {/* Cabeçalho */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <DefaultLayout user={authUser}>
+      <div className="p-8">
+        <h2 className="text-3xl font-semibold mb-6">Editar Perfil</h2>
+        {errorMsg && <p className="mb-4 text-red-500 text-sm">{errorMsg}</p>}
+        <div className="space-y-4">
           <div>
-            <h2 className="text-3xl font-bold text-blue-900">Edit Profile</h2>
-            <p className="mt-1 text-gray-600">Manage your account information</p>
+            <label className="block text-sm font-medium text-gray-700">Nome</label>
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
           </div>
-          <div className="mt-6 md:mt-0 flex flex-col items-center">
-            <div className="relative">
-              <img
-                src={profilePicture}
-                alt="Profile Picture"
-                className="rounded-full w-32 h-32 border-4 border-indigo-800 transition-transform duration-300 hover:scale-105"
-              />
-              <input
-                type="file"
-                name="profile"
-                id="upload_profile"
-                hidden
-                onChange={handleProfilePictureChange}
-              />
-              <label
-                htmlFor="upload_profile"
-                className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-50 text-white text-sm font-semibold cursor-pointer transition-colors"
-              >
-                Change
-              </label>
-            </div>
-            <button className="mt-2 text-indigo-800 font-medium hover:underline">
-              Update Profile Picture
-            </button>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">NIF</label>
+            <input
+              type="text"
+              value={nif}
+              onChange={(e) => setNif(e.target.value)}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Telemóvel</label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Concelho</label>
+            <input
+              type="text"
+              value={concelho}
+              onChange={(e) => setConcelho(e.target.value)}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Distrito</label>
+            <input
+              type="text"
+              value={distrito}
+              onChange={(e) => setDistrito(e.target.value)}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Código Postal</label>
+            <input
+              type="text"
+              value={localidade}
+              onChange={(e) => setLocalidade(e.target.value)}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
           </div>
         </div>
-        {/* Formulário */}
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="organization" className="block text-sm font-medium text-gray-700">
-                Organization
-              </label>
-              <input
-                type="text"
-                id="organization"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                value={organization}
-                onChange={(e) => setOrganization(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Phone
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                Location
-              </label>
-              <input
-                type="text"
-                id="location"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-5 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 bg-indigo-800 text-white rounded-md hover:bg-indigo-700 transition-colors"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
+
+        <div className="mt-8 flex justify-end gap-4">
+          <button
+            onClick={handleCancel}
+            className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+          >
+            Guardar
+          </button>
+        </div>
       </div>
-    </div>
+    </DefaultLayout>
   );
 };
 
