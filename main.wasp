@@ -26,7 +26,7 @@ page CreateAdminPage {
   component: import { CreateAdminPage } from "@src/pages/CreateAdminPage"
 }
 
-route EditProfileRoute { path: "/edit-profile", to: EditProfilePage }
+route EditProfileRoute { path: "/conta", to: EditProfilePage }
 page EditProfilePage {
   authRequired: true,
   component: import  EditProfile  from "@src/pages/EditProfilePage"

@@ -17,6 +17,7 @@ const CreateSocioPage = () => {
   const [localidade, setLocalidade] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const createUserAction = useAction(createUtilizador)
+  const [imagem, setImagem] = useState<string>('')
 
   const validateFields = () => {
     if (!nome || !dataNascimento || !nif || !email || !phoneNumber || !concelho || !distrito || !localidade) {
@@ -50,7 +51,7 @@ const CreateSocioPage = () => {
       Nome: nome,
       DataNascimento: new Date(dataNascimento),
       NIF: nif,
-      Imagem: '',
+      Imagem: imagem,
       TipoUtilizadorId: 3,
       Morada: {
         Concelho: concelho,
@@ -78,6 +79,19 @@ const CreateSocioPage = () => {
     }
     setLocalidade(value)
   }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+  
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const result = reader.result as string
+      const base64 = result.includes(',') ? result.split(',')[1] : result
+      setImagem(base64)
+    }
+    reader.readAsDataURL(file)
+  }  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -166,6 +180,15 @@ const CreateSocioPage = () => {
               value={localidade}
               onChange={handleLocalidadeChange}
               maxLength={8}
+              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Imagem</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
               className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>

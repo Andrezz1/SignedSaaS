@@ -1,6 +1,6 @@
 import { type AuthUser } from 'wasp/auth';
 import { useQuery, getUtilizadoresInfoByTipo } from 'wasp/client/operations';
-import TotalSociosCard from '../components/totalSociosCard';
+import TotalSociosCard from '../components/dasboardCards/totalSociosCard';
 import DefaultLayout from '../layout/DefaultLayout';
 
 const DashboardPage = ({ user }: { user: AuthUser }) => {
