@@ -1,13 +1,16 @@
 import React from 'react';
 import { useQuery, getSocios } from 'wasp/client/operations';
 
-const SociosCard: React.FC = () => {
+const SociosPagantesCard: React.FC = () => {
   const { data, isLoading, error } = useQuery(getSocios, {});
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  
-  const totalSocios = data?.length || 0;
+
+  const sociosPagantes = data.filter((utilizador: any) =>
+    utilizador.Subscricoes.some((sub: any) => sub.EstadoSubscricao === true)
+  );
+  const totalSociosPagantes = sociosPagantes.length;
 
   return (
     <div className="w-64 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow dark:border-strokedark dark:bg-boxdark">
@@ -23,16 +26,17 @@ const SociosCard: React.FC = () => {
           </svg>
         </div>
       </div>
+
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
-          {totalSocios}
+          {totalSociosPagantes}
         </h4>
         <p className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
-          Total Sócios
+          Total Sócios Pagantes
         </p>
       </div>
     </div>
   );
 };
 
-export default SociosCard;
+export default SociosPagantesCard;
