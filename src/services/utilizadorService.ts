@@ -43,9 +43,8 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
     throw new HttpError(401, "Não tem permissão")
   }
 
-  try {
     if(!args.id) {
-      throw new Error("ID do utilizador é obrigatório");
+      throw new Error("ID do utilizador é obrigatório")
     }
 
     const utilizadores = await context.entities.Utilizador.findMany({
@@ -58,7 +57,7 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
         Contacto: true, 
         Subscricoes: true, 
       },
-    });
+    })
 
     if (!utilizadores || utilizadores.length === 0) {
       return []
@@ -70,13 +69,9 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
       morada: Morada ?? null,
       contacto: Contacto ?? null,
       subscricoes: Subscricoes ?? [],
-    }));
+    }))
 
-    return result;
-  } catch (error) {
-    console.error("Erro ao buscar utilizador:", error);
-    throw error; 
-  }
+    return result
 }
 
 export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'EstadoUtilizador'>, Utilizador[]
