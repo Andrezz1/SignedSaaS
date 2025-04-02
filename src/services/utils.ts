@@ -31,3 +31,23 @@ export async function saveImageLocally(base64Image: string): Promise<string> {
   return `/uploads/${fileName}`
 }
 
+// import { criarReferenciaMultibanco } from './pagamentoService';
+
+// async function main() {
+//   try {
+//     const valor = 50.0
+//     const id = '123456'
+
+//     const resposta = await criarReferenciaMultibanco(valor, id)
+//     console.log('Referência Multibanco criada com sucesso:')
+//     console.log(`Entidade: ${resposta.entidade}`)
+//     console.log(`Referência: ${resposta.referencia}`)
+//     console.log(`Valor: ${resposta.valor}€`)
+//   } catch (error) {
+//     console.error(error)
+//   }
+// }
+
+// main()
+
+

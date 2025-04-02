@@ -1,4 +1,5 @@
 import { Comprovativo, Pagamento, Utilizador } from 'wasp/entities'
+import axios from 'axios'
 import { 
   type GetPagamento, 
   type GetPagamentoInfo,
@@ -55,3 +56,48 @@ export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<Pick<Utiliza
     where: {  UtilizadorId: args.id },
   })
 }
+
+// euPago
+
+interface MultibancoResponse {
+  estado: number
+  referencia: string
+  entidade: string
+  valor: number
+  id: string
+}
+
+export async function criarReferenciaMultibanco(
+  valor: number,
+  id: string
+): Promise<MultibancoResponse> {
+  const EUPAGO_API_KEY = process.env.EUPAGO_API_KEY
+  const EUPAGO_API_URL = process.env.EUPAGO_API_URL
+  if (!EUPAGO_API_URL) {
+    throw new Error('URL nao definido')
+  }
+  if (!EUPAGO_API_KEY) {
+    throw new Error('Chave de API não definida.')
+  }
+
+  const data = new URLSearchParams()
+  data.append('chave', EUPAGO_API_KEY)
+  data.append('valor', valor.toString())
+  data.append('id', id)
+
+  try {
+    const response = await axios.post<MultibancoResponse>(
+      `${EUPAGO_API_URL}/multibanco/create`,
+      data
+    )
+
+    if (response.data.estado !== 0) {
+      throw new Error(`Erro na criação da referência: ${response.data.estado}`)
+    }
+
+    return response.data;
+  } catch (error) {
+    throw new Error(`Erro ao comunicar com a euPago: ${error}`)
+  }
+}
+
