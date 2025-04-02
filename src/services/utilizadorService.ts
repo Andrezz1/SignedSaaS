@@ -314,8 +314,6 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   args,
   context
 ) => {
-
-
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.id },
     include: { 
@@ -330,64 +328,94 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
 
   if (args.Contacto) {
     if (!utilizador.ContactoContactoId) {
-      throw new Error("ContactoContactoId não encontrado")
-    }
+      const novoContacto = await context.entities.Contacto.create({
+        data: {
+          Email: args.Contacto.Email || '',
+          Telemovel: args.Contacto.Telemovel || '',
+        }
+      })
 
-    await context.entities.Contacto.update({
-      where: { ContactoId: utilizador.ContactoContactoId },
-      data: {
-        Email: args.Contacto.Email,
-        Telemovel: args.Contacto.Telemovel,
-      }
-    })
-  }
-
-  let codigoPostalId: number | undefined
-  if (args.Morada?.CodigoPostal?.Localidade) {
-    let codigoPostal = await context.entities.CodigoPostal.findFirst({
-      where: { Localidade: args.Morada.CodigoPostal.Localidade },
-    })
-
-    if (!codigoPostal) {
-      codigoPostal = await context.entities.CodigoPostal.create({
-        data: { Localidade: args.Morada.CodigoPostal.Localidade },
+      await context.entities.Utilizador.update({
+        where: { id: args.id },
+        data: {
+          ContactoContactoId: novoContacto.ContactoId
+        }
+      })
+    } else {
+      await context.entities.Contacto.update({
+        where: { ContactoId: utilizador.ContactoContactoId },
+        data: {
+          Email: args.Contacto.Email,
+          Telemovel: args.Contacto.Telemovel,
+        }
       })
     }
-
-    codigoPostalId = codigoPostal.CodigoPostalId
   }
 
   if (args.Morada) {
+    let codigoPostalId: number | undefined
+
+    if (args.Morada.CodigoPostal?.Localidade) {
+      let codigoPostal = await context.entities.CodigoPostal.findFirst({
+        where: { Localidade: args.Morada.CodigoPostal.Localidade },
+      })
+
+      if (!codigoPostal) {
+        codigoPostal = await context.entities.CodigoPostal.create({
+          data: { Localidade: args.Morada.CodigoPostal.Localidade },
+        })
+      }
+
+      codigoPostalId = codigoPostal.CodigoPostalId
+    }
+
     const concelho = capitalize(args.Morada.Concelho || "")
     const distrito = capitalize(args.Morada.Distrito || "")
 
     if (codigoPostalId === undefined) {
-      throw new Error("codigoPostalId não encontrado")
+      throw new Error("Localidade do Código Postal é obrigatória")
     }
 
-    let morada = await context.entities.Morada.findFirst({
-      where: {
-        Concelho: concelho,
-        Distrito: distrito,
-        CodigoPostalCodigoPostalId: codigoPostalId,
-      },
-    })
+    let moradaId: number
 
-    if (!morada) {
-      morada = await context.entities.Morada.create({
+    if (!utilizador.MoradaMoradaId) {
+      const novaMorada = await context.entities.Morada.create({
         data: {
+          Concelho: concelho,
+          Distrito: distrito,
+          CodigoPostalCodigoPostalId: codigoPostalId,
+        }
+      })
+      moradaId = novaMorada.MoradaId
+    } else {
+      const moradaExistente = await context.entities.Morada.findFirst({
+        where: {
+          MoradaId: utilizador.MoradaMoradaId,
           Concelho: concelho,
           Distrito: distrito,
           CodigoPostalCodigoPostalId: codigoPostalId,
         },
       })
+
+      if (!moradaExistente) {
+        const novaMorada = await context.entities.Morada.create({
+          data: {
+            Concelho: concelho,
+            Distrito: distrito,
+            CodigoPostalCodigoPostalId: codigoPostalId,
+          }
+        })
+        moradaId = novaMorada.MoradaId
+      } else {
+        moradaId = moradaExistente.MoradaId
+      }
     }
 
     await context.entities.Utilizador.update({
       where: { id: utilizador.id },
       data: {
-        MoradaMoradaId: morada.MoradaId,
-      },
+        MoradaMoradaId: moradaId,
+      }
     })
   }
 
@@ -407,12 +435,13 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       Nome: args.Nome,
       NIF: args.NIF,
       NumSocio: novoNumSocio,
+      DataNascimento: args.DataNascimento,
+      Imagem: args.Imagem,
     }
   })
 
   return updatedUtilizador
 }
-
 
 export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<UpdateUtilizadorPayload, Utilizador> = async (
   args,
