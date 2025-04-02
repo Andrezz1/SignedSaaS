@@ -101,8 +101,8 @@ query getTipoUtilizador {
   entities: [TipoUtilizador]
 }
 
-query getUtilizadores {
-  fn: import { getUtilizadores } from "@src/services/utilizadorService",
+query getSocios {
+  fn: import { getSocios } from "@src/services/utilizadorService",
   entities: [Utilizador]
 }
 

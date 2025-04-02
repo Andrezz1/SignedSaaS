@@ -1,6 +1,6 @@
 import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao} from 'wasp/entities'
 import { 
-  type GetUtilizadores, 
+  type GetSocios, 
   type GetUtilizadorByNIF, 
   type GetUtilizadoresInfoByTipo, 
   type CreateUtilizador, 
@@ -13,12 +13,18 @@ import {
 import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
 
-export const getUtilizadores: GetUtilizadores<void, Utilizador[]> = async (_args, context) => {
+export const getSocios: GetSocios<void, Utilizador[]> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
   return context.entities.Utilizador.findMany({
     orderBy: { id: 'asc' },
+    where: {
+      NumSocio: { not: null } 
+    },
+    include: {
+      Subscricoes: true
+    }
   })
 }
 
