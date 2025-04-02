@@ -174,6 +174,10 @@ query getSubscricaoByUtilizadorId {
   entities: [Subscricao, Utilizador]
 }
 
+query getUtilizadorInfoById {
+  fn: import { getUtilizadorInfoById } from "@src/services/utilizadorService",
+  entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao]
+}
 // As actions abaixo servem para adicionar novos dados a base de dados
 
 action createUtilizador {
