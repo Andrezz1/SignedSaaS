@@ -357,8 +357,9 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   }
 
   if (args.Morada) {
-    let codigoPostalId: number | undefined
+    let codigoPostalId: number | null = null
 
+    // Se foi fornecido CodigoPostal com Localidade, processamos
     if (args.Morada.CodigoPostal?.Localidade) {
       let codigoPostal = await context.entities.CodigoPostal.findFirst({
         where: { Localidade: args.Morada.CodigoPostal.Localidade },
@@ -373,48 +374,44 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       codigoPostalId = codigoPostal.CodigoPostalId
     }
 
-    const concelho = capitalize(args.Morada.Concelho || "")
-    const distrito = capitalize(args.Morada.Distrito || "")
+    const concelho = args.Morada.Concelho ? capitalize(args.Morada.Concelho) : null
+    const distrito = args.Morada.Distrito ? capitalize(args.Morada.Distrito) : null
 
-    if (codigoPostalId === undefined) {
-      throw new Error("Localidade do Código Postal é obrigatória")
-    }
+    let moradaId: number | null = null
 
-    let moradaId: number
-
-    if (!utilizador.MoradaMoradaId) {
-      const novaMorada = await context.entities.Morada.create({
-        data: {
-          Concelho: concelho,
-          Distrito: distrito,
-          CodigoPostalCodigoPostalId: codigoPostalId,
-        }
-      })
-      moradaId = novaMorada.MoradaId
-    } else {
-      const moradaExistente = await context.entities.Morada.findFirst({
-        where: {
-          MoradaId: utilizador.MoradaMoradaId,
-          Concelho: concelho,
-          Distrito: distrito,
-          CodigoPostalCodigoPostalId: codigoPostalId,
-        },
-      })
-
-      if (!moradaExistente) {
+    // Só criamos/atualizamos a morada se pelo menos um dos campos foi fornecido
+    if (concelho || distrito || codigoPostalId) {
+      if (!utilizador.MoradaMoradaId) {
         const novaMorada = await context.entities.Morada.create({
           data: {
-            Concelho: concelho,
-            Distrito: distrito,
-            CodigoPostalCodigoPostalId: codigoPostalId,
+            Concelho: concelho || '',
+            Distrito: distrito || '',
+            CodigoPostalCodigoPostalId: codigoPostalId || -1,
           }
         })
         moradaId = novaMorada.MoradaId
       } else {
-        moradaId = moradaExistente.MoradaId
+        const moradaExistente = await context.entities.Morada.findFirst({
+          where: {
+            MoradaId: utilizador.MoradaMoradaId,
+          },
+        })
+
+        if (moradaExistente) {
+          await context.entities.Morada.update({
+            where: { MoradaId: utilizador.MoradaMoradaId },
+            data: {
+              Concelho: concelho !== null ? concelho : undefined,
+              Distrito: distrito !== null ? distrito : undefined,
+              CodigoPostalCodigoPostalId: codigoPostalId !== null ? codigoPostalId : undefined,
+            }
+          })
+          moradaId = moradaExistente.MoradaId
+        }
       }
     }
 
+    // Atualiza a referência à morada (pode ser null para remover a associação)
     await context.entities.Utilizador.update({
       where: { id: utilizador.id },
       data: {
