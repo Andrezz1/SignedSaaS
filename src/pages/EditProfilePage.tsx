@@ -41,7 +41,7 @@ const EditProfile: React.FC = () => {
       setPhone(userInfo.contacto?.Telemovel ?? '');
       setConcelho(userInfo.morada?.Concelho ?? '');
       setDistrito(userInfo.morada?.Distrito ?? '');
-      setLocalidade(userInfo.codigoPostal?.Localidade ?? '');
+      setLocalidade((userInfo.morada as any)?.Localidade ?? '');
     }
   }, [data]);
 
