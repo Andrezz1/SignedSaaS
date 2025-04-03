@@ -17,13 +17,13 @@ app SignedProject {
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@src/pages/LoginPage"
+  component: import  LoginPage  from "@src/pages/LoginPage"
 }
 
 route CreateAdminRoute { path: "/create-admin", to: CreateAdminPage }
 page CreateAdminPage {
   authRequired: true,
-  component: import { CreateAdminPage } from "@src/pages/CreateAdminPage"
+  component: import  CreateAdminPage from "@src/pages/CreateAdminPage"
 }
 
 route EditProfileRoute { path: "/conta", to: EditProfilePage }
