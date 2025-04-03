@@ -12,7 +12,7 @@ function Header({ navItems }: HeaderProps) {
   const { data:user } = useAuth();
 
   return (
-    <nav className="bg-white border-b border-gray-200 dark:bg-gray-900 w-full">
+    <nav className="bg-gray-100/40 border-b border-gray-200 dark:bg-gray-900 w-full">
       <div className="flex items-center justify-between px-4 py-4 w-full">
         <div className="flex items-center space-x-6">
           <ul className="flex space-x-6 md:space-x-18">

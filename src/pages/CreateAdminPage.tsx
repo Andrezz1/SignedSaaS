@@ -1,19 +1,94 @@
-import { SignupForm } from 'wasp/client/auth'
+import React, { useState, FormEvent } from 'react'
+import { signup } from 'wasp/client/auth'
+import { useNavigate } from 'react-router-dom'
 
-export const CreateAdminPage = () => {
+const CreateAdminPage = () => {
+  const navigate = useNavigate()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [tipoUtilizadorId, setTipoUtilizadorId] = useState('')
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    try {
+      // Chama a função signup, passando todos os campos num único objeto
+      await signup({ username, password, TipoUtilizadorId: tipoUtilizadorId } as any)
+
+      // Redireciona após criar admin
+      navigate('/dashboard')
+    } catch (err: any) {
+      setError(err.message || 'Erro ao efetuar signup')
+    }
+  }
+
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-      <SignupForm 
-      additionalFields={[
-        {
-          name: 'TipoUtilizadorId',
-          label: 'Tipo Utilizador',
-          type: 'input',
-          validations: {
-            required: 'Address is required',
-          },
-        },
-    ]}/>
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-xl">
+        <h2 className="text-3xl font-bold text-black mb-6 text-center">
+          Criar Admin
+        </h2>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Username
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="tipoUtilizadorId"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Tipo Utilizador
+            </label>
+            <input
+              id="tipoUtilizadorId"
+              type="text"
+              value={tipoUtilizadorId}
+              onChange={(e) => setTipoUtilizadorId(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded-md 
+                       hover:bg-blue-600 transition-colors"
+          >
+            Criar
+          </button>
+        </form>
+      </div>
     </div>
   )
 }
+
+export default CreateAdminPage
