@@ -15,7 +15,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
   const [tipoUtilizadorId, setTipoUtilizadorId] = useState(utilizador.TipoUtilizadorTipoUtilizadorId || '');
   const [email, setEmail] = useState(contacto?.Email || '');
   const [countryCode, setCountryCode] = useState(
-    contacto?.Telemovel ? contacto.Telemovel.split(' ')[0] : '+351'
+    contacto?.Telemovel ? contacto.Telemovel.split(' ')[0] : ''
   );
   const [phoneNumber, setPhoneNumber] = useState(
     contacto?.Telemovel ? contacto.Telemovel.split(' ')[1] || '' : ''
@@ -91,7 +91,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <div>
@@ -101,7 +101,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
             <select
               value={tipoUtilizadorId}
               onChange={(e) => setTipoUtilizadorId(parseInt(e.target.value))}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full border border-gray-300 rounded px-3 py-2"
             >
               {tiposUtilizador.map((tipo: any) => (
                 <option key={tipo.TipoUtilizadorId} value={tipo.TipoUtilizadorId}>
@@ -118,12 +118,12 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Telemóvel
+              Nº Telemóvel
             </label>
             <MyPhoneInput
               countryCode={countryCode}
@@ -140,7 +140,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={concelho}
               onChange={(e) => setConcelho(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <div>
@@ -151,7 +151,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={distrito}
               onChange={(e) => setDistrito(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <div>
@@ -162,7 +162,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={localidade}
               onChange={handleLocalidadeChange}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full border border-gray-300 rounded px-3 py-2"
               maxLength={8}
             />
           </div>
