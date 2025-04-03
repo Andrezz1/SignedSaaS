@@ -13,27 +13,42 @@ const MyPhoneInput: React.FC<MyPhoneInputProps> = ({
   onCountryCodeChange,
   onPhoneNumberChange,
 }) => {
+  const handleCountryCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    if (!value.startsWith('+')) {
+      value = '+' + value;
+    }
+    const digits = value.slice(1).replace(/\D/g, '');
+    value = '+' + digits;
+    if (value.length > 4) {
+      value = value.slice(0, 4);
+    }
+    onCountryCodeChange(value);
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 9) {
+      value = value.slice(0, 9);
+    }
+    onPhoneNumberChange(value);
+  };
+
   return (
     <div className="flex gap-2">
       <input
         type="text"
         value={countryCode}
-        onChange={(e) => {
-          let value = e.target.value;
-          // Garante que o código inicia com '+'
-          if (!value.startsWith('+')) {
-            value = '+' + value.replace(/\D/g, '');
-          }
-          onCountryCodeChange(value);
-        }}
-        className="w-20 p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+        onChange={handleCountryCodeChange}
+        maxLength={4}
+        className="w-20 block border border-gray-300 rounded px-3 py-2"
       />
       <input
         type="text"
         value={phoneNumber}
-        onChange={(e) => onPhoneNumberChange(e.target.value.replace(/\D/g, ''))}
-        className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-        placeholder="Número de telemóvel"
+        onChange={handlePhoneNumberChange}
+        maxLength={9}
+        className="block w-full border border-gray-300 rounded px-3 py-2"
       />
     </div>
   );
