@@ -12,7 +12,7 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       await login(username, password);
-      navigate('/dashboard'); // Redirecione para a página desejada após o login
+      navigate('/dashboard'); 
     } catch (err: any) {
       setError(err.message || 'Erro ao efetuar login');
     }
