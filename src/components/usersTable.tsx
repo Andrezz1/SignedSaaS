@@ -12,9 +12,13 @@ import EditUserContainer from './editUserContainer';
 interface UsersTableProps {
   showFilters: boolean;
   setShowFilters: (val: boolean) => void;
+  appliedFilters: {
+    estadoSubscricao?: 'ativa' | 'expirada' | 'todas';
+    faixaEtaria?: { min: number; max: number };
+  };
 }
 
-const UsersTable = ({ showFilters, setShowFilters }: UsersTableProps) => {
+const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableProps) => {
   const [tempSearch, setTempSearch] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -23,11 +27,13 @@ const UsersTable = ({ showFilters, setShowFilters }: UsersTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Incluímos os filtros na query
   const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfoByTipo, {
     page: currentPage,
     pageSize: pageSize,
     searchTerm: searchFilter,
-    tipoUtilizadorId: 3
+    tipoUtilizadorId: 3,
+    filters: appliedFilters  // <-- Aqui passamos os filtros
   });
 
   const updateUserEstadoMutation = useAction(updateEstadoUtilizador);

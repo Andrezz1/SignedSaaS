@@ -219,18 +219,6 @@ const EditProfile: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="distrito" className="block mb-1 text-sm font-medium text-gray-700">
-                Distrito
-              </label>
-              <input
-                type="text"
-                id="distrito"
-                value={distrito}
-                onChange={(e) => setDistrito(e.target.value)}
-                className="block w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
-            <div>
               <label htmlFor="concelho" className="block mb-1 text-sm font-medium text-gray-700">
                 Concelho
               </label>
@@ -239,6 +227,18 @@ const EditProfile: React.FC = () => {
                 id="concelho"
                 value={concelho}
                 onChange={(e) => setConcelho(e.target.value)}
+                className="block w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+            <div>
+              <label htmlFor="distrito" className="block mb-1 text-sm font-medium text-gray-700">
+                Distrito
+              </label>
+              <input
+                type="text"
+                id="distrito"
+                value={distrito}
+                onChange={(e) => setDistrito(e.target.value)}
                 className="block w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
