@@ -130,9 +130,18 @@ model Utilizador {
   Subscricoes   Subscricao[]
   Comprovativos Comprovativo[]
   Doacoes       Doacao[]
+  UtilizadorFiltro UtilizadorFiltro[]
   Imagem        String?
   
   MoradaMoradaId         Int?
   ContactoContactoId     Int?
   TipoUtilizadorTipoUtilizadorId Int  @default(1)
+}
+
+model UtilizadorFiltro {
+  UtilizadorFiltroId         Int      @id @default(autoincrement())
+  nomeFiltro      String
+  filtros    Json     
+  UtilizadorId     Int
+  Utilizador       Utilizador @relation(fields: [UtilizadorId], references: [id])
 }
