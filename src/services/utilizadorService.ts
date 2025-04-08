@@ -86,6 +86,10 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
 
 export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'EstadoUtilizador'>, Utilizador[]
 > = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   if (!args.NIF) {
     throw new Error("Nif nao encontrado")
   }
@@ -113,7 +117,14 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     page: number,
     pageSize: number,
     searchTerm?: string,
-    tipoUtilizadorId?: number
+    tipoUtilizadorId?: number,
+    filtros?: {
+      estadoSubscricao?: 'ativa' | 'expirada' | 'todas',
+      faixaEtaria?: {
+        min: number,
+        max: number
+      }
+    }
   },
   {
     data: {
@@ -128,7 +139,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     pageSize: number
     totalPages: number
   }
-> = async ({ page, pageSize, searchTerm, tipoUtilizadorId }, context) => {
+> = async ({ page, pageSize, searchTerm, tipoUtilizadorId, filtros }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -136,26 +147,47 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
   const skip = (page - 1) * pageSize
   const take = pageSize
 
-  const utilizadoresAtivos: any = {
+  const utilizadoresativos: any = {
     EstadoUtilizador: true,
   }
 
   if (tipoUtilizadorId) {
-    utilizadoresAtivos.TipoUtilizador = {
+    utilizadoresativos.TipoUtilizador = {
       TipoUtilizadorId: tipoUtilizadorId,
     }
   }
 
   if (searchTerm) {
-    utilizadoresAtivos.OR = [
+    utilizadoresativos.OR = [
       { Nome: { contains: searchTerm, mode: 'insensitive' } },
       { NIF: { contains: searchTerm, mode: 'insensitive' } },
       { Contacto: { Telemovel: { contains: searchTerm, mode: 'insensitive' } } }
     ]
   }
 
+  if (filtros?.faixaEtaria) {
+    const hoje = new Date()
+    const anoMax = hoje.getFullYear() - filtros.faixaEtaria.min
+    const anoMin = hoje.getFullYear() - filtros.faixaEtaria.max
+    
+    utilizadoresativos.DataNascimento = {
+      lte: new Date(anoMax, hoje.getMonth(), hoje.getDate()), 
+      gte: new Date(anoMin, hoje.getMonth(), hoje.getDate()) 
+    }
+  }
+
+  if (filtros?.estadoSubscricao && filtros.estadoSubscricao !== 'todas') {
+    const estadoSub = filtros.estadoSubscricao === 'ativa'
+    
+    utilizadoresativos.Subscricoes = {
+      some: {
+        EstadoSubscricao: estadoSub
+      }
+    }
+  }
+
   const utilizadores = await context.entities.Utilizador.findMany({
-    where: utilizadoresAtivos,
+    where: utilizadoresativos,
     orderBy: {
       id: 'desc',
     },
@@ -174,7 +206,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
   })
 
   const totalUtilizadores = await context.entities.Utilizador.count({
-    where: utilizadoresAtivos, 
+    where: utilizadoresativos, 
   })
 
   const utilizadoresInfo = utilizadores.map(
@@ -359,7 +391,6 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   if (args.Morada) {
     let codigoPostalId: number | null = null
 
-    // Se foi fornecido CodigoPostal com Localidade, processamos
     if (args.Morada.CodigoPostal?.Localidade) {
       let codigoPostal = await context.entities.CodigoPostal.findFirst({
         where: { Localidade: args.Morada.CodigoPostal.Localidade },
@@ -379,7 +410,6 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
 
     let moradaId: number | null = null
 
-    // Só criamos/atualizamos a morada se pelo menos um dos campos foi fornecido
     if (concelho || distrito || codigoPostalId) {
       if (!utilizador.MoradaMoradaId) {
         const novaMorada = await context.entities.Morada.create({
@@ -411,7 +441,6 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       }
     }
 
-    // Atualiza a referência à morada (pode ser null para remover a associação)
     await context.entities.Utilizador.update({
       where: { id: utilizador.id },
       data: {

@@ -190,6 +190,11 @@ action createTipoSubscricao {
   entities: [TipoSubscricao]
 }
 
+action createSubscricao {
+  fn: import { createSubscricao } from "@src/services/subscricaoService",
+  entities: [Subscricao, TipoSubscricao, DetalheSubscricao]
+}
+
 // As actions abaixo servem para alterar dados da base de dados
 
 action updateUtilizador {
