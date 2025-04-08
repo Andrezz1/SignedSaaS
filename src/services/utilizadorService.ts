@@ -118,7 +118,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     pageSize: number,
     searchTerm?: string,
     tipoUtilizadorId?: number,
-    filtros?: {
+    filters?: {
       estadoSubscricao?: 'ativa' | 'expirada' | 'todas',
       faixaEtaria?: {
         min: number,
@@ -139,7 +139,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     pageSize: number
     totalPages: number
   }
-> = async ({ page, pageSize, searchTerm, tipoUtilizadorId, filtros }, context) => {
+> = async ({ page, pageSize, searchTerm, tipoUtilizadorId, filters }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -165,10 +165,10 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     ]
   }
 
-  if (filtros?.faixaEtaria) {
+  if (filters?.faixaEtaria) {
     const hoje = new Date()
-    const anoMax = hoje.getFullYear() - filtros.faixaEtaria.min
-    const anoMin = hoje.getFullYear() - filtros.faixaEtaria.max
+    const anoMax = hoje.getFullYear() - filters.faixaEtaria.min
+    const anoMin = hoje.getFullYear() - filters.faixaEtaria.max
     
     utilizadoresativos.DataNascimento = {
       lte: new Date(anoMax, hoje.getMonth(), hoje.getDate()), 
@@ -176,8 +176,8 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     }
   }
 
-  if (filtros?.estadoSubscricao && filtros.estadoSubscricao !== 'todas') {
-    const estadoSub = filtros.estadoSubscricao === 'ativa'
+  if (filters?.estadoSubscricao && filters.estadoSubscricao !== 'todas') {
+    const estadoSub = filters.estadoSubscricao === 'ativa'
     
     utilizadoresativos.Subscricoes = {
       some: {
