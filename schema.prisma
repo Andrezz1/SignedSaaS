@@ -53,6 +53,12 @@ model Doacao {
   UtilizadorId Int
 }
 
+model MetodoPagamento {
+  MetodoPagamentoId Int    @id @default(autoincrement())
+  Nome             String @unique // Ex: "MB WAY", "Multibanco", "Cartão de Crédito", "Dinheiro"
+  Pagamentos       Pagamento[]
+}
+
 model Morada {
   MoradaId                 Int           @id @default(autoincrement())
   Concelho                 String
@@ -66,13 +72,16 @@ model Morada {
 model Pagamento {
   PagamentoId   Int       @id @default(autoincrement())
   Valor         Int
+  DadosEspecificos   Json? 
   DataPagamento DateTime
   EstadoPagamento String
   NIFPagamento   String
   Utilizador     Utilizador @relation(fields: [UtilizadorId], references: [id])
+  MetodoPagamento   MetodoPagamento @relation(fields: [MetodoPagamentoId], references: [MetodoPagamentoId])
   Subscricoes    Subscricao[]
   Comprovativos  Comprovativo[]
   
+  MetodoPagamentoId Int @default(1) 
   UtilizadorId Int
 }
 
@@ -80,7 +89,7 @@ model Subscricao {
   SubscricaoId      Int             @id @default(autoincrement())
   DataInicio        DateTime
   DataFim          DateTime
-  EstadoSubscricao Boolean
+  EstadoSubscricao Boolean    @default(false)
   Utilizador       Utilizador @relation(fields: [UtilizadorId], references: [id])
   Pagamento        Pagamento  @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
   TipoSubscricao   TipoSubscricao @relation(fields: [TipoSubscricaoTipoSubscricaoID], references: [TipoSubscricaoID])
