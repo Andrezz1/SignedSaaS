@@ -12,10 +12,7 @@ const CreateAdminPage = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
-      // Chama a função signup, passando todos os campos num único objeto
       await signup({ username, password, TipoUtilizadorId: tipoUtilizadorId } as any)
-
-      // Redireciona após criar admin
       navigate('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Erro ao efetuar signup')
