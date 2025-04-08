@@ -106,6 +106,11 @@ query getSocios {
   entities: [Utilizador]
 }
 
+query getUtilizadorFiltros {
+  fn: import { getUtilizadorFiltros } from "@src/services/utilizadorFiltroService",
+  entities: [Utilizador, UtilizadorFiltro]
+}
+
 // As queries Abaixo obtêm dados de multiplas tabelas
 query getComprovativoInfo {
   fn: import { getComprovativoInfo } from "@src/services/comprovativoService",
@@ -195,6 +200,11 @@ action createSubscricao {
   entities: [Subscricao, TipoSubscricao, DetalheSubscricao]
 }
 
+action createUtilizadorFiltro {
+  fn: import { createUtilizadorFiltro } from "@src/services/utilizadorFiltroService",
+  entities: [UtilizadorFiltro, Utilizador]
+}
+
 // As actions abaixo servem para alterar dados da base de dados
 
 action updateUtilizador {
@@ -215,4 +225,11 @@ action updateEstadoUtilizador {
 action updateUtilizadorByNIFNumSocio {
   fn: import { updateUtilizadorByNIFNumSocio } from "@src/services/utilizadorService",
   entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
+}
+
+// As action abaixo servem para remover dados da base de dados
+
+action deleteUtilizadorFiltro {
+  fn: import { deleteUtilizadorFiltro } from "@src/services/utilizadorFiltroService",
+  entities: [UtilizadorFiltro]
 }
