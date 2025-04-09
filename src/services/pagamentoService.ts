@@ -64,49 +64,13 @@ type CriarPagamentoInput = {
   DadosEspecificos?: any
   EstadoPagamento?: string
   NIFPagamento: string
-  TelemovelMbway?: string
 }
 
 export async function criarPagamento(input: CriarPagamentoInput, prisma: any) {
-  let dadosEspecificos = input.DadosEspecificos || {}
-  const EUPAGO_API_KEY = process.env.EUPAGO_API_KEY!
-
-  try {
-    if (input.MetodoPagamentoId === 1) {
-      // MB WAY
-      const response = await axios.post('https://clientes.eupago.pt/clientes/rest_mpway_create', {
-        chave: EUPAGO_API_KEY,
-        valor: input.Valor,
-        id: `user_${input.UtilizadorId}_${Date.now()}`,
-        alias: input.TelemovelMbway
-      })
-      dadosEspecificos = response.data
-    } else if (input.MetodoPagamentoId === 2) {
-      // Multibanco
-      const response = await axios.post('https://sandbox.eupago.pt/clientes/rest_mbt_create', {
-        chave: EUPAGO_API_KEY,
-        valor: input.Valor,
-        id: `user_${input.UtilizadorId}_${Date.now()}`
-      })
-      dadosEspecificos = response.data
-    } else if (input.MetodoPagamentoId === 3) {
-      // Cartão de crédito (redirecionamento)
-      const response = await axios.post('https://clientes.eupago.pt/clientes/rest_cc_create', {
-        chave: EUPAGO_API_KEY,
-        valor: input.Valor,
-        id: `user_${input.UtilizadorId}_${Date.now()}`
-      })
-      dadosEspecificos = response.data
-    }
-  } catch (err) {
-    console.error('Erro ao contactar a EuPago:', err)
-    throw new Error('Erro ao gerar dados de pagamento com a EuPago.')
-  }
-
   const pagamento = await prisma.pagamento.create({
     data: {
       Valor: input.Valor,
-      DadosEspecificos: dadosEspecificos,
+      DadosEspecificos: input.DadosEspecificos,
       DataPagamento: new Date(),
       EstadoPagamento: input.EstadoPagamento || 'pendente',
       NIFPagamento: input.NIFPagamento,
@@ -117,7 +81,6 @@ export async function criarPagamento(input: CriarPagamentoInput, prisma: any) {
 
   return pagamento
 }
-
 
 export async function ligarPagamentoASubscricao(
   subscricaoId: number,
