@@ -3,7 +3,8 @@ import { CreateUtilizadorFiltro, DeleteUtilizadorFiltro, GetUtilizadorFiltros } 
 import { HttpError } from 'wasp/server'
 import type { JsonObject } from "@prisma/client/runtime/library";
 
-export const getUtilizadorFiltros: GetUtilizadorFiltros<Pick<Utilizador, 'id'>, any> = async (args, context) => {
+export const getUtilizadorFiltros: GetUtilizadorFiltros<Pick<Utilizador, 'id'>, any> 
+= async (args, context) => {
     if(!context.user) {
         throw new HttpError(401, "Não tem permissão")
     }
@@ -29,10 +30,10 @@ export const getUtilizadorFiltros: GetUtilizadorFiltros<Pick<Utilizador, 'id'>, 
 }
 
 type CreateUtilizadorFiltroPayload = {
-  nomeFiltro: string;
-  filtros: JsonObject;
-  utilizadorId: number;
-};
+  nomeFiltro: string
+  filtros: JsonObject
+  utilizadorId: number
+}
 
 export const createUtilizadorFiltro: CreateUtilizadorFiltro<
   CreateUtilizadorFiltroPayload,
@@ -65,16 +66,8 @@ export const deleteUtilizadorFiltro: DeleteUtilizadorFiltro<
   UtilizadorFiltro
 > = async ({ utilizadorFiltroId }, context) => {
   if (!context.user) {
-    throw new Error("Não autenticado")
+    throw new Error("Não tem permissão")
   }
-
-  const filtro = await context.entities.UtilizadorFiltro.findUnique({
-    where: { UtilizadorFiltroId: utilizadorFiltroId },
-    select: {
-      UtilizadorFiltroId: true,
-      UtilizadorId: true
-    }
-  })
 
   return await context.entities.UtilizadorFiltro.delete({
     where: { UtilizadorFiltroId: utilizadorFiltroId }
