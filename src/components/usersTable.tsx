@@ -27,13 +27,12 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Incluímos os filtros na query
   const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfoByTipo, {
     page: currentPage,
     pageSize: pageSize,
     searchTerm: searchFilter,
     tipoUtilizadorId: 3,
-    filters: appliedFilters  // <-- Aqui passamos os filtros
+    filters: appliedFilters
   });
 
   const updateUserEstadoMutation = useAction(updateEstadoUtilizador);
@@ -64,10 +63,8 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   return (
     <div className="w-full transition-all duration-300">
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        {/* Barra superior: botão "Mostrar/Esconder Filtros" + "Por página" + Pesquisa */}
         <div className="flex items-center justify-between p-6 gap-3 w-full bg-gray-100/40 dark:bg-gray-700/50">
           <div className="flex items-center gap-8">
-            {/* Botão "Mostrar/Esconder Filtros" */}
             <span
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 text-sm font-bold text-black cursor-pointer hover:text-gray-700"
@@ -79,8 +76,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
               </svg>
               {showFilters ? "Esconder Filtros" : "Mostrar Filtros"}
             </span>
-
-            {/* "Por página" */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-black">Por página:</span>
               <select
@@ -99,8 +94,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
               </select>
             </div>
           </div>
-
-          {/* Campo de pesquisa */}
           <form
             className="relative w-[400px]"
             onSubmit={(e) => {
@@ -142,8 +135,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
             )}
           </form>
         </div>
-
-        {/* Cabeçalho de colunas */}
         <div className="grid grid-cols-12 border-t-4 border-stroke py-4.5 px-4 dark:border-strokedark md:px-6">
           <div className="col-span-3 flex items-center">
             <p className="font-medium">Nome</p>
@@ -161,8 +152,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
             <p className="font-medium">Ações</p>
           </div>
         </div>
-
-        {/* Linhas da Tabela */}
         {isLoading && <LoadingSpinner />}
         {!isLoading &&
           filteredUtilizadores.map((user: any) => {
@@ -191,7 +180,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                     <p className="text-sm text-black dark:text-white">{estadoSubscricao}</p>
                   </div>
                   <div className="col-span-2 flex items-center justify-center gap-2">
-                    {/* Botão Eliminar */}
                     <button
                       title="Eliminar"
                       onClick={() => setUserToDelete(user)}
@@ -203,8 +191,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M10 3h4a1 1 0 011 1v1H9V4a1 1 0 011-1z" />
                       </svg>
                     </button>
-
-                    {/* Botão Editar */}
                     <button
                       title="Editar"
                       onClick={() => setUserToEdit(user)}
@@ -215,8 +201,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                         <path d="M224 256A128 128 0 1 0 96 128a128 128 0 0 0 128 128zm90.5 32h-11.7a174.08 174.08 0 0 1-157.6 0h-11.7A133.53 133.53 0 0 0 0 421.5V464a48 48 0 0 0 48 48h232.81a172.08 172.08 0 0 1 33.7-81.56l81.12-81.12c-9.63-3.6-19.8-5.32-30.13-5.32zm317.4-73.4L586.3 161.9a31.9 31.9 0 0 0-45.2 0L505 198l79.1 79.1 36.1-36.1a31.9 31.9 0 0 0 0-45.2zM493.7 253.4l-142 142a31.87 31.87 0 0 0-8.4 13.9l-22.2 66.3a16 16 0 0 0 20.2 20.2l66.3-22.2a31.87 31.87 0 0 0 13.9-8.4l142-142z" />
                       </svg>
                     </button>
-
-                    {/* Botão "Ver mais" */}
                     <button
                       title="Ver mais"
                       onClick={() => setSelectedUser(isOpen ? null : user)}
@@ -244,7 +228,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
           })
         }
       </div>
-      {/* Paginação */}
       <nav aria-label="Page navigation" className="mt-4 flex justify-center">
           <ul className="inline-flex -space-x-px text-sm">
             <li>
@@ -279,8 +262,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
             </li>
           </ul>
         </nav>
-
-      {/* Modal de confirmação de deleção */}
       {userToDelete && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
@@ -304,8 +285,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
           </div>
         </div>
       )}
-
-      {/* Modal de edição */}
       {userToEdit && (
         <EditUserContainer
           user={userToEdit}

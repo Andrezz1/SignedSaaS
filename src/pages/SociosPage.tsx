@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 
 const SociosPage = ({ user }: { user: AuthUser }) => {
   const [showFilters, setShowFilters] = useState(false);
-  // Estado para os filtros já aplicados – que serão enviados para o backend
   const [appliedFilters, setAppliedFilters] = useState({});
 
   const navigate = useNavigate();
@@ -18,7 +17,6 @@ const SociosPage = ({ user }: { user: AuthUser }) => {
 
   return (
     <DefaultLayout user={user}>
-      {/* Botão "Adicionar Sócio" no topo */}
       <div className="flex justify-end mb-4">
         <button
           onClick={handleAddUser}
@@ -41,18 +39,12 @@ const SociosPage = ({ user }: { user: AuthUser }) => {
           <span className="ml-2">Adicionar Sócio</span>
         </button>
       </div>
-
-      {/* Layout de duas colunas (filtros + tabela) */}
       <div className="flex gap-4">
-        {/* Se showFilters estiver true, exibe o <aside> com os filtros */}
         {showFilters && (
           <aside className="w-64">
-            {/* Aqui o FilterUsers atualiza o estado de appliedFilters no pai */}
-            <FilterUsers applyFilters={setAppliedFilters} />
+            <FilterUsers applyFilters={setAppliedFilters} utilizadorId={user.id} />
           </aside>
         )}
-
-        {/* A tabela ocupa o restante do espaço e recebe os filtros aplicados */}
         <div className="flex-1">
           <UsersTable
             showFilters={showFilters}
