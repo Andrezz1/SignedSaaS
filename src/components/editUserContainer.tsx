@@ -9,24 +9,30 @@ import MyPhoneInput from '../components/phoneInput';
 
 const EditUserContainer = ({ user, onClose }: any) => {
   const { utilizador, morada, contacto } = user;
+  // Carrega todos os tipos de utilizador
   const { data: tiposUtilizador = [] } = useQuery(getTipoUtilizador);
 
+  // Estado para cada campo
   const [nome, setNome] = useState(utilizador.Nome || '');
   const [tipoUtilizadorId, setTipoUtilizadorId] = useState(utilizador.TipoUtilizadorTipoUtilizadorId || '');
   const [email, setEmail] = useState(contacto?.Email || '');
-  const [countryCode, setCountryCode] = useState(
-    contacto?.Telemovel ? contacto.Telemovel.split(' ')[0] : ''
-  );
-  const [phoneNumber, setPhoneNumber] = useState(
-    contacto?.Telemovel ? contacto.Telemovel.split(' ')[1] || '' : ''
-  );
+  const [countryCode, setCountryCode] = useState(contacto?.Telemovel ? contacto.Telemovel.split(' ')[0] : '');
+  const [phoneNumber, setPhoneNumber] = useState(contacto?.Telemovel ? contacto.Telemovel.split(' ')[1] || '' : '');
   const [concelho, setConcelho] = useState(morada?.Concelho || '');
   const [distrito, setDistrito] = useState(morada?.Distrito || '');
   const [localidade, setLocalidade] = useState(morada?.CodigoPostal?.Localidade || '');
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Mutation para atualizar
   const updateUserAction = useAction(updateUtilizador);
 
+  // Encontra a descrição referente ao tipoUtilizadorId
+  const tipoUtilizador = tiposUtilizador.find(
+    (t: any) => t.TipoUtilizadorId === tipoUtilizadorId
+  );
+  const tipoDescricao = tipoUtilizador ? tipoUtilizador.Descricao : '';
+
+  // Função de validação
   const validateFields = () => {
     if (!phoneNumber || !countryCode.startsWith('+')) {
       setErrorMsg('Telemóvel inválido.');
@@ -44,6 +50,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
     return true;
   };
 
+  // Salvar as alterações
   const handleSave = async () => {
     if (!validateFields()) return;
     const formattedTelemovel = `${countryCode} ${phoneNumber}`;
@@ -51,6 +58,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
       id: utilizador.id,
       Nome: nome,
       NumSocio: utilizador.NumSocio,
+      // Aqui continuamos mandando o ID, já que é o que o backend espera
       TipoUtilizadorId: tipoUtilizadorId,
       Contacto: { Email: email, Telemovel: formattedTelemovel },
       Morada: {
@@ -68,6 +76,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
     }
   };
 
+  // Formata campo de Código Postal
   const handleLocalidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
     if (value.length > 4) {
@@ -80,9 +89,13 @@ const EditUserContainer = ({ user, onClose }: any) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white w-[850px] max-h-[85vh] overflow-y-auto p-10 rounded-xl shadow-lg">
         <h2 className="text-2xl font-semibold mb-6 text-gray-800">Editar Utilizador</h2>
-        {errorMsg && <p className="mb-4 text-red-500 text-sm">{errorMsg}</p>}
+
+        {errorMsg && (
+          <p className="mb-4 text-red-500 text-sm">{errorMsg}</p>
+        )}
 
         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
+
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nome Completo
@@ -94,22 +107,20 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
+
+          {/* Mostra a Descricao do Tipo de Utilizador (bloqueado) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tipo de Utilizador
             </label>
-            <select
-              value={tipoUtilizadorId}
-              onChange={(e) => setTipoUtilizadorId(parseInt(e.target.value))}
-              className="block w-full border border-gray-300 rounded px-3 py-2"
-            >
-              {tiposUtilizador.map((tipo: any) => (
-                <option key={tipo.TipoUtilizadorId} value={tipo.TipoUtilizadorId}>
-                  {tipo.Descricao}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              value={tipoDescricao}
+              disabled
+              className="block w-full border border-gray-300 rounded px-3 py-2 bg-gray-100 text-gray-800"
+            />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
@@ -121,6 +132,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nº Telemóvel
@@ -132,6 +144,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               onPhoneNumberChange={setPhoneNumber}
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Concelho
@@ -143,6 +156,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Distrito
@@ -154,6 +168,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               className="block w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Código Postal
