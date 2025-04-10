@@ -460,8 +460,11 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   }
 
   let imageUrl = args.Imagem
-  if (args.Imagem && !args.Imagem.startsWith("http")) {
-    imageUrl = await saveImageLocally(args.Imagem)
+  
+  if(args.Imagem !== undefined) {
+    if (args.Imagem && !args.Imagem.startsWith("http")) {
+      imageUrl = await saveImageLocally(args.Imagem)
+    }
   }
 
   const updatedUtilizador = await context.entities.Utilizador.update({
