@@ -91,13 +91,13 @@ model Subscricao {
   DataFim          DateTime
   EstadoSubscricao Boolean    @default(false)
   Utilizador       Utilizador @relation(fields: [UtilizadorId], references: [id])
-  Pagamento        Pagamento  @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
+  Pagamento        Pagamento?  @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
   TipoSubscricao   TipoSubscricao @relation(fields: [TipoSubscricaoTipoSubscricaoID], references: [TipoSubscricaoID])
   Comprovativos    Comprovativo[]
   Detalhes         DetalheSubscricao[]
   
   UtilizadorId Int
-  PagamentoPagamentoId   Int
+  PagamentoPagamentoId   Int?
   TipoSubscricaoTipoSubscricaoID Int
 }
 

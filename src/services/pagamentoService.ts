@@ -57,47 +57,111 @@ export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<Pick<Utiliza
   })
 }
 
-// euPago
-
-interface MultibancoResponse {
-  estado: number
-  referencia: string
-  entidade: string
-  valor: number
-  id: string
+type CreatePagamentoPayload = {
+  Valor: number
+  UtilizadorId: number
+  MetodoPagamentoId: number
+  DadosEspecificos?: any
+  EstadoPagamento?: string
+  NIFPagamento: string
+  TelemovelMbway?: string
 }
 
-export async function criarReferenciaMultibanco(
-  valor: number,
-  id: string
-): Promise<MultibancoResponse> {
-  const EUPAGO_API_KEY = process.env.EUPAGO_API_KEY
-  const EUPAGO_API_URL = process.env.EUPAGO_API_URL
-  if (!EUPAGO_API_URL) {
-    throw new Error('URL nao definido')
-  }
-  if (!EUPAGO_API_KEY) {
-    throw new Error('Chave de API não definida.')
-  }
-
-  const data = new URLSearchParams()
-  data.append('chave', EUPAGO_API_KEY)
-  data.append('valor', valor.toString())
-  data.append('id', id)
-
+export async function createPagamento(input: CreatePagamentoPayload, prisma: any) {
+  let dadosEspecificos = input.DadosEspecificos || {}
+  const EUPAGO_API_KEY = process.env.EUPAGO_API_KEY!
   try {
-    const response = await axios.post<MultibancoResponse>(
-      `${EUPAGO_API_URL}/multibanco/create`,
-      data
-    )
+    if (!EUPAGO_API_KEY) throw new Error('Chave API da EuPago não configurada')
+    if (input.Valor <= 0) throw new Error('Valor deve ser positivo')
 
-    if (response.data.estado !== 0) {
-      throw new Error(`Erro na criação da referência: ${response.data.estado}`)
+    const payload: Record<string, any> = {
+      chave: EUPAGO_API_KEY,
+      valor: input.Valor.toFixed(2),
+      id: `user_${input.UtilizadorId}_${Date.now()}`,
+      alias: input.TelemovelMbway,
+      descricao: 'Pagamento de Subscrição',
+      nif: input.NIFPagamento
     }
 
-    return response.data;
-  } catch (error) {
-    throw new Error(`Erro ao comunicar com a euPago: ${error}`)
+    let endpoint = ''
+    
+    if (input.MetodoPagamentoId === 1) { // MB WAY
+      if (!input.TelemovelMbway) throw new Error('Telemóvel é obrigatório para MB WAY')
+      endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/mbway/create'
+    } else if (input.MetodoPagamentoId === 2) { // Multibanco
+      endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/multibanco/create'
+    } else {
+      throw new Error('Método de pagamento inválido')
+    }
+
+    // console.log('Envia para EuPago:', { endpoint, payload })
+    // console.log('Payload completo:', payload)
+    // console.log('URLSearchParams:', new URLSearchParams(Object.entries(payload)).toString())
+    const response = await axios.post(
+      endpoint,
+      new URLSearchParams(Object.entries(payload)).toString(),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        timeout: 10000
+      }
+    )
+
+    // console.log('Resposta da EuPago:', response.data)
+
+    if (response.data.estado !== 0) {
+      throw new Error(`Erro EuPago [${response.data.estado}]: ${response.data.mensagem}`)
+    }
+
+    dadosEspecificos = response.data
+  } catch (err: any) {
+    // console.error('Erro detalhado:', {
+    //   message: err.message,
+    //   response: err.response?.data,
+    //   stack: err.stack
+    // })
+    
+    throw new Error(err.response?.data?.mensagem || `Erro ao gerar pagamento: ${err.message}`)
+  }
+
+  try {
+    const pagamento = await prisma.pagamento.create({
+      data: {
+        Valor: input.Valor,
+        DadosEspecificos: dadosEspecificos,
+        DataPagamento: new Date(),
+        EstadoPagamento: input.EstadoPagamento || 'pendente',
+        NIFPagamento: input.NIFPagamento,
+        MetodoPagamentoId: input.MetodoPagamentoId,
+        UtilizadorId: input.UtilizadorId
+      }
+    })
+  
+    return pagamento
+  } catch (err) {
+    // console.error('Erro ao criar pagamento:', err)
+    throw new Error('Erro ao registrar o pagamento no sistema')
   }
 }
 
+
+export async function connectPagamentoASubscricao(
+  subscricaoId: number,
+  pagamentoId: number,
+  context: any
+) {
+  const subscricaoAtualizada = await context.entities.Subscricao.update({
+    where: { SubscricaoId: subscricaoId },
+    data: {
+      PagamentoPagamentoId: pagamentoId
+    },
+    include: {
+      Pagamento: true,
+      Detalhes: true,
+      TipoSubscricao: true
+    }
+  })
+
+  return subscricaoAtualizada
+}
