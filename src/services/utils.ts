@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from "uuid"
 
 export async function saveImageLocally(base64Image: string): Promise<string> {
   const buffer = Buffer.from(base64Image, "base64")
-  const uploadDir = path.join(process.cwd(), "../../uploads")
+  const uploadDir = path.join(process.cwd(), "../../../public/uploads")
 
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true })
