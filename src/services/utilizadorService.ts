@@ -463,7 +463,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   if (args.Imagem && !args.Imagem.startsWith("http")) {
     imageUrl = await saveImageLocally(args.Imagem)
   }
-  
+
   const updatedUtilizador = await context.entities.Utilizador.update({
     where: { id: args.id },
     data: {
@@ -471,7 +471,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       NIF: args.NIF,
       NumSocio: novoNumSocio,
       DataNascimento: args.DataNascimento,
-      Imagem: args.Imagem,
+      Imagem: imageUrl,
     }
   })
 
