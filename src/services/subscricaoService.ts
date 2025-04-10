@@ -8,7 +8,7 @@ import {
 import { PrismaClient } from '@prisma/client'
 import cron from 'node-cron'
 import { HttpError } from 'wasp/server'
-import { criarPagamento, ligarPagamentoASubscricao } from './pagamentoService'
+import { createPagamento, connectPagamentoASubscricao } from './pagamentoService'
 
 export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, context) => {
   if (!context.user) {
@@ -66,7 +66,7 @@ export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utili
   })
 }
 
-type CriarSubscricaoInput = {
+type CreateSubscricaoPayload = {
   DataInicio: Date
   DataFim: Date
   UtilizadorId: number
@@ -78,7 +78,7 @@ type CriarSubscricaoInput = {
 }
 
 export async function criarSubscricao(
-  input: CriarSubscricaoInput,
+  input: CreateSubscricaoPayload,
   context: any
 ) {
   const tipoSubscricao = await context.entities.TipoSubscricao.findUnique({
@@ -118,7 +118,7 @@ export async function criarSubscricao(
 }
 
 
-type CreateSubscricaoPayload = {
+type CreateSubscricaoCompletaPayload = {
   DataInicio: Date
   DataFim: Date
   UtilizadorId: number
@@ -137,23 +137,24 @@ type CreateSubscricaoPayload = {
 }
 
 
-export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricaoPayload, Subscricao> = async (
+export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricaoCompletaPayload, Subscricao> = async (
   args,
   context
 ) => {
   const { subscricao, valorFinal } = await criarSubscricao(args, context)
 
-  const pagamento = await criarPagamento({
+  const pagamento = await createPagamento({
     Valor: valorFinal,
     UtilizadorId: args.UtilizadorId,
     MetodoPagamentoId: args.Pagamento.MetodoPagamentoId,
     DadosEspecificos: args.Pagamento.DadosEspecificos,
     EstadoPagamento: args.Pagamento.EstadoPagamento,
     NIFPagamento: args.Pagamento.NIFPagamento!,
+    TelemovelMbway: args.Pagamento?.DadosEspecificos?.telemovelMbway
     
   }, prisma)
 
-  const subscricaoFinal = await ligarPagamentoASubscricao(
+  const subscricaoFinal = await connectPagamentoASubscricao(
     subscricao.SubscricaoId,
     pagamento.PagamentoId,
     context
