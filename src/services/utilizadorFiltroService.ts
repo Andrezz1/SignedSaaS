@@ -1,7 +1,7 @@
 import { Utilizador, UtilizadorFiltro } from "wasp/entities"
 import { CreateUtilizadorFiltro, DeleteUtilizadorFiltro, GetUtilizadorFiltros } from "wasp/server/operations"
 import { HttpError } from 'wasp/server'
-import type { JsonObject } from "@prisma/client/runtime/library";
+import type { JsonObject } from "@prisma/client/runtime/library"
 
 export const getUtilizadorFiltros: GetUtilizadorFiltros<Pick<Utilizador, 'id'>, any> 
 = async (args, context) => {
