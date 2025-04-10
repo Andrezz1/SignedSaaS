@@ -1,5 +1,8 @@
 import cron from 'node-cron'
 import { enviarNotificacao } from './notificacaoService'
+import fs from "fs"
+import path from "path"
+import { v4 as uuidv4 } from "uuid"
 
 export function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
@@ -10,10 +13,6 @@ cron.schedule('1 0 * * *', async () => {
   console.log('A procurar subscricoes...')
   await enviarNotificacao().catch(console.error)
 })
-
-import fs from "fs"
-import path from "path"
-import { v4 as uuidv4 } from "uuid"
 
 export async function saveImageLocally(base64Image: string): Promise<string> {
   const buffer = Buffer.from(base64Image, "base64")
@@ -28,5 +27,5 @@ export async function saveImageLocally(base64Image: string): Promise<string> {
 
   fs.writeFileSync(filePath, buffer)
 
-  return `../../uploads/${fileName}`
+  return fileName
 }
