@@ -86,7 +86,9 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
     let endpoint = ''
     
     if (input.MetodoPagamentoId === 1) { // MB WAY
-      if (!input.TelemovelMbway) throw new Error('Telemóvel é obrigatório para MB WAY')
+      if (!input.TelemovelMbway) { 
+        throw new Error('Telemóvel é obrigatório para MB WAY')
+      }
       endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/mbway/create'
     } else if (input.MetodoPagamentoId === 2) { // Multibanco
       endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/multibanco/create'
@@ -144,7 +146,6 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
     throw new Error('Erro ao registrar o pagamento no sistema')
   }
 }
-
 
 export async function connectPagamentoASubscricao(
   subscricaoId: number,

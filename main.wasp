@@ -3,6 +3,9 @@ app SignedProject {
     version: "^0.16.2"
   },
   title: "SignedProject",
+  server: {
+    middlewareConfigFn: import { serverMiddlewareFn } from "@src/corsMiddleware"
+  },
   auth: {
     userEntity: Utilizador, 
     methods: {

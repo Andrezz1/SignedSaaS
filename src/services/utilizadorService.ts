@@ -458,7 +458,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     })
     novoNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
   }
-
+  
   let imageUrl = args.Imagem
   if (args.Imagem && !args.Imagem.startsWith("http")) {
     imageUrl = await saveImageLocally(args.Imagem)
