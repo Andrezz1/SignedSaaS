@@ -6,7 +6,7 @@ const CreateAdminPage = () => {
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [tipoUtilizadorId, setTipoUtilizadorId] = useState('')
+  const [tipoUtilizadorId, setTipoUtilizadorId] = useState(1) 
   const [error, setError] = useState('')
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -55,22 +55,6 @@ const CreateAdminPage = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="tipoUtilizadorId"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Tipo Utilizador
-            </label>
-            <input
-              id="tipoUtilizadorId"
-              type="text"
-              value={tipoUtilizadorId}
-              onChange={(e) => setTipoUtilizadorId(e.target.value)}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 
                          focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

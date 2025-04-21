@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ navItems }) => {
           <div className="hidden md:flex items-center">
             <div className="relative" ref={dropdownRef}>
               <button
-                onClick={() => setDropdownOpen((o) => !o)}
+                onClick={() => setDropdownOpen(o => !o)}
                 className="flex items-center space-x-2 focus:outline-none"
                 aria-haspopup="true"
                 aria-expanded={dropdownOpen}
@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ navItems }) => {
                     className="w-14 h-14 rounded-full object-cover border-2 border-gray-300"
                   />
                 ) : (
-                  <div className="w-14 h-14 flex items-center justify-center bg-gray-800 text-white font-bold rounded-full border-2 border-gray-300">
+                  <div className="rounded-full w-12 h-12 border-2 border-gray-300 flex items-center justify-center bg-gray-200 text-gray-500">
                     <svg
                       className="w-6 h-6"
                       fill="currentColor"
@@ -212,7 +212,7 @@ const Header: React.FC<HeaderProps> = ({ navItems }) => {
           ))}
         </ul>
 
-        {/* Rodapé do Drawer (mantido igual) */}
+        {/* Rodapé do Drawer */}
         <div className="mt-auto px-4 py-4 border-t border-gray-300 dark:border-gray-700 space-y-4">
           <div className="flex flex-col items-start space-y-2">
             {profileImageUrl ? (
@@ -222,8 +222,7 @@ const Header: React.FC<HeaderProps> = ({ navItems }) => {
                 className="w-12 h-12 rounded-full object-cover border-2 border-gray-300"
               />
             ) : (
-              <div className="flex items-center justify-center w-12 h-12 bg-gray-800 text-white font-bold rounded-full">
-                <span className="sr-only">Ícone de utilizador</span>
+              <div className="rounded-full w-12 h-12 border-2 border-gray-300 flex items-center justify-center bg-gray-200 text-gray-500">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm0 14c4.418 0 8 3.582 8 8H4c0-4.418 3.582-8 8-8Z" />
                 </svg>
