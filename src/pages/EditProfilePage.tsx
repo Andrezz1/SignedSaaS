@@ -19,7 +19,6 @@ const EditProfile: React.FC = () => {
 
   const { data, isLoading, error, refetch } = useQuery(getUtilizadorInfoById, { id: userId });
   const updateUserAction = useAction(updateUtilizador);
-
   const navigate = useNavigate();
 
   const [nome, setNome] = useState('');
@@ -31,21 +30,20 @@ const EditProfile: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-
   const [nifEditable, setNifEditable] = useState(true);
   const [successMsg, setSuccessMsg] = useState('');
-
-  const [dob, setDob] = useState(''); // Armazena a data no formato "yyyy-MM-dd"
-  const [dobEditable, setDobEditable] = useState(true); // Controla se é editável
-
+  const [dob, setDob] = useState('');
+  const [dobEditable, setDobEditable] = useState(true);
   const [profilePicture, setProfilePicture] = useState<string>('');
+  const [newProfileImage, setNewProfileImage] = useState<string>('');
+  const [cacheBuster, setCacheBuster] = useState<number>(Date.now());
 
   useEffect(() => {
     if (data && data.length > 0) {
       const userInfo = data[0];
       setNome(userInfo.utilizador.Nome ?? '');
       setNif(userInfo.utilizador.NIF ?? '');
-      setNifEditable(userInfo.utilizador.NIF ? false : true);
+      setNifEditable(!userInfo.utilizador.NIF);
 
       setEmail(userInfo.contacto?.Email ?? '');
       setConcelho(userInfo.morada?.Concelho ?? '');
@@ -68,19 +66,13 @@ const EditProfile: React.FC = () => {
         setDobEditable(true);
       }
 
+      // Define a imagem de perfil e força a atualização com cacheBuster
       setProfilePicture(userInfo.utilizador.Imagem ?? '');
+      setCacheBuster(Date.now());
     }
   }, [data]);
 
-  // // Handler para alteração da foto
-  // const handleProfilePictureChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files && e.target.files[0]) {
-  //     const file = e.target.files[0];
-  //     setProfilePicture(URL.createObjectURL(file));
-  //   }
-  // };
-
-  const handleLocalidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLocalidadeChange = (e: ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
     if (value.length > 4) {
       value = value.slice(0, 4) + '-' + value.slice(4, 7);
@@ -91,9 +83,26 @@ const EditProfile: React.FC = () => {
     setLocalidade(value);
   };
 
+  const handleNewImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      const base64 = result.includes(',') ? result.split(',')[1] : result;
+      setNewProfileImage(base64);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) {
+      setErrorMsg('Dados do utilizador indisponíveis.');
+      return;
+    }
     const userInfo = data[0];
 
     const payload: any = {
@@ -112,12 +121,21 @@ const EditProfile: React.FC = () => {
     if (dobEditable && dob) {
       payload.DataNascimento = new Date(dob);
     }
+    if (newProfileImage) {
+      payload.Imagem = newProfileImage;
+    }
 
     try {
-      await updateUserAction(payload);
+      const updatedUser = await updateUserAction(payload);
+      await refetch();
+      // Se a imagem foi alterada, atualiza imediatamente
+      if (updatedUser.Imagem) {
+        setProfilePicture(updatedUser.Imagem);
+        setCacheBuster(Date.now());
+      }
+      setNewProfileImage('');
       setSuccessMsg('Perfil atualizado com sucesso!');
       setErrorMsg('');
-      refetch();
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (err: any) {
       console.error('Erro ao atualizar o utilizador:', err);
@@ -136,81 +154,75 @@ const EditProfile: React.FC = () => {
           <div className="flex items-start justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Editar Perfil</h2>
             <div className="flex flex-col items-center gap-2 text-center">
-              <div className="rounded-full w-24 h-24 border-4 border-gray-300 flex items-center justify-center bg-gray-200 text-gray-500">
-                <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm0 14c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8Z" />
-                </svg>
-              </div>
-              <button
-                type="button"
-                onClick={() => {}}
-                className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-              >
-                Update Profile Picture
-              </button>
+              {newProfileImage ? (
+                <img
+                  className="rounded-full w-24 h-24 border-4 border-gray-300 object-cover"
+                  src={`data:image/*;base64,${newProfileImage}`} 
+                  alt="Preview da nova foto de perfil"
+                />
+              ) : profilePicture ? (
+                <img
+                  className="rounded-full w-24 h-24 border-4 border-gray-300 object-cover"
+                  src={`/uploads/${profilePicture}?t=${cacheBuster}`}
+                  alt="Imagem de perfil"
+                />
+              ) : (
+                <div className="rounded-full w-24 h-24 border-4 border-gray-300 flex items-center justify-center bg-gray-200 text-gray-500">
+                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm0 14c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8Z" />
+                  </svg>
+                </div>
+              )}
             </div>
           </div>
           {errorMsg && <p className="mb-4 text-red-500 text-sm">{errorMsg}</p>}
           {successMsg && <p className="mb-4 text-green-500 text-sm">{successMsg}</p>}
           <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Campos de texto… igual ao original */}
             <div>
-              <label htmlFor="nome" className="block mb-1 text-sm font-medium text-gray-700">
-                Nome
-              </label>
+              <label htmlFor="nome" className="block mb-1 text-sm font-medium text-gray-700">Nome</label>
               <input
                 type="text"
                 id="nome"
                 value={nome}
-                onChange={(e) => setNome(e.target.value)}
+                onChange={e => setNome(e.target.value)}
                 className="block w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
             <div>
-              <label htmlFor="nif" className="block mb-1 text-sm font-medium text-gray-700">
-                NIF
-              </label>
+              <label htmlFor="nif" className="block mb-1 text-sm font-medium text-gray-700">NIF</label>
               <input
                 type="text"
                 id="nif"
                 value={nif}
-                onChange={(e) => setNif(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                onChange={e => setNif(e.target.value.replace(/\D/g, '').slice(0, 9))}
                 disabled={!nifEditable}
-                className={`block w-full border border-gray-300 rounded px-3 py-2 ${
-                  !nifEditable ? 'bg-gray-100' : 'bg-white'
-                }`}
+                className={`block w-full border border-gray-300 rounded px-3 py-2 ${!nifEditable ? 'bg-gray-100' : 'bg-white'}`}
               />
             </div>
             <div>
-              <label htmlFor="dob" className="block mb-1 text-sm font-medium text-gray-700">
-                Data de Nascimento
-              </label>
+              <label htmlFor="dob" className="block mb-1 text-sm font-medium text-gray-700">Data de Nascimento</label>
               <input
                 type="date"
                 id="dob"
                 value={dob}
-                onChange={(e) => setDob(e.target.value)}
+                onChange={e => setDob(e.target.value)}
                 disabled={!dobEditable}
-                className={`block w-full text-sm border border-gray-300 rounded-lg p-2.5 ${
-                  !dobEditable ? 'bg-gray-100' : 'bg-white'
-                }`}
+                className={`block w-full text-sm border border-gray-300 rounded-lg p-2.5 ${!dobEditable ? 'bg-gray-100' : 'bg-white'}`}
               />
             </div>
             <div>
-              <label htmlFor="email" className="block mb-1 text-sm font-medium text-gray-700">
-                Email
-              </label>
+              <label htmlFor="email" className="block mb-1 text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 className="block w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nº Telemóvel
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nº Telemóvel</label>
               <MyPhoneInput
                 countryCode={countryCode}
                 phoneNumber={phoneNumber}
@@ -219,38 +231,41 @@ const EditProfile: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="concelho" className="block mb-1 text-sm font-medium text-gray-700">
-                Concelho
-              </label>
+              <label htmlFor="concelho" className="block mb-1 text-sm font-medium text-gray-700">Concelho</label>
               <input
                 type="text"
                 id="concelho"
                 value={concelho}
-                onChange={(e) => setConcelho(e.target.value)}
+                onChange={e => setConcelho(e.target.value)}
                 className="block w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
             <div>
-              <label htmlFor="distrito" className="block mb-1 text-sm font-medium text-gray-700">
-                Distrito
-              </label>
+              <label htmlFor="distrito" className="block mb-1 text-sm font-medium text-gray-700">Distrito</label>
               <input
                 type="text"
                 id="distrito"
                 value={distrito}
-                onChange={(e) => setDistrito(e.target.value)}
+                onChange={e => setDistrito(e.target.value)}
                 className="block w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
             <div>
-              <label htmlFor="localidade" className="block mb-1 text-sm font-medium text-gray-700">
-                Código Postal
-              </label>
+              <label htmlFor="localidade" className="block mb-1 text-sm font-medium text-gray-700">Código Postal</label>
               <input
                 type="text"
                 id="localidade"
                 value={localidade}
                 onChange={handleLocalidadeChange}
+                className="block w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Nova foto de perfil (opcional)</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleNewImageChange}
                 className="block w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
