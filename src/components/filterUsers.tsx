@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   getUtilizadorFiltros,
   createUtilizadorFiltro, 
@@ -41,242 +41,220 @@ const FilterUsers = ({ applyFilters, utilizadorId }: FilterUsersProps) => {
   const [filterNameInput, setFilterNameInput] = useState("");
 
   const ChevronRight = () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="inline-block"
-    >
-      <path
-        d="M7 5l5 5-5 5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block">
+      <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
-
   const ChevronDown = () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="inline-block"
-    >
-      <path
-        d="M5 7l5 5 5-5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block">
+      <path d="M5 7l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 
   const toggleFilter = (type: "estado" | "faixa", value: string) => {
-    setFilters((prev) => {
-      const currentValues = prev[type] || [];
+    setFilters(prev => {
+      const current = prev[type] || [];
       return {
         ...prev,
-        [type]: currentValues.includes(value)
-          ? currentValues.filter(item => item !== value)
-          : [...currentValues, value],
+        [type]: current.includes(value)
+          ? current.filter(v => v !== value)
+          : [...current, value],
       };
     });
   };
 
-  const { data: loadedFilters, refetch: refetchSavedFilters } = useQuery(getUtilizadorFiltros, { id: utilizadorId });
+  // Load saved filters
+  const { data: loadedFilters, refetch: refetchSavedFilters } = useQuery(
+    getUtilizadorFiltros, { id: utilizadorId }
+  );
   useEffect(() => {
-    if (loadedFilters) {
-      setSavedFilters(loadedFilters);
-    }
+    if (loadedFilters) setSavedFilters(loadedFilters);
   }, [loadedFilters]);
 
-  const createFilterMutation = useAction(createUtilizadorFiltro);
-  const deleteFilterMutation = useAction(deleteUtilizadorFiltro);
+  const createFilter = useAction(createUtilizadorFiltro);
+  const deleteFilter = useAction(deleteUtilizadorFiltro);
 
+  // Build + apply backend filters
   const applyCurrentFilters = () => {
-    const backendFilters: BackendFilters = {};
+    const backend: BackendFilters = {};
+    // estadoSubscricao
     const estado = filters.estado || [];
     if (estado.length === 0 || estado.length === 2) {
-      backendFilters.estadoSubscricao = 'todas';
+      backend.estadoSubscricao = 'todas';
     } else if (estado.includes('Ativa')) {
-      backendFilters.estadoSubscricao = 'ativa';
-    } else if (estado.includes('Expirada')) {
-      backendFilters.estadoSubscricao = 'expirada';
+      backend.estadoSubscricao = 'ativa';
+    } else {
+      backend.estadoSubscricao = 'expirada';
     }
-    const ageMapping: Record<string, { min: number; max: number }> = {
-      "Menor que 18": { min: 0, max: 18 },
-      "18-65": { min: 18, max: 65 },
-      "Maior que 65": { min: 65, max: 500 },
+    // faixaEtaria
+    const mapping: Record<string, {min:number;max:number}> = {
+      "Menor que 18": { min:0,    max:18 },
+      "18-65":        { min:18,   max:65 },
+      "Maior que 65": { min:65,   max:500 }
     };
     const faixa = filters.faixa || [];
-    if (faixa.length > 0) {
-      const mins = faixa.map((key: string) => ageMapping[key].min);
-      const maxs = faixa.map((key: string) => ageMapping[key].max);
-      backendFilters.faixaEtaria = { min: Math.min(...mins), max: Math.max(...maxs) };
+    if (faixa.length) {
+      const mins = faixa.map(k => mapping[k].min);
+      const maxs = faixa.map(k => mapping[k].max);
+      backend.faixaEtaria = { min: Math.min(...mins), max: Math.max(...maxs) };
     }
-    applyFilters(backendFilters);
+    applyFilters(backend);
   };
 
+  // auto‐apply on any change
+  useEffect(() => {
+    applyCurrentFilters();
+  }, [filters]);
+
   const handleClearFilters = () => {
-    const reset = { estado: [], faixa: [] };
-    setFilters(reset);
+    setFilters({ estado: [], faixa: [] });
     applyFilters({ estadoSubscricao: 'todas' });
   };
 
-  const handleSaveFilters = async () => {
-    setShowSaveModal(true);
-  };
-
   const handleConfirmSave = async () => {
-    if (filterNameInput.trim() === "") return;
-    const name = filterNameInput.trim();
-    try {
-      await createFilterMutation({
-        nomeFiltro: name,
-        filtros: filters,
-        utilizadorId: utilizadorId,
-      });
-      refetchSavedFilters();
-      setShowSaveModal(false);
-      setFilterNameInput("");
-    } catch (error) {
-      console.error("Erro ao salvar filtro:", error);
-    }
+    if (!filterNameInput.trim()) return;
+    await createFilter({
+      nomeFiltro: filterNameInput.trim(),
+      filtros:   filters,
+      utilizadorId
+    });
+    refetchSavedFilters();
+    setShowSaveModal(false);
+    setFilterNameInput("");
   };
 
   const handleConfirmRemove = async () => {
-    if (filterIdToRemove === null) return;
-    try {
-      await deleteFilterMutation({ utilizadorFiltroId: filterIdToRemove });
-      refetchSavedFilters();
-    } catch (error) {
-      console.error("Erro ao remover filtro:", error);
-    }
+    if (filterIdToRemove == null) return;
+    await deleteFilter({ utilizadorFiltroId: filterIdToRemove });
+    refetchSavedFilters();
     setShowRemoveModal(false);
     setFilterIdToRemove(null);
   };
 
-  const handleApplySavedFilter = (saved: SavedFilter) => {
-    setFilters(saved.filtros);
-    const backendFilters: BackendFilters = {};
-    const estado = saved.filtros.estado || [];
-    if (estado.length === 0 || estado.length === 2) {
-      backendFilters.estadoSubscricao = 'todas';
-    } else if (estado.includes('Ativa')) {
-      backendFilters.estadoSubscricao = 'ativa';
-    } else if (estado.includes('Expirada')) {
-      backendFilters.estadoSubscricao = 'expirada';
-    }
-    const ageMapping: Record<string, { min: number; max: number }> = {
-      "Menor que 18": { min: 0, max: 18 },
-      "18-65": { min: 18, max: 65 },
-      "Maior que 65": { min: 65, max: 500 },
-    };
-    const faixa = saved.filtros.faixa || [];
-    if (faixa.length > 0) {
-      const mins = faixa.map((key: string) => ageMapping[key].min);
-      const maxs = faixa.map((key: string) => ageMapping[key].max);
-      backendFilters.faixaEtaria = { min: Math.min(...mins), max: Math.max(...maxs) };
-    }
-    applyFilters(backendFilters);
+  const handleApplySavedFilter = (sf: SavedFilter) => {
+    setFilters(sf.filtros);
+    // auto‐apply triggers in useEffect
   };
 
   return (
     <>
       <div className="bg-gray-50 shadow p-4 rounded-md w-64 space-y-4">
         <h2 className="text-lg font-semibold">Filtros</h2>
+
+        {/* — Saved Filters — */}
         <div className="border-b border-gray-200 pb-2">
-          <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsSavedOpen(!isSavedOpen)}>
+          <div className="flex justify-between items-center cursor-pointer"
+               onClick={() => setIsSavedOpen(o => !o)}>
             <h3 className="font-medium text-sm">Filtros Guardados</h3>
-            {isSavedOpen ? <ChevronDown /> : <ChevronRight />}
+            {isSavedOpen ? <ChevronDown/> : <ChevronRight/>}
           </div>
           {isSavedOpen && (
             <div className="mt-2">
-              {savedFilters.length === 0 ? (
-                <p className="text-xs text-gray-500 italic">Nenhum filtro guardado.</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {savedFilters.map(sf => (
-                    <div key={sf.UtilizadorFiltroId} className="flex items-center justify-between px-4 py-3 ">
-                      <button onClick={() => handleApplySavedFilter(sf)} className="text-sm text-gray-800 hover:underline">
+              {savedFilters.length === 0
+                ? <p className="text-xs text-gray-500 italic">Nenhum filtro guardado.</p>
+                : savedFilters.map(sf => (
+                    <div key={sf.UtilizadorFiltroId}
+                         className="flex justify-between items-center px-4 py-3">
+                      <button
+                        onClick={() => handleApplySavedFilter(sf)}
+                        className="text-sm text-gray-800 hover:underline">
                         {sf.nomeFiltro}
                       </button>
                       <button
                         onClick={() => { setFilterIdToRemove(sf.UtilizadorFiltroId); setShowRemoveModal(true); }}
                         className="text-red-400 hover:text-red-600"
-                        title="Remover este filtro"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" className="inline-block">
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
+                        title="Remover este filtro">
+                        <svg width="16" height="16" viewBox="0 0 24 24"
+                             strokeWidth="2" stroke="currentColor" fill="none"
+                             strokeLinecap="round" strokeLinejoin="round"
+                             className="inline-block">
+                          <line x1="18" y1="6"  x2="6" y2="18"/>
+                          <line x1="6"  y1="6"  x2="18" y2="18"/>
                         </svg>
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+              }
             </div>
           )}
         </div>
+
+        {/* — Estado da Subscrição — */}
         <div className="border-b border-gray-200 pb-2">
-          <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsEstadoOpen(!isEstadoOpen)}>
+          <div className="flex justify-between items-center cursor-pointer"
+               onClick={() => setIsEstadoOpen(o => !o)}>
             <h3 className="font-medium text-sm">Estado da Subscrição</h3>
-            {isEstadoOpen ? <ChevronDown /> : <ChevronRight />}
+            {isEstadoOpen ? <ChevronDown/> : <ChevronRight/>}
           </div>
           {isEstadoOpen && (
             <div className="mt-2 space-y-2">
-              <div className="flex items-center space-x-2">
-                <input id="ativa" type="checkbox" value="Ativa" checked={filters.estado?.includes('Ativa')} onChange={() => toggleFilter("estado", "Ativa")} className="form-checkbox h-4 w-4 text-blue-600" />
-                <label htmlFor="ativa" className="text-sm text-gray-700 cursor-pointer">Ativa</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input id="expirada" type="checkbox" value="Expirada" checked={filters.estado?.includes('Expirada')} onChange={() => toggleFilter("estado", "Expirada")} className="form-checkbox h-4 w-4 text-blue-600" />
-                <label htmlFor="expirada" className="text-sm text-gray-700 cursor-pointer">Expirada</label>
-              </div>
+              {['Ativa','Expirada'].map(val => (
+                <div key={val} className="flex items-center space-x-2">
+                  <input
+                    id={val}
+                    type="checkbox"
+                    value={val}
+                    checked={filters.estado?.includes(val)}
+                    onChange={() => toggleFilter("estado", val)}
+                    className="form-checkbox h-4 w-4 text-blue-600"
+                  />
+                  <label htmlFor={val} className="text-sm text-gray-700 cursor-pointer">
+                    {val}
+                  </label>
+                </div>
+              ))}
             </div>
           )}
         </div>
+
+        {/* — Faixa Etária — */}
         <div className="border-b border-gray-200 pb-2">
-          <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsFaixaOpen(!isFaixaOpen)}>
+          <div className="flex justify-between items-center cursor-pointer"
+               onClick={() => setIsFaixaOpen(o => !o)}>
             <h3 className="font-medium text-sm">Faixa Etária</h3>
-            {isFaixaOpen ? <ChevronDown /> : <ChevronRight />}
+            {isFaixaOpen ? <ChevronDown/> : <ChevronRight/>}
           </div>
           {isFaixaOpen && (
             <div className="mt-2 space-y-2">
-              <div className="flex items-center space-x-2">
-                <input id="menor18" type="checkbox" value="Menor que 18" checked={filters.faixa?.includes('Menor que 18')} onChange={() => toggleFilter("faixa", "Menor que 18")} className="form-checkbox h-4 w-4 text-blue-600" />
-                <label htmlFor="menor18" className="text-sm text-gray-700 cursor-pointer">Menor que 18</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input id="18-65" type="checkbox" value="18-65" checked={filters.faixa?.includes('18-65')} onChange={() => toggleFilter("faixa", "18-65")} className="form-checkbox h-4 w-4 text-blue-600" />
-                <label htmlFor="18-65" className="text-sm text-gray-700 cursor-pointer">18-65</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input id="maior65" type="checkbox" value="Maior que 65" checked={filters.faixa?.includes('Maior que 65')} onChange={() => toggleFilter("faixa", "Maior que 65")} className="form-checkbox h-4 w-4 text-blue-600" />
-                <label htmlFor="maior65" className="text-sm text-gray-700 cursor-pointer">Maior que 65</label>
-              </div>
+              {["Menor que 18","18-65","Maior que 65"].map(val => (
+                <div key={val} className="flex items-center space-x-2">
+                  <input
+                    id={val}
+                    type="checkbox"
+                    value={val}
+                    checked={filters.faixa?.includes(val)}
+                    onChange={() => toggleFilter("faixa", val)}
+                    className="form-checkbox h-4 w-4 text-blue-600"
+                  />
+                  <label htmlFor={val} className="text-sm text-gray-700 cursor-pointer">
+                    {val}
+                  </label>
+                </div>
+              ))}
             </div>
           )}
         </div>
+
+        {/* — Clear + Save Buttons — */}
         <div className="space-y-2">
-          <button className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 text-sm font-medium" onClick={applyCurrentFilters}>
-            Aplicar Filtros
-          </button>
-          <button className="w-full bg-gray-300 text-gray-800 p-2 rounded-md hover:bg-gray-400 text-sm font-medium" onClick={handleClearFilters}>
+          <button
+            onClick={handleClearFilters}
+            className="w-full px-4 py-1 text-sm rounded-lg bg-gradient-to-r from-red-500 to-red-600 
+                       text-white font-semibold hover:from-red-600 hover:to-red-700 transition"
+          >
             Limpar Filtros
           </button>
-          <button className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 text-sm font-medium" onClick={() => setShowSaveModal(true)}>
+          <button
+            onClick={() => setShowSaveModal(true)}
+            className="w-full px-4 py-1 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 
+                       text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition"
+          >
             Guardar Filtros
           </button>
         </div>
       </div>
+
+      {/* — Remove Confirmation Modal — */}
       {showRemoveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
@@ -284,16 +262,24 @@ const FilterUsers = ({ applyFilters, utilizadorId }: FilterUsersProps) => {
               Tem certeza que deseja remover este filtro?
             </p>
             <div className="mt-4 flex justify-end gap-4">
-              <button onClick={() => setShowRemoveModal(false)} className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">
+              <button
+                onClick={() => setShowRemoveModal(false)}
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 font-semibold hover:from-gray-400 hover:to-gray-500 transition"
+              >
                 Cancelar
               </button>
-              <button onClick={handleConfirmRemove} className="px-4 py-2 rounded bg-red-400 text-white hover:bg-red-500 transition-colors">
+              <button
+                onClick={handleConfirmRemove}
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition"
+              >
                 Remover
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* — Save Name Modal — */}
       {showSaveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
@@ -303,20 +289,20 @@ const FilterUsers = ({ applyFilters, utilizadorId }: FilterUsersProps) => {
             <input
               type="text"
               value={filterNameInput}
-              onChange={(e) => setFilterNameInput(e.target.value)}
-              className="w-full border rounded px-3 py-2 mt-4 text-sm"
+              onChange={e => setFilterNameInput(e.target.value)}
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
               placeholder="Nome do filtro..."
             />
             <div className="mt-4 flex justify-end gap-4">
               <button
                 onClick={() => { setShowSaveModal(false); setFilterNameInput(""); }}
-                className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 font-semibold hover:from-gray-400 hover:to-gray-500 transition"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleConfirmSave}
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition"
               >
                 Guardar
               </button>

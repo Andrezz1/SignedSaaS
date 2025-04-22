@@ -66,88 +66,101 @@ const CreateSocioPage = () => {
     try {
       await createUserAction(payload)
       navigate('/socios')
-    } catch (error) {
-      console.error('Erro ao criar o utilizador:', error)
+    } catch {
       setErrorMsg('Erro ao criar o utilizador. Por favor, tente novamente.')
     }
   }
 
   const handleLocalidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '')
-    if (value.length > 4) {
-      value = value.slice(0, 4) + '-' + value.slice(4, 7)
-    }
-    setLocalidade(value)
+    let v = e.target.value.replace(/\D/g, '')
+    if (v.length > 4) v = v.slice(0,4) + '-' + v.slice(4,7)
+    setLocalidade(v)
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-  
     const reader = new FileReader()
     reader.onloadend = () => {
       const result = reader.result as string
-      const base64 = result.includes(',') ? result.split(',')[1] : result
-      setImagem(base64)
+      setImagem(result.includes(',') ? result.split(',')[1] : result)
     }
     reader.readAsDataURL(file)
-  }  
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white w-full max-w-4xl p-10 rounded-xl shadow-lg">
-        <h2 className="text-2xl font-semibold mb-6 text-gray-800">Criar Sócio</h2>
-        {errorMsg && <p className="mb-4 text-red-500 text-sm">{errorMsg}</p>}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="bg-white w-full max-w-4xl p-12 rounded-2xl shadow-lg">
+        <h2 className="text-3xl font-bold text-gray-800 mb-8">Criar Sócio</h2>
+        {errorMsg && <p className="mb-6 text-red-500 text-sm">{errorMsg}</p>}
+
+        <div className="grid grid-cols-2 gap-x-8 gap-y-6">
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Nome Completo
+            </label>
             <input
               type="text"
               value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              onChange={e => setNome(e.target.value)}
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Data de Nascimento</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Data de Nascimento
+            </label>
             <input
               type="date"
               value={dataNascimento}
-              onChange={(e) => setDataNascimento(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              onChange={e => setDataNascimento(e.target.value)}
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">NIF</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              NIF
+            </label>
             <input
               type="text"
               value={nif}
-              onChange={(e) => setNif(e.target.value.replace(/\D/g, ''))}
+              onChange={e => setNif(e.target.value.replace(/\D/g, ''))}
               maxLength={9}
               placeholder="9 dígitos"
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Email
+            </label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              onChange={e => setEmail(e.target.value)}
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Utilizador</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Tipo de Utilizador
+            </label>
             <input
               type="text"
               value="Sócio"
               disabled
-              className="block w-full p-2 border rounded bg-gray-100 text-gray-600 cursor-not-allowed"
+              className="block w-full p-3 border border-gray-200 bg-gray-100 text-gray-500 rounded-lg cursor-not-allowed"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Telemóvel</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Telemóvel
+            </label>
             <MyPhoneInput
               countryCode={countryCode}
               phoneNumber={phoneNumber}
@@ -155,47 +168,71 @@ const CreateSocioPage = () => {
               onPhoneNumberChange={setPhoneNumber}
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Concelho</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Concelho
+            </label>
             <input
               type="text"
               value={concelho}
-              onChange={(e) => setConcelho(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              onChange={e => setConcelho(e.target.value)}
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Distrito</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Distrito
+            </label>
             <input
               type="text"
               value={distrito}
-              onChange={(e) => setDistrito(e.target.value)}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              onChange={e => setDistrito(e.target.value)}
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Código Postal</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Código Postal
+            </label>
             <input
               type="text"
               value={localidade}
               onChange={handleLocalidadeChange}
               maxLength={8}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Imagem</label>
+
+          {/* file input agora ocupa 2 colunas */}
+          <div className="col-span-2">
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Imagem
+            </label>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className="block w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
         </div>
-        <div className="mt-8 flex justify-end gap-4">
-          <button onClick={() => navigate(-1)} className="px-4 py-2 w-28 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">Voltar</button>
-          <button onClick={handleCreate} className="px-4 py-2 w-28 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors">Criar</button>
+
+        <div className="mt-10 flex justify-end gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-2 rounded-lg bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 font-semibold hover:from-gray-400 hover:to-gray-500 transition"
+          >
+            Voltar
+          </button>
+          <button
+            onClick={handleCreate}
+            className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition"
+          >
+            Criar
+          </button>
         </div>
       </div>
     </div>
