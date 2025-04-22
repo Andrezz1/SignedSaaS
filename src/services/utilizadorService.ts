@@ -117,7 +117,6 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     page: number,
     pageSize: number,
     searchTerm?: string,
-    tipoUtilizadorId?: number,
     filters?: {
       estadoSubscricao?: 'ativa' | 'expirada' | 'todas',
       faixaEtaria?: {
@@ -139,7 +138,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     pageSize: number
     totalPages: number
   }
-> = async ({ page, pageSize, searchTerm, tipoUtilizadorId, filters }, context) => {
+> = async ({ page, pageSize, searchTerm, filters }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -149,12 +148,6 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
 
   const utilizadoresativos: any = {
     EstadoUtilizador: true,
-  }
-
-  if (tipoUtilizadorId) {
-    utilizadoresativos.TipoUtilizador = {
-      TipoUtilizadorId: tipoUtilizadorId,
-    }
   }
 
   if (searchTerm) {
@@ -187,7 +180,10 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
   }
 
   const utilizadores = await context.entities.Utilizador.findMany({
-    where: utilizadoresativos,
+    where: {
+      EstadoUtilizador: true,
+      NumSocio: {not:null}
+    },
     orderBy: {
       id: 'desc',
     },
