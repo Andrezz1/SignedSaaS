@@ -202,7 +202,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                       </svg>
                     </button>
                     <button
-                      title="Ver mais"
+                      title="Ver Detalhes"
                       onClick={() => setSelectedUser(isOpen ? null : user)}
                       className="flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-transparent hover:bg-gray-100 text-black"
                     >
@@ -271,13 +271,13 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
             <div className="mt-4 flex justify-end gap-2">
               <button
                 onClick={() => setUserToDelete(null)}
-                className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 font-semibold hover:from-gray-400 hover:to-gray-500 transition"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 rounded bg-red-400 text-white hover:bg-red-500 transition-colors"
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition"
               >
                 Remover
               </button>

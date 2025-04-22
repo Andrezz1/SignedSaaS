@@ -41,14 +41,14 @@ const MyPhoneInput: React.FC<MyPhoneInputProps> = ({
         value={countryCode}
         onChange={handleCountryCodeChange}
         maxLength={4}
-        className="w-20 block border border-gray-300 rounded px-3 py-2"
+        className="w-20 block p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
       />
       <input
         type="text"
         value={phoneNumber}
         onChange={handlePhoneNumberChange}
         maxLength={9}
-        className="block w-full border border-gray-300 rounded px-3 py-2"
+        className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
       />
     </div>
   );

@@ -104,7 +104,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="block w-full border border-gray-300 rounded px-3 py-2"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
@@ -117,7 +117,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={tipoDescricao}
               disabled
-              className="block w-full border border-gray-300 rounded px-3 py-2 bg-gray-100 text-gray-800"
+              className="block w-full p-3 border border-gray-200 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
@@ -129,7 +129,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="block w-full border border-gray-300 rounded px-3 py-2"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
@@ -153,7 +153,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={concelho}
               onChange={(e) => setConcelho(e.target.value)}
-              className="block w-full border border-gray-300 rounded px-3 py-2"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
@@ -165,7 +165,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={distrito}
               onChange={(e) => setDistrito(e.target.value)}
-              className="block w-full border border-gray-300 rounded px-3 py-2"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
@@ -177,7 +177,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
               type="text"
               value={localidade}
               onChange={handleLocalidadeChange}
-              className="block w-full border border-gray-300 rounded px-3 py-2"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
               maxLength={8}
             />
           </div>
@@ -186,13 +186,13 @@ const EditUserContainer = ({ user, onClose }: any) => {
         <div className="mt-8 flex justify-end gap-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            className="px-6 py-2 rounded-lg bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 font-semibold hover:from-gray-400 hover:to-gray-500 transition"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+            className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition"
           >
             Guardar
           </button>
