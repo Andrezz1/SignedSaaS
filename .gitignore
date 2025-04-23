@@ -6,6 +6,7 @@ public/
 # To include specific dotenv files, use the `!` operator or adjust these rules.
 .env
 .env.*
+start-wasp.sh
 
 # Don't ignore example dotenv files.
 !.env.example

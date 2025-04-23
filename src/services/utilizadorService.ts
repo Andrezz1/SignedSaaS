@@ -28,17 +28,75 @@ export const getSocios: GetSocios<void, Utilizador[]> = async (_args, context) =
   })
 }
 
-export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<void, Utilizador[]> = async(_args, context) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
+export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
+  { 
+    page: number,
+    pageSize: number,
+    searchTerm?: string,
+  },
+  {
+    data: {
+      utilizador: Utilizador
+      contacto: Contacto
+    }[]
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
+  }
+> = async ({ page, pageSize, searchTerm }, context) => {
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
+
+  const skip = (page - 1) * pageSize
+  const take = pageSize
+
+  const utilizadoresdesativados: any = {
+    EstadoUtilizador: false,
   }
 
-  return context.entities.Utilizador.findMany({
-    where: { EstadoUtilizador: false },
+  if (searchTerm) {
+    utilizadoresdesativados.OR = [
+      { Nome: { contains: searchTerm, mode: 'insensitive' } },
+      { NIF: { contains: searchTerm, mode: 'insensitive' } },
+      { Contacto: { Telemovel: { contains: searchTerm, mode: 'insensitive' } } }
+    ]
+  }
+
+  const utilizadores = await context.entities.Utilizador.findMany({
+    where: {
+      EstadoUtilizador: false,
+      NumSocio: { not: null }
+    },
+    orderBy: {
+      id: 'desc',
+    },
     include: {
       Contacto: true,
-    }
+    },
+    skip,
+    take,
   })
+
+  const totalUtilizadores = await context.entities.Utilizador.count({
+    where: utilizadoresdesativados, 
+  })
+
+  const utilizadoresInfo = utilizadores.map(
+    ({ Contacto, ...utilizador }) => ({
+      utilizador,
+      contacto: Contacto!
+    })
+  )
+
+  return {
+    data: utilizadoresInfo,
+    total: totalUtilizadores,
+    page,
+    pageSize,
+    totalPages: Math.ceil(totalUtilizadores / pageSize),
+  }
 }
 
 export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<{ 
@@ -185,7 +243,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
   const utilizadores = await context.entities.Utilizador.findMany({
     where: {
       EstadoUtilizador: true,
-      NumSocio: {not:null}
+      NumSocio: { not: null }
     },
     orderBy: {
       id: 'desc',
