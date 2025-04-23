@@ -53,6 +53,12 @@ page CreateSocioPage {
   component: import  CreateSocioPage  from "@src/pages/CreateSocioPage"
 }
 
+route RemovedSociosRoute { path: "/socios-desabilitados", to: RemovedSociosPage }
+page RemovedSociosPage {
+  authRequired: true,
+  component: import RemovedSociosPage from "@src/pages/RemovedSociosPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
