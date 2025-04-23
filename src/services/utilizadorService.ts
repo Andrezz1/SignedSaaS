@@ -34,7 +34,10 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<void, Utilizad
   }
 
   return context.entities.Utilizador.findMany({
-    where: { EstadoUtilizador: false }
+    where: { EstadoUtilizador: false },
+    include: {
+      Contacto: true,
+    }
   })
 }
 
