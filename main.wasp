@@ -59,6 +59,18 @@ page RemovedSociosPage {
   component: import RemovedSociosPage from "@src/pages/RemovedSociosPage"
 }
 
+route PlanFormRoute { path: "/planos", to: PlanFormPage }
+page PlanFormPage  {
+  authRequired: true,
+  component: import PlanFormPage from "@src/pages/PlanFormPage"
+}
+
+route PaymentPickerRoute { path: "/payment-picker", to: PaymentPickerPage }
+page PaymentPickerPage  {
+  authRequired: true,
+  component: import PaymentPickerPage from "@src/pages/PaymentPickerPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
