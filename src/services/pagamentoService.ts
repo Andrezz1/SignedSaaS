@@ -1,9 +1,10 @@
-import { Comprovativo, Pagamento, Utilizador } from 'wasp/entities'
+import { Comprovativo, MetodoPagamento, Pagamento, Utilizador } from 'wasp/entities'
 import axios from 'axios'
 import { 
   type GetPagamento, 
   type GetPagamentoInfo,
-  type GetPagamentoByUtilizadorId
+  type GetPagamentoByUtilizadorId,
+  GetMetodoPagamento
 } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
 
@@ -14,6 +15,16 @@ export const getPagamento: GetPagamento<void, Pagamento[]> = async (_args, conte
 
   return context.entities.Pagamento.findMany({
     orderBy: { PagamentoId: 'asc' },
+  })
+}
+
+export const getMetodoPagamento: GetMetodoPagamento <void, MetodoPagamento[]> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
+  return context.entities.MetodoPagamento.findMany({
+    orderBy: { MetodoPagamentoId: 'asc' },
   })
 }
 

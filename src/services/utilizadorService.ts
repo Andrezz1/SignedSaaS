@@ -12,21 +12,25 @@ import {
 } from 'wasp/server/operations'
 import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
+import { loggedQuery } from './logs/loggedQuery'
 
-export const getSocios: GetSocios<void, Utilizador[]> = async (_args, context) => {
+export const getSocios: GetSocios<void, Utilizador[]> = loggedQuery('getSocios', async (_args, context) => {
   if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
+    throw new HttpError(401, 'Não tem permissão')
   }
+
   return context.entities.Utilizador.findMany({
     orderBy: { id: 'asc' },
     where: {
-      NumSocio: { not: null } 
+      NumSocio: { not: null }
     },
     include: {
       Subscricoes: true
     }
   })
-}
+})
+
+
 
 export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
   { 
@@ -45,15 +49,15 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
     totalPages: number
   }
 > = async ({ page, pageSize, searchTerm }, context) => {
-  // if (!context.user) {
-  //   throw new HttpError(401, "Não tem permissão")
-  // }
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
 
   const skip = (page - 1) * pageSize
   const take = pageSize
 
   const utilizadoresdesativados: any = {
-    EstadoUtilizador: false,
+      EstadoUtilizador: false,
   }
 
   if (searchTerm) {
