@@ -168,6 +168,11 @@ query getUtilizadoresInfoByTipo {
   entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao]
 }
 
+query getMetodoPagamento {
+  fn: import { getMetodoPagamento } from "@src/services/pagamentoService",
+  entities: [MetodoPagamento]
+}
+
 // As queries abaixo são queries com filtros
 
 query getUtilizadorByNIF {
