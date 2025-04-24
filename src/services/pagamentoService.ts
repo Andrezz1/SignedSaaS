@@ -4,7 +4,7 @@ import {
   type GetPagamento, 
   type GetPagamentoInfo,
   type GetPagamentoByUtilizadorId,
-  GetMetodoPagamento
+  type GetMetodoPagamento
 } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
 
