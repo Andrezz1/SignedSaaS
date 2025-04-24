@@ -12,7 +12,7 @@ import {
 } from 'wasp/server/operations'
 import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
-import { loggedQuery } from './logs/loggedQuery'
+import { loggedQuery } from './logger/loggedQuery'
 
 export const getSocios: GetSocios<void, Utilizador[]> = loggedQuery('getSocios', async (_args, context) => {
   if (!context.user) {
@@ -30,8 +30,6 @@ export const getSocios: GetSocios<void, Utilizador[]> = loggedQuery('getSocios',
   })
 })
 
-
-
 export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
   { 
     page: number,
@@ -48,7 +46,7 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
     pageSize: number
     totalPages: number
   }
-> = async ({ page, pageSize, searchTerm }, context) => {
+> = loggedQuery('getUtilizadorDesabilitado', async ({ page, pageSize, searchTerm }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -81,7 +79,7 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
     },
     skip,
     take,
-  })
+  }) as Array<Utilizador & { Contacto: Contacto }>
 
   const totalUtilizadores = await context.entities.Utilizador.count({
     where: utilizadoresdesativados, 
@@ -101,7 +99,7 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
     pageSize,
     totalPages: Math.ceil(totalUtilizadores / pageSize),
   }
-}
+})
 
 export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<{ 
   utilizador: Utilizador, 
@@ -109,7 +107,7 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
   morada: Morada | null, 
   contacto: Contacto | null,
   subscricoes: Subscricao[]
-}>> = async (args, context) => {
+}>> = loggedQuery('getUtilizadorInfoById', async (args, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -132,7 +130,13 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
       Contacto: true, 
       Subscricoes: true, 
     },
-  })
+  }) as Array<Utilizador & {
+      TipoUtilizador: TipoUtilizador | null
+      Morada: Morada | null
+      Contacto: Contacto | null
+      Subscricoes: Subscricao[]
+    }
+  >
 
   if (!utilizadores || utilizadores.length === 0) {
     return []
@@ -147,7 +151,7 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
   }))
 
   return result
-}
+})
 
 export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'EstadoUtilizador'>, Utilizador[]
 > = async (args, context) => {

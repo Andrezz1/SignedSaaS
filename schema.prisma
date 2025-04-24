@@ -55,7 +55,7 @@ model Doacao {
 
 model MetodoPagamento {
   MetodoPagamentoId Int    @id @default(autoincrement())
-  Nome             String @unique // Ex: "MB WAY", "Multibanco", "Cartão de Crédito", "Dinheiro"
+  Nome             String @unique
   Pagamentos       Pagamento[]
 }
 
