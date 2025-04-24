@@ -71,6 +71,18 @@ page PaymentPickerPage  {
   component: import PaymentPickerPage from "@src/pages/PaymentPickerPage"
 }
 
+route MultibancoConfirmRoute { path: "/multibanco-confirm", to: MultibancoConfirmPage }
+page MultibancoConfirmPage {
+  authRequired: true,
+  component: import MultibancoConfirmPage from "@src/pages/MultibancoConfirmPage"
+}
+
+route MultibancoDetailsRoute { path: "/multibanco-details", to: MultibancoDetailsPage }
+page MultibancoDetailsPage {
+  authRequired: true,
+  component: import MultibancoDetailsPage from "@src/pages/MultibancoDetailsPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
