@@ -14,7 +14,7 @@ import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
 import { loggedQuery } from './logger/loggedQuery'
 
-export const getSocios: GetSocios<void, Utilizador[]> = loggedQuery('getSocios', async (_args, context) => {
+export const getSocios: GetSocios<void, Utilizador[]> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, 'Não tem permissão')
   }
@@ -28,7 +28,7 @@ export const getSocios: GetSocios<void, Utilizador[]> = loggedQuery('getSocios',
       Subscricoes: true
     }
   })
-})
+}
 
 export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
   { 
@@ -46,7 +46,7 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
     pageSize: number
     totalPages: number
   }
-> = loggedQuery('getUtilizadorDesabilitado', async ({ page, pageSize, searchTerm }, context) => {
+> = async ({ page, pageSize, searchTerm }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -79,7 +79,7 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
     },
     skip,
     take,
-  }) as Array<Utilizador & { Contacto: Contacto }>
+  })
 
   const totalUtilizadores = await context.entities.Utilizador.count({
     where: utilizadoresdesativados, 
@@ -99,7 +99,7 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
     pageSize,
     totalPages: Math.ceil(totalUtilizadores / pageSize),
   }
-})
+}
 
 export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<{ 
   utilizador: Utilizador, 
@@ -107,7 +107,7 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
   morada: Morada | null, 
   contacto: Contacto | null,
   subscricoes: Subscricao[]
-}>> = loggedQuery('getUtilizadorInfoById', async (args, context) => {
+}>> = async (args, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -151,7 +151,7 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
   }))
 
   return result
-})
+}
 
 export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'EstadoUtilizador'>, Utilizador[]
 > = async (args, context) => {
@@ -217,6 +217,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
 
   const utilizadoresativos: any = {
     EstadoUtilizador: true,
+    NumSocio: { not: null }
   }
 
   if (searchTerm) {
@@ -249,10 +250,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
   }
 
   const utilizadores = await context.entities.Utilizador.findMany({
-    where: {
-      EstadoUtilizador: true,
-      NumSocio: { not: null }
-    },
+    where: utilizadoresativos,
     orderBy: {
       id: 'desc',
     },
