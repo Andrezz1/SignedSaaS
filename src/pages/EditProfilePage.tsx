@@ -7,7 +7,8 @@ import {
   updateUtilizador
 } from 'wasp/client/operations';
 import DefaultLayout from '../layout/DefaultLayout';
-import MyPhoneInput from '../components/phoneInput';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import ProfilePhotoInput from '../components/profilePhotoInput';
 import { useNavigate } from 'react-router-dom';
 
@@ -114,7 +115,7 @@ const EditProfile: React.FC = () => {
   if (error) return <div>Erro: {error.message}</div>;
 
   return (
-    <DefaultLayout user={authUser}>
+
       <div className="p-8">
         <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
           {/* Cabeçalho */}
@@ -238,14 +239,26 @@ const EditProfile: React.FC = () => {
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
                   Nº Telemóvel
                 </label>
-                <MyPhoneInput
-                  countryCode={countryCode}
-                  phoneNumber={phoneNumber}
-                  onCountryCodeChange={setCountryCode}
-                  onPhoneNumberChange={setPhoneNumber}
+                <PhoneInput
+                  country={'pt'}
+                  value={`${countryCode}${phoneNumber}`}
+                  onChange={(value, data) => {
+                    const dialCode = 'dialCode' in data ? data.dialCode : '';
+                    const nationalNumber = value.slice(dialCode.length).replace(/\D/g, '');
+                    setCountryCode(`+${dialCode}`);
+                    setPhoneNumber(nationalNumber);
+                  }}
+                  inputProps={{
+                    name: 'telemovel',
+                    required: true,
+                    className: 'block w-full p-3 pl-14 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200', 
+                  }}
+                  containerClass="w-full"
+                  inputClass="!w-full !p-3 !border !border-gray-200 !bg-white !rounded-lg focus:!outline-none focus:!ring-2 focus:!ring-blue-200"
+                  buttonClass="!border-r !border-gray-300 !bg-white !rounded-l-lg" 
+                  dropdownClass="!border-gray-300 !rounded-lg !shadow-lg" 
                 />
               </div>
-
               {/* Concelho */}
               <div>
                 <label
@@ -323,7 +336,6 @@ const EditProfile: React.FC = () => {
           </div>
         </div>
       </div>
-    </DefaultLayout>
   );
 };
 

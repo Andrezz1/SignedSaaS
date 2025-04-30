@@ -77,10 +77,22 @@ page MultibancoConfirmPage {
   component: import MultibancoConfirmPage from "@src/pages/MultibancoConfirmPage"
 }
 
+route MbwayConfirmRoute { path: "/mbway-confirm", to: MbwayConfirmPage }
+page MbwayConfirmPage {
+  authRequired: true,
+  component: import MbwayConfirmPage from "@src/pages/MbwayConfirmPage"
+}
+
 route MultibancoDetailsRoute { path: "/multibanco-details", to: MultibancoDetailsPage }
 page MultibancoDetailsPage {
   authRequired: true,
   component: import MultibancoDetailsPage from "@src/pages/MultibancoDetailsPage"
+}
+
+route MbwayDetailsRoute { path: "/mbway-details", to: MbwayDetailsPage }
+page MbwayDetailsPage {
+  authRequired: true,
+  component: import MbwayDetailsPage from "@src/pages/MbwayDetailsPage"
 }
 
 // As queries abaixo apenas obtêm os dados de cada tabela
