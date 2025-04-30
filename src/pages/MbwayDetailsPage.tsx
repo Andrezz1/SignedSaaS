@@ -1,4 +1,4 @@
-// src/pages/MultibancoDetailsPage.tsx
+// src/pages/MbwayDetailsPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getPagamento } from 'wasp/client/operations';
@@ -8,12 +8,12 @@ interface LocationState {
   paymentId: number;
 }
 
-const MultibancoDetailsPage: React.FC = () => {
+const MbwayDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { paymentId } = state as LocationState;
 
-  const [pagamento, setPagamento] = useState<Pagamento|null>(null);
+  const [pagamento, setPagamento] = useState<Pagamento | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -44,47 +44,46 @@ const MultibancoDetailsPage: React.FC = () => {
     </div>
   );
 
-  // Extrai os dados específicos de Multibanco
   const detalhes = pagamento!.DadosEspecificos as {
-    entidade?: string;
-    referencia?: string;
-    validade?: string;
+    telemovelMbway?: string;
+    estado?: string;
+    dataCriacao?: string;
   } || {};
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-left">
-        <h1 className="text-2xl font-bold mb-4 text-center">Detalhes do Pagamento</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">Detalhes do Pagamento MB WAY</h1>
 
         <p className="mb-2">
           <span className="font-semibold">ID Pagamento:</span> {pagamento!.PagamentoId}
         </p>
-        <p className="mb-4">
+        <p className="mb-2">
           <span className="font-semibold">Valor:</span> €{pagamento!.Valor}
         </p>
 
-        <hr className="border-t border-gray-200 my-4"/>
+        <hr className="border-t border-gray-200 my-4" />
 
-        <h2 className="text-lg font-medium mb-2">Detalhes Multibanco</h2>
-        {detalhes.entidade && (
+        <h2 className="text-lg font-medium mb-2">Dados do MB WAY</h2>
+        {detalhes.telemovelMbway && (
           <p className="mb-1">
-            <span className="font-semibold">Entidade:</span> {detalhes.entidade}
+            <span className="font-semibold">Telemóvel:</span> {detalhes.telemovelMbway}
           </p>
         )}
-        {detalhes.referencia && (
+        {detalhes.estado && (
           <p className="mb-1">
-            <span className="font-semibold">Referência:</span> {detalhes.referencia}
+            <span className="font-semibold">Estado:</span> {detalhes.estado}
           </p>
         )}
-        {detalhes.validade && (
+        {detalhes.dataCriacao && (
           <p className="mb-4">
-            <span className="font-semibold">Validade:</span> {detalhes.validade}
+            <span className="font-semibold">Criado em:</span> {new Date(detalhes.dataCriacao).toLocaleString()}
           </p>
         )}
 
         {pagamento!.NIFPagamento && (
           <>
-            <hr className="border-t border-gray-200 my-4"/>
+            <hr className="border-t border-gray-200 my-4" />
             <p className="mb-4">
               <span className="font-semibold">NIF:</span> {pagamento!.NIFPagamento}
             </p>
@@ -102,4 +101,4 @@ const MultibancoDetailsPage: React.FC = () => {
   );
 };
 
-export default MultibancoDetailsPage;
+export default MbwayDetailsPage;

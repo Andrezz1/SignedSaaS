@@ -55,9 +55,21 @@ const PaymentPickerPage: React.FC = () => {
 
   const handleConfirm = () => {
     if (selectedId === null) return;
-    navigate('/multibanco-confirm', {
-      state: { planId, metodoId: selectedId },
-    });
+  
+    const selectedMethod = methods.find(m => m.MetodoPagamentoId === selectedId);
+    if (!selectedMethod) return;
+  
+    const methodKey = selectedMethod.Nome.toLowerCase().replace(/\s+/g, '');
+  
+    if (methodKey === 'mbway') {
+      navigate('/mbway-confirm', {
+        state: { planId, metodoId: selectedId },
+      });
+    } else {
+      navigate('/multibanco-confirm', {
+        state: { planId, metodoId: selectedId },
+      });
+    }
   };
 
   // altura fixa para o slot de ícone em todos
