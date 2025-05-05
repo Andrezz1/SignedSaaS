@@ -5,14 +5,17 @@ import {
   useQuery,
   useAction
 } from 'wasp/client/operations';
-import MyPhoneInput from '../components/phoneInput';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
+// Componente para edição de dados do utilizador
 const EditUserContainer = ({ user, onClose }: any) => {
   const { utilizador, morada, contacto } = user;
-  // Carrega todos os tipos de utilizador
+  
+  // Procura os tipos de utilizador disponíveis
   const { data: tiposUtilizador = [] } = useQuery(getTipoUtilizador);
 
-  // Estado para cada campo
+  // Estados para os campos do formulário
   const [nome, setNome] = useState(utilizador.Nome || '');
   const [tipoUtilizadorId, setTipoUtilizadorId] = useState(utilizador.TipoUtilizadorTipoUtilizadorId || '');
   const [email, setEmail] = useState(contacto?.Email || '');
@@ -23,16 +26,16 @@ const EditUserContainer = ({ user, onClose }: any) => {
   const [localidade, setLocalidade] = useState(morada?.CodigoPostal?.Localidade || '');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Mutation para atualizar
+  // Mutation para atualizar utilizador
   const updateUserAction = useAction(updateUtilizador);
 
-  // Encontra a descrição referente ao tipoUtilizadorId
+  // Obtém a descrição do tipo de utilizador
   const tipoUtilizador = tiposUtilizador.find(
     (t: any) => t.TipoUtilizadorId === tipoUtilizadorId
   );
   const tipoDescricao = tipoUtilizador ? tipoUtilizador.Descricao : '';
 
-  // Função de validação
+  // Valida os campos antes de enviar
   const validateFields = () => {
     if (!phoneNumber || !countryCode.startsWith('+')) {
       setErrorMsg('Telemóvel inválido.');
@@ -50,15 +53,15 @@ const EditUserContainer = ({ user, onClose }: any) => {
     return true;
   };
 
-  // Salvar as alterações
+  // Envia os dados atualizados para o servidor
   const handleSave = async () => {
     if (!validateFields()) return;
+    
     const formattedTelemovel = `${countryCode} ${phoneNumber}`;
     const payload = {
       id: utilizador.id,
       Nome: nome,
       NumSocio: utilizador.NumSocio,
-      // Aqui continuamos mandando o ID, já que é o que o backend espera
       TipoUtilizadorId: tipoUtilizadorId,
       Contacto: { Email: email, Telemovel: formattedTelemovel },
       Morada: {
@@ -67,6 +70,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
         CodigoPostal: { Localidade: localidade }
       }
     };
+
     try {
       await updateUserAction(payload);
       onClose();
@@ -76,7 +80,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
     }
   };
 
-  // Formata campo de Código Postal
+  // Formata o campo de Código Postal
   const handleLocalidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
     if (value.length > 4) {
@@ -95,7 +99,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
         )}
 
         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-
+          {/* Campo Nome */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nome Completo
@@ -108,7 +112,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
             />
           </div>
 
-          {/* Mostra a Descricao do Tipo de Utilizador (bloqueado) */}
+          {/* Campo Tipo de Utilizador (readonly) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tipo de Utilizador
@@ -121,6 +125,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
             />
           </div>
 
+          {/* Campo Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
@@ -133,18 +138,33 @@ const EditUserContainer = ({ user, onClose }: any) => {
             />
           </div>
 
+          {/* Campo Telemóvel */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nº Telemóvel
             </label>
-            <MyPhoneInput
-              countryCode={countryCode}
-              phoneNumber={phoneNumber}
-              onCountryCodeChange={setCountryCode}
-              onPhoneNumberChange={setPhoneNumber}
+            <PhoneInput
+              country={'pt'}
+              value={`${countryCode}${phoneNumber}`}
+              onChange={(value, data) => {
+                const dialCode = 'dialCode' in data ? data.dialCode : '';
+                const nationalNumber = value.slice(dialCode.length).replace(/\D/g, '');
+                setCountryCode(`+${dialCode}`);
+                setPhoneNumber(nationalNumber);
+              }}
+              inputProps={{
+                name: 'telemovel',
+                required: true,
+                className: 'block w-full p-3 pl-14 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200',
+              }}
+              containerClass="w-full"
+              inputClass="!w-full !p-3 !border !border-gray-200 !bg-white !rounded-lg focus:!outline-none focus:!ring-2 focus:!ring-blue-200"
+              buttonClass="!border-r !border-gray-300 !bg-white !rounded-l-lg"
+              dropdownClass="!border-gray-300 !rounded-lg !shadow-lg"
             />
           </div>
 
+          {/* Campos de Morada */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Concelho
@@ -183,6 +203,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
           </div>
         </div>
 
+        {/* Botões de ação */}
         <div className="mt-8 flex justify-end gap-4">
           <button
             onClick={onClose}
