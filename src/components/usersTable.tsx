@@ -5,10 +5,11 @@ import {
   useAction 
 } from 'wasp/client/operations';
 import { useState } from 'react';
-import LoadingSpinner from '../layout/LoadingSpinner';
-import ExpandedUserDetails from './userDetails';
-import EditUserContainer from './editUserContainer';
+import LoadingSpinner from '../layout/LoadingSpinner'; // Componente de loading
+import ExpandedUserDetails from './userDetails'; // Componente que mostra os detalhes expandidos do utilizador
+import EditUserContainer from './editUserContainer'; // Componente de edição do utilizador
 
+// Propriedades do componente UsersTable
 interface UsersTableProps {
   showFilters: boolean;
   setShowFilters: (val: boolean) => void;
@@ -19,6 +20,7 @@ interface UsersTableProps {
 }
 
 const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableProps) => {
+  // Estados locais
   const [tempSearch, setTempSearch] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -27,6 +29,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Obter utilizadores do servidor com filtros e paginação
   const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfoByTipo, {
     page: currentPage,
     pageSize: pageSize,
@@ -35,10 +38,11 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
     filters: appliedFilters
   });
 
-  const updateUserEstadoMutation = useAction(updateEstadoUtilizador);
+  const updateUserEstadoMutation = useAction(updateEstadoUtilizador); // Ação para atualizar o estado do utilizador
   const utilizadoresInfo = utilizadoresInfoResponse?.data || [];
   const totalPages = utilizadoresInfoResponse?.totalPages || 1;
 
+  // Filtro de pesquisa por nome, telemóvel ou NIF
   const filteredUtilizadores = utilizadoresInfo.filter((user: any) => {
     const { utilizador, contacto } = user;
     return (
@@ -48,6 +52,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
     );
   });
 
+  // Função para remover utilizador (atualizar estado de true para false)
   const handleDelete = async () => {
     try {
       await updateUserEstadoMutation({
@@ -63,8 +68,10 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   return (
     <div className="w-full transition-all duration-300">
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        {/* Header de ações e filtros */}
         <div className="flex items-center justify-between p-6 gap-3 w-full bg-gray-100/40 dark:bg-gray-700/50">
           <div className="flex items-center gap-8">
+            {/* Botão para mostrar/esconder filtros */}
             <span
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 text-sm font-bold text-black cursor-pointer hover:text-gray-700"
@@ -76,6 +83,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
               </svg>
               {showFilters ? "Esconder Filtros" : "Mostrar Filtros"}
             </span>
+            {/* Seletor de tamanho de página */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-black">Por página:</span>
               <select
@@ -94,6 +102,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
               </select>
             </div>
           </div>
+          {/* Campo de pesquisa */}
           <form
             className="relative w-[400px]"
             onSubmit={(e) => {
@@ -116,6 +125,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
               onChange={(e) => setTempSearch(e.target.value)}
               className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
             />
+            {/* Botão para limpar pesquisa */}
             {tempSearch && (
               <button
                 type="button"
@@ -135,6 +145,8 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
             )}
           </form>
         </div>
+
+        {/* Cabeçalhos da tabela */}
         <div className="grid grid-cols-12 border-t-4 border-stroke py-4.5 px-4 dark:border-strokedark md:px-6">
           <div className="col-span-3 flex items-center">
             <p className="font-medium">Nome</p>
@@ -152,18 +164,25 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
             <p className="font-medium">Ações</p>
           </div>
         </div>
+
+        {/* Loading ou lista de utilizadores */}
         {isLoading && <LoadingSpinner />}
         {!isLoading &&
           filteredUtilizadores.map((user: any) => {
             const { utilizador, subscricoes, contacto } = user;
+
+            // Verifica o estado da subscrição do utilizador
             let estadoSubscricao = "Sem Subscrição";
             if (subscricoes.length > 0) {
               const subscricaoAtiva = subscricoes.find((sub: any) => sub.EstadoSubscricao);
               estadoSubscricao = subscricaoAtiva ? "Ativa" : "Expirada";
             }
+
             const isOpen = selectedUser?.utilizador?.id === utilizador.id;
+
             return (
               <div key={utilizador.id}>
+                {/* Linha da tabela com dados do utilizador */}
                 <div className="grid grid-cols-12 border-t border-stroke py-4.5 px-4 dark:border-strokedark md:px-6">
                   <div className="col-span-3 flex items-center">
                     <p className="text-sm text-black dark:text-white">{utilizador.Nome}</p>
@@ -179,7 +198,9 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                   <div className="col-span-2 flex items-center">
                     <p className="text-sm text-black dark:text-white">{estadoSubscricao}</p>
                   </div>
+                  {/* Botões de ação */}
                   <div className="col-span-2 flex items-center justify-center gap-2">
+                    {/* Botão Eliminar */}
                     <button
                       title="Eliminar"
                       onClick={() => setUserToDelete(user)}
@@ -191,6 +212,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M10 3h4a1 1 0 011 1v1H9V4a1 1 0 011-1z" />
                       </svg>
                     </button>
+                    {/* Botão Editar */}
                     <button
                       title="Editar"
                       onClick={() => setUserToEdit(user)}
@@ -201,6 +223,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                         <path d="M224 256A128 128 0 1 0 96 128a128 128 0 0 0 128 128zm90.5 32h-11.7a174.08 174.08 0 0 1-157.6 0h-11.7A133.53 133.53 0 0 0 0 421.5V464a48 48 0 0 0 48 48h232.81a172.08 172.08 0 0 1 33.7-81.56l81.12-81.12c-9.63-3.6-19.8-5.32-30.13-5.32zm317.4-73.4L586.3 161.9a31.9 31.9 0 0 0-45.2 0L505 198l79.1 79.1 36.1-36.1a31.9 31.9 0 0 0 0-45.2zM493.7 253.4l-142 142a31.87 31.87 0 0 0-8.4 13.9l-22.2 66.3a16 16 0 0 0 20.2 20.2l66.3-22.2a31.87 31.87 0 0 0 13.9-8.4l142-142z" />
                       </svg>
                     </button>
+                    {/* Botão Detalhes */}
                     <button
                       title="Ver Detalhes"
                       onClick={() => setSelectedUser(isOpen ? null : user)}
@@ -222,46 +245,51 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                     </button>
                   </div>
                 </div>
+                {/* Detalhes expandidos */}
                 {isOpen && <ExpandedUserDetails user={user} />}
               </div>
             );
           })
         }
       </div>
+
+      {/* Paginação */}
       <nav aria-label="Page navigation" className="mt-4 flex justify-center">
-          <ul className="inline-flex -space-x-px text-sm">
-            <li>
+        <ul className="inline-flex -space-x-px text-sm">
+          <li>
+            <button
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              Previous
+            </button>
+          </li>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <li key={i}>
               <button
-                onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                onClick={() => setCurrentPage(i + 1)}
+                className={`flex items-center justify-center px-3 h-8 leading-tight ${
+                  currentPage === i + 1
+                    ? "text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
               >
-                Previous
+                {i + 1}
               </button>
             </li>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <li key={i}>
-                <button
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`flex items-center justify-center px-3 h-8 leading-tight ${
-                    currentPage === i + 1
-                      ? "text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                      : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              </li>
-            ))}
-            <li>
-              <button
-                onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                Next
-              </button>
-            </li>
-          </ul>
-        </nav>
+          ))}
+          <li>
+            <button
+              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      {/* Modal de confirmação de eliminação */}
       {userToDelete && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
@@ -285,6 +313,8 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
           </div>
         </div>
       )}
+
+      {/* Modal de edição do utilizador */}
       {userToEdit && (
         <EditUserContainer
           user={userToEdit}

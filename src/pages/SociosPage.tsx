@@ -3,14 +3,23 @@ import { NoSymbolIcon, PlusIcon } from '@heroicons/react/24/outline';
 import DefaultLayout from '../layout/DefaultLayout';
 import FilterUsers from '../components/filterUsers';
 import UsersTable from '../components/usersTable';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const SociosPage = ({ user }: { user: AuthUser }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState({});
-
+  const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Verifica se há filtros no state da navegação
+    if (location.state?.appliedFilters) {
+      setAppliedFilters(location.state.appliedFilters);
+      // Mostra os filtros se vierem pré-selecionados
+      setShowFilters(true);
+    }
+  }, [location.state]);
 
   const handleAddUser = () => {
     navigate('/create-socio');
@@ -47,7 +56,11 @@ const SociosPage = ({ user }: { user: AuthUser }) => {
       <div className="flex gap-4">
         {showFilters && (
           <aside className="w-64">
-            <FilterUsers applyFilters={setAppliedFilters} utilizadorId={user.id} />
+            <FilterUsers 
+              applyFilters={setAppliedFilters} 
+              utilizadorId={user.id}
+              initialFilters={location.state?.appliedFilters} // Passa os filtros iniciais
+            />
           </aside>
         )}
         <div className="flex-1">

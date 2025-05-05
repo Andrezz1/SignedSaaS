@@ -15,6 +15,7 @@ interface BackendFilters {
 interface FilterUsersProps {
   applyFilters: (backendFilters: BackendFilters) => void;
   utilizadorId: number;
+  initialFilters?: BackendFilters;
 }
 
 interface SavedFilter {
@@ -26,7 +27,7 @@ interface SavedFilter {
   };
 }
 
-const FilterUsers = ({ applyFilters, utilizadorId }: FilterUsersProps) => {
+const FilterUsers = ({ applyFilters, utilizadorId, initialFilters }: FilterUsersProps) => {
   const [filters, setFilters] = useState<{ estado?: string[]; faixa?: string[] }>({
     estado: [],
     faixa: []
@@ -62,6 +63,27 @@ const FilterUsers = ({ applyFilters, utilizadorId }: FilterUsersProps) => {
       };
     });
   };
+
+  // Load initial filters from props
+  // Efeito para aplicar filtros iniciais
+  useEffect(() => {
+    if (initialFilters) {
+      // Converte os filtros do backend para o formato do estado local
+      const newFilters: { estado?: string[]; faixa?: string[] } = {};
+      
+      if (initialFilters.estadoSubscricao === 'ativa') {
+        newFilters.estado = ['Ativa'];
+      } else if (initialFilters.estadoSubscricao === 'expirada') {
+        newFilters.estado = ['Expirada'];
+      }
+      
+      if (initialFilters.faixaEtaria) {
+        // Lógica para converter faixa etária se necessário
+      }
+      
+      setFilters(newFilters);
+    }
+  }, [initialFilters]);
 
   // Load saved filters
   const { data: loadedFilters, refetch: refetchSavedFilters } = useQuery(

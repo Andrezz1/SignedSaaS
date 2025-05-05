@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAction } from 'wasp/client/operations'
 import { createUtilizador } from 'wasp/client/operations'
-import MyPhoneInput from '../components/phoneInput'
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+import ProfilePhotoInput from '../components/profilePhotoInput'
 
 const CreateSocioPage = () => {
   const navigate = useNavigate()
@@ -77,15 +79,8 @@ const CreateSocioPage = () => {
     setLocalidade(v)
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      const result = reader.result as string
-      setImagem(result.includes(',') ? result.split(',')[1] : result)
-    }
-    reader.readAsDataURL(file)
+  const handleImageSelect = (base64: string) => {
+    setImagem(base64)
   }
 
   return (
@@ -158,14 +153,27 @@ const CreateSocioPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
-              Telemóvel
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nº Telemóvel
             </label>
-            <MyPhoneInput
-              countryCode={countryCode}
-              phoneNumber={phoneNumber}
-              onCountryCodeChange={setCountryCode}
-              onPhoneNumberChange={setPhoneNumber}
+            <PhoneInput
+              country={'pt'}
+              value={`${countryCode}${phoneNumber}`}
+              onChange={(value, data) => {
+                const dialCode = 'dialCode' in data ? data.dialCode : '';
+                const nationalNumber = value.slice(dialCode.length).replace(/\D/g, '');
+                setCountryCode(`+${dialCode}`);
+                setPhoneNumber(nationalNumber);
+              }}
+              inputProps={{
+                name: 'telemovel',
+                required: true,
+                className: 'block w-full p-3 pl-14 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200',
+              }}
+              containerClass="w-full"
+              inputClass="!w-full !p-3 !border !border-gray-200 !bg-white !rounded-lg focus:!outline-none focus:!ring-2 focus:!ring-blue-200"
+              buttonClass="!border-r !border-gray-300 !bg-white !rounded-l-lg"
+              dropdownClass="!border-gray-300 !rounded-lg !shadow-lg"
             />
           </div>
 
@@ -206,18 +214,11 @@ const CreateSocioPage = () => {
             />
           </div>
 
-          {/* file input agora ocupa 2 colunas */}
-          <div className="col-span-2">
-            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
-              Imagem
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
-            />
-          </div>
+          {/* Componente ProfilePhotoInput substituindo o file input */}
+          <ProfilePhotoInput 
+            onFileSelect={handleImageSelect}
+            label="Imagem (Opcional)"
+          />
         </div>
 
         <div className="mt-10 flex justify-end gap-4">
