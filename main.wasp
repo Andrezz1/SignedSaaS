@@ -266,6 +266,11 @@ action createUtilizadorFiltro {
   entities: [UtilizadorFiltro, Utilizador]
 }
 
+action createDoacao {
+  fn:import { createDoacao } from "@src/services/doacaoService",
+  entities: [Doacao, Utilizador]
+}
+
 // As actions abaixo servem para alterar dados da base de dados
 
 action updateUtilizador {
