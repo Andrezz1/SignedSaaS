@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HandCoins } from 'lucide-react';
-import { useQuery, getDoacoes } from 'wasp/client/operations';
+import { useQuery, getDoacoesQuantia } from 'wasp/client/operations';
 
 const DoacoesCard: React.FC = () => {
-  const { data, isLoading, error } = useQuery(getDoacoes, {});
+  const { data, isLoading, error } = useQuery(getDoacoesQuantia, {});
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -23,7 +23,7 @@ const DoacoesCard: React.FC = () => {
 
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
-          {data}
+          {new Intl.NumberFormat('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(data)} €
         </h4>
       </div>
 
