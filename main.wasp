@@ -167,6 +167,11 @@ query getUtilizadorFiltros {
   entities: [Utilizador, UtilizadorFiltro]
 }
 
+query getDoacoesQuantia {
+  fn: import { getDoacoesQuantia } from "@src/services/doacaoService",
+  entities: [Doacao]
+}
+
 // As queries Abaixo obtêm dados de multiplas tabelas
 query getComprovativoInfo {
   fn: import { getComprovativoInfo } from "@src/services/comprovativoService",
