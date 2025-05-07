@@ -9,25 +9,49 @@ import {
   type UpdateEstadoUtilizador,
   type UpdateUtilizadorByNIFNumSocio,
   type GetUtilizadorInfoById,
+  type GetSociosPagantes,
 } from 'wasp/server/operations'
 import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
 import { registarAuditLog } from './auditService'
 
-export const getSocios: GetSocios<void, Utilizador[]> = async (_args, context) => {
+export const getSocios: GetSocios<void, number> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, 'Não tem permissão')
   }
 
-  return context.entities.Utilizador.findMany({
-    orderBy: { id: 'asc' },
-    where: {
-      NumSocio: { not: null }
-    },
-    include: {
-      Subscricoes: true
-    }
+  const where: any = {
+    NumSocio: { not: null },
+    EstadoUtilizador: true
+  }
+
+  const totalSocios = await context.entities.Utilizador.count({
+    where,
   })
+
+  return totalSocios
+}
+
+export const getSociosPagantes: GetSociosPagantes<void, number  
+> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, 'Não tem permissão')
+  }
+
+  const where: any= {
+    NumSocio: { not: null },
+    Subscricoes: {
+      some: {
+        EstadoSubscricao: true
+      }
+    }
+  }
+
+  const totalSociosPagantes = await context.entities.Utilizador.count({
+    where,
+  })
+
+  return totalSociosPagantes
 }
 
 export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<

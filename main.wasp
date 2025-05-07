@@ -122,8 +122,8 @@ query getDetalheSubscricao {
   entities: [DetalheSubscricao]
 }
 
-query getDoacao {
-  fn: import { getDoacao } from "@src/services/doacaoService",
+query getDoacoes {
+  fn: import { getDoacoes } from "@src/services/doacaoService",
   entities: [Doacao]
 }
 
@@ -155,6 +155,11 @@ query getTipoUtilizador {
 query getSocios {
   fn: import { getSocios } from "@src/services/utilizadorService",
   entities: [Utilizador]
+}
+
+query getSociosPagantes {
+  fn: import { getSociosPagantes } from "@src/services/utilizadorService",
+  entities: [Utilizador, Subscricao]
 }
 
 query getUtilizadorFiltros {

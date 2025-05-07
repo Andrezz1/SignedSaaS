@@ -1,89 +1,59 @@
 import { Doacao, Utilizador } from 'wasp/entities'
 import { 
-  type GetDoacao, 
+  type GetDoacoes, 
   type GetDoacaoInfo, 
   type GetDoacaoByUtilizadorId 
 } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
 
-export const getDoacao: GetDoacao<void, Doacao[]> = async (_args, context) => {
+export const getDoacoes: GetDoacoes<void, number> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
 
-  return context.entities.Doacao.findMany({
-    orderBy: { DoacaoId: 'asc' },
-  })
-}
+  const where: any = {}
 
-/*
-export const getDoacaoInfo: GetDoacaoInfo<void, Array<{ 
-  doacao: Doacao, 
-  utilizador: Utilizador 
-}>> = async (_args, context) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
-
-  const doacoes = await context.entities.Doacao.findMany({
-    include: {
-      Utilizador: true,
-    }
+  const totalDoacoes = await context.entities.Doacao.count({
+    where,
   })
 
-  const DoacaoInfo = doacoes.map (({ Utilizador, ...doacao }) => ({
-    doacao,
-    utilizador: Utilizador,
-  }))
-
-  return DoacaoInfo
+  return totalDoacoes
 }
-*/
 
 export const getDoacaoInfo: GetDoacaoInfo<
   {
-    page: number;
-    pageSize: number;
-    searchTerm?: string;
+    page: number
+    pageSize: number
+    searchTerm?: string
   },
   {
-    data: Array<{
-      doacao: {
-        DoacaoId: number;
-        ValorDoacao: number;
-        DataDoacao: Date;
-        Nota: string;
-      };
-      utilizador: {
-        Nome: string;
-        NIF: string;
-        Email: string | null;
-      };
-    }>;
-    total: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
+    data: {
+      doacao: Doacao
+      utilizador: Utilizador
+    }[]
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
   }
 > = async ({ page, pageSize, searchTerm }, context) => {
   if (!context.user) {
-    throw new HttpError(401, 'Não tem permissão');
+    throw new HttpError(401, 'Não tem permissão')
   }
 
-  const skip = (page - 1) * pageSize;
-  const take = pageSize;
+  const skip = (page - 1) * pageSize
+  const take = pageSize
 
-  const where: any = {};
+  const where: any = {}
   if (searchTerm) {
     where.OR = [
       { Nota: { contains: searchTerm, mode: 'insensitive' } },
       { Utilizador: { Nome: { contains: searchTerm, mode: 'insensitive' } } },
       { Utilizador: { NIF: { contains: searchTerm, mode: 'insensitive' } } },
-    ];
+    ]
   }
 
-  const [doacoes, total] = await Promise.all([
-    context.entities.Doacao.findMany({
+  const doacoes = await context.entities.Doacao.findMany({
       where,
       include: {
         Utilizador: {
@@ -97,32 +67,26 @@ export const getDoacaoInfo: GetDoacaoInfo<
       },
       skip,
       take,
-    }),
-    context.entities.Doacao.count({ where }),
-  ]);
+    })
 
-  const data = doacoes.map(({ Utilizador, ...doacao }) => ({
-    doacao: {
-      DoacaoId: doacao.DoacaoId,
-      ValorDoacao: doacao.ValorDoacao,
-      DataDoacao: doacao.DataDoacao,
-      Nota: doacao.Nota,
-    },
-    utilizador: {
-      Nome: Utilizador.Nome || '',
-      NIF: Utilizador.NIF || '',
-      Email: Utilizador.Contacto?.Email || null,
-    },
-  }));
+  const doacoesInfo = doacoes.map(({ Utilizador, ...doacao }) => ({
+    doacao,
+    utilizador: Utilizador!
+  })
+)
+
+  const totaldoacoes = await context.entities.Doacao.count({
+    where, 
+  })
 
   return {
-    data,
-    total,
+    data: doacoesInfo,
+    total: totaldoacoes,
     page,
     pageSize,
-    totalPages: Math.ceil(total / pageSize),
-  };
-};
+    totalPages: Math.ceil(totaldoacoes / pageSize),
+  }
+}
 
 export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, 'id'>, Doacao[]>
 = async (args, context) => {
