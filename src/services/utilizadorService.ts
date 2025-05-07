@@ -162,10 +162,6 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
     }
   >
 
-  if (!utilizadores || utilizadores.length === 0) {
-    return []
-  }
-
   const result = utilizadores.map(({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
     utilizador,
     tipoUtilizador: TipoUtilizador ?? null,

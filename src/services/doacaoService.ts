@@ -3,10 +3,10 @@ import {
   type GetDoacoes, 
   type GetDoacaoInfo, 
   type GetDoacaoByUtilizadorId,
-  type CreateDoacao
+  type GetDoacoesQuantia,
+  type CreateDoacao,
 } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
-import DoacoesCard from '../components/dasboardCards/totalDoacoesCard'
 
 export const getDoacoes: GetDoacoes<void, number> = async (_args, context) => {
   if (!context.user) {
@@ -20,6 +20,20 @@ export const getDoacoes: GetDoacoes<void, number> = async (_args, context) => {
   })
 
   return totalDoacoes
+}
+
+export const getDoacoesQuantia: GetDoacoesQuantia<void, number> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
+  const resultado = await context.entities.Doacao.aggregate({
+    _sum: {
+      ValorDoacao: true,
+    },
+  })
+
+  return resultado._sum.ValorDoacao ?? 0
 }
 
 export const getDoacaoInfo: GetDoacaoInfo<
