@@ -7,6 +7,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AuditUtilizador {
+  AuditUtilizadorId   Int       @id @default(autoincrement())
+  Entidade            String
+  Operacao            String
+  DataHora            DateTime  @default(now())
+  IdUtilizadorResponsavel Int
+  ParametrosRecebidos Json
+  DadosAntes          Json?
+  DadosDepois         Json?
+  Resultado           String
+  MensagemErro        String?
+
+  UtilizadorResponsavel Utilizador? @relation(fields: [IdUtilizadorResponsavel], references: [id])
+}
+
+model AuditTipoSubscricao {
+  AuditTipoSubscricaoId   Int       @id @default(autoincrement())
+  Entidade                String
+  Operacao                String
+  DataHora                DateTime  @default(now())
+  IdUtilizadorResponsavel Int
+  ParametrosRecebidos     Json
+  DadosAntes              Json?
+  DadosDepois             Json?
+  Resultado               String
+  MensagemErro            String?
+
+  UtilizadorResponsavel   Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
+}
+
 model CodigoPostal {
   CodigoPostalId Int    @id @default(autoincrement())
   Localidade     String
@@ -131,6 +161,8 @@ model Utilizador {
   Comprovativos Comprovativo[]
   Doacoes       Doacao[]
   UtilizadorFiltro UtilizadorFiltro[]
+  AuditUtilizador AuditUtilizador[]
+  AuditTipoSubscricao AuditTipoSubscricao[]
   Imagem        String?
   
   MoradaMoradaId         Int?

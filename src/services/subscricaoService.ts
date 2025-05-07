@@ -77,13 +77,20 @@ type CreateSubscricaoPayload = {
   }
 }
 
-export async function criarSubscricao(
+export async function createSubscricao(
   input: CreateSubscricaoPayload,
   context: any
 ) {
   const tipoSubscricao = await context.entities.TipoSubscricao.findUnique({
     where: { TipoSubscricaoID: input.TipoSubscricaoId }
   })
+
+  const dataInicio = new Date()
+  dataInicio.setHours(0, 0, 0, 0)
+
+  // A subscricao esta feita para durar sempre um ano, alterar caso se adicione diferentes durações a uma subscricao
+  const dataFim = new Date(dataInicio)
+  dataFim.setFullYear(dataFim.getFullYear() + 1) 
 
   if (!tipoSubscricao) {
     throw new Error('Tipo de subscrição não encontrado')
@@ -96,8 +103,8 @@ export async function criarSubscricao(
 
   const subscricao = await context.entities.Subscricao.create({
     data: {
-      DataInicio: input.DataInicio,
-      DataFim: input.DataFim,
+      DataInicio: dataInicio,
+      DataFim: dataFim,
       EstadoSubscricao: false,
       Utilizador: { connect: { id: input.UtilizadorId } },
       TipoSubscricao: { connect: { TipoSubscricaoID: input.TipoSubscricaoId } }
@@ -117,7 +124,6 @@ export async function criarSubscricao(
   return { subscricao, valorFinal }
 }
 
-
 type CreateSubscricaoCompletaPayload = {
   DataInicio: Date
   DataFim: Date
@@ -136,12 +142,11 @@ type CreateSubscricaoCompletaPayload = {
   PagamentoPagamentoId: number
 }
 
-
 export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricaoCompletaPayload, Subscricao> = async (
   args,
   context
 ) => {
-  const { subscricao, valorFinal } = await criarSubscricao(args, context)
+  const { subscricao, valorFinal } = await createSubscricao(args, context)
 
   const pagamento = await createPagamento({
     Valor: valorFinal,
@@ -151,7 +156,6 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
     EstadoPagamento: args.Pagamento.EstadoPagamento,
     NIFPagamento: args.Pagamento.NIFPagamento!,
     TelemovelMbway: args.Pagamento?.DadosEspecificos?.telemovelMbway
-    
   }, prisma)
 
   const subscricaoFinal = await connectPagamentoASubscricao(
@@ -162,9 +166,6 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
 
   return subscricaoFinal
 }
-
-
-// Este job não está a utilizar o wasp, não estava a conseguir (tentar implementar no main.wasp futuramente)
 
 const prisma = new PrismaClient()
 

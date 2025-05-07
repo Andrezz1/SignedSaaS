@@ -107,9 +107,6 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
       throw new Error('Método de pagamento inválido')
     }
 
-    // console.log('Envia para EuPago:', { endpoint, payload })
-    // console.log('Payload completo:', payload)
-    // console.log('URLSearchParams:', new URLSearchParams(Object.entries(payload)).toString())
     const response = await axios.post(
       endpoint,
       new URLSearchParams(Object.entries(payload)).toString(),
@@ -121,20 +118,12 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
       }
     )
 
-    // console.log('Resposta da EuPago:', response.data)
-
     if (response.data.estado !== 0) {
       throw new Error(`Erro EuPago [${response.data.estado}]: ${response.data.mensagem}`)
     }
 
     dadosEspecificos = response.data
   } catch (err: any) {
-    // console.error('Erro detalhado:', {
-    //   message: err.message,
-    //   response: err.response?.data,
-    //   stack: err.stack
-    // })
-    
     throw new Error(err.response?.data?.mensagem || `Erro ao gerar pagamento: ${err.message}`)
   }
 
@@ -153,8 +142,7 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
   
     return pagamento
   } catch (err) {
-    // console.error('Erro ao criar pagamento:', err)
-    throw new Error('Erro ao registrar o pagamento no sistema')
+    throw new Error('Erro ao registrar o pagamento')
   }
 }
 
