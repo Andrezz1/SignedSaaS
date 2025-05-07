@@ -95,6 +95,12 @@ page MbwayDetailsPage {
   component: import MbwayDetailsPage from "@src/pages/MbwayDetailsPage"
 }
 
+route HistoricoDoacoesROute { path: "/historico-doacoes", to: HistoricoDoacoesPage }
+page HistoricoDoacoesPage {
+  authRequired: true,
+  component: import HistoricoDoacoesPage from "@src/pages/HistoricoDoacoesPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",

@@ -16,8 +16,8 @@ const SociosPage = ({ user }: { user: AuthUser }) => {
     // Verifica se há filtros no state da navegação
     if (location.state?.appliedFilters) {
       setAppliedFilters(location.state.appliedFilters);
-      // Mostra os filtros se vierem pré-selecionados
-      setShowFilters(true);
+      // Não mostra os filtros que vierem pré-selecionados
+      setShowFilters(false);
     }
   }, [location.state]);
 
