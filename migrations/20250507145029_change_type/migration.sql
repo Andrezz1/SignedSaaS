@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Doacao" ALTER COLUMN "ValorDoacao" SET DATA TYPE DOUBLE PRECISION;

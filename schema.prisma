@@ -65,7 +65,7 @@ model DetalheSubscricao {
   DetalheSubscricaoId  Int            @id @default(autoincrement())
   Quantidade           Int
   Desconto            Float?
-  ValorFinal          Int
+  ValorFinal          Float
   Subscricao          Subscricao @relation(fields: [SubscricaoSubscricaoId], references: [SubscricaoId])
   TipoSubscricao      TipoSubscricao @relation(fields: [TipoSubscricaoTipoSubscricaoID], references: [TipoSubscricaoID])
   
@@ -75,7 +75,7 @@ model DetalheSubscricao {
 
 model Doacao {
   DoacaoId    Int       @id @default(autoincrement())
-  ValorDoacao Int
+  ValorDoacao Float
   DataDoacao  DateTime
   Nota        String
   Utilizador  Utilizador @relation(fields: [UtilizadorId], references: [id])
