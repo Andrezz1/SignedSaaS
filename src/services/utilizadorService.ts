@@ -12,7 +12,7 @@ import {
 } from 'wasp/server/operations'
 import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
-import { loggedQuery } from './logger/loggedQuery'
+import { registarAuditLog } from './auditService'
 
 export const getSocios: GetSocios<void, Utilizador[]> = async (_args, context) => {
   if (!context.user) {
@@ -322,71 +322,100 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
   const concelho = capitalize(args.Morada.Concelho)
   const distrito = capitalize(args.Morada.Distrito)
 
-  let ultimoUtilizador = await context.entities.Utilizador.findFirst({
-    orderBy: { NumSocio: 'desc' },
-    select: { NumSocio: true },
-    where: { NumSocio: { not: null } }
-  })
+  const parametrosRecebidos = args
+  const idUtilizadorResponsavel = context.user.id
 
-  const proxNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
-
-  const contacto = await context.entities.Contacto.create({
-    data: {
-      Email: args.Contacto.Email,
-      Telemovel: args.Contacto.Telemovel,
-    },
-  })
-
-  let codigoPostal = await context.entities.CodigoPostal.findFirst({
-    where: { Localidade: args.Morada.CodigoPostal.Localidade },
-  })
-
-  if (!codigoPostal) {
-    codigoPostal = await context.entities.CodigoPostal.create({
-      data: { Localidade: args.Morada.CodigoPostal.Localidade },
+  try {
+    let ultimoUtilizador = await context.entities.Utilizador.findFirst({
+      orderBy: { NumSocio: 'desc' },
+      select: { NumSocio: true },
+      where: { NumSocio: { not: null } }
     })
-  }
 
-  let morada = await context.entities.Morada.findFirst({
-    where: { 
-      Concelho: concelho,
-      Distrito: distrito,
-      CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId
-    },
-  })
+    const proxNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
 
-  if (!morada) {
-    morada = await context.entities.Morada.create({
+    const contacto = await context.entities.Contacto.create({
       data: {
-        Concelho: concelho,
-        Distrito: distrito,
-        CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
+        Email: args.Contacto.Email,
+        Telemovel: args.Contacto.Telemovel,
       },
     })
+
+    let codigoPostal = await context.entities.CodigoPostal.findFirst({
+      where: { Localidade: args.Morada.CodigoPostal.Localidade },
+    })
+
+    if (!codigoPostal) {
+      codigoPostal = await context.entities.CodigoPostal.create({
+        data: { Localidade: args.Morada.CodigoPostal.Localidade },
+      })
+    }
+
+    let morada = await context.entities.Morada.findFirst({
+      where: { 
+        Concelho: concelho,
+        Distrito: distrito,
+        CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId
+      },
+    })
+
+    if (!morada) {
+      morada = await context.entities.Morada.create({
+        data: {
+          Concelho: concelho,
+          Distrito: distrito,
+          CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId,
+        },
+      })
+    }
+
+    let imageUrl = args.Imagem
+    if (args.Imagem && !args.Imagem.startsWith("http")) {
+      imageUrl = await saveImageLocally(args.Imagem)
+    }
+
+    const utilizador = await context.entities.Utilizador.create({
+      data: {
+        NumSocio: proxNumSocio,
+        Nome: args.Nome,
+        DataNascimento: new Date(args.DataNascimento),
+        NIF: args.NIF,
+        Imagem: imageUrl,
+        EstadoUtilizador: true,
+        MoradaMoradaId: morada.MoradaId,
+        ContactoContactoId: contacto.ContactoId,
+        TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId,
+      },
+    })
+    
+    await registarAuditLog('auditUtilizador',{
+      entidade: 'Utilizador',
+      operacao: 'CREATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: null,
+      dadosDepois: utilizador,
+      resultado: 'SUCCESS',
+      mensagemErro: ""
+    })
+
+    return utilizador
+
+  } catch (error) {
+    await registarAuditLog('auditUtilizador',{
+      entidade: 'Utilizador',
+      operacao: 'CREATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: null,
+      dadosDepois: null,
+      resultado: 'FAILURE',
+      mensagemErro: error instanceof Error ? error.message : JSON.stringify(error)
+    })
+
+    throw error
   }
-
-  let imageUrl = args.Imagem
-  if (args.Imagem && !args.Imagem.startsWith("http")) {
-    imageUrl = await saveImageLocally(args.Imagem)
-  }
-
-  const utilizador = await context.entities.Utilizador.create({
-    data: {
-      NumSocio: proxNumSocio,
-      Nome: args.Nome,
-      DataNascimento: new Date(args.DataNascimento),
-      NIF: args.NIF,
-      Imagem: imageUrl,
-      EstadoUtilizador: true,
-      MoradaMoradaId: morada.MoradaId,
-      ContactoContactoId: contacto.ContactoId,
-      TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId,
-    },
-  })
-
-  return utilizador
 }
-
 
 type UpdateUtilizadorPayload = {
   id: number
@@ -413,6 +442,10 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   args,
   context
 ) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.id },
     include: { 
@@ -421,124 +454,154 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
     }
   })
 
+  const parametrosRecebidos = args
+  const idUtilizadorResponsavel = context.user.id
+
   if (!utilizador) {
     throw new Error("Utilizador não encontrado")
   }
 
-  if (args.Contacto) {
-    if (!utilizador.ContactoContactoId) {
-      const novoContacto = await context.entities.Contacto.create({
-        data: {
-          Email: args.Contacto.Email || '',
-          Telemovel: args.Contacto.Telemovel || '',
-        }
-      })
-
-      await context.entities.Utilizador.update({
-        where: { id: args.id },
-        data: {
-          ContactoContactoId: novoContacto.ContactoId
-        }
-      })
-    } else {
-      await context.entities.Contacto.update({
-        where: { ContactoId: utilizador.ContactoContactoId },
-        data: {
-          Email: args.Contacto.Email,
-          Telemovel: args.Contacto.Telemovel,
-        }
-      })
-    }
-  }
-
-  if (args.Morada) {
-    let codigoPostalId: number | null = null
-
-    if (args.Morada.CodigoPostal?.Localidade) {
-      let codigoPostal = await context.entities.CodigoPostal.findFirst({
-        where: { Localidade: args.Morada.CodigoPostal.Localidade },
-      })
-
-      if (!codigoPostal) {
-        codigoPostal = await context.entities.CodigoPostal.create({
-          data: { Localidade: args.Morada.CodigoPostal.Localidade },
-        })
-      }
-
-      codigoPostalId = codigoPostal.CodigoPostalId
-    }
-
-    const concelho = args.Morada.Concelho ? capitalize(args.Morada.Concelho) : null
-    const distrito = args.Morada.Distrito ? capitalize(args.Morada.Distrito) : null
-
-    let moradaId: number | null = null
-
-    if (concelho || distrito || codigoPostalId) {
-      if (!utilizador.MoradaMoradaId) {
-        const novaMorada = await context.entities.Morada.create({
+  try {
+    if (args.Contacto) {
+      if (!utilizador.ContactoContactoId) {
+        const novoContacto = await context.entities.Contacto.create({
           data: {
-            Concelho: concelho || '',
-            Distrito: distrito || '',
-            CodigoPostalCodigoPostalId: codigoPostalId || -1,
+            Email: args.Contacto.Email || '',
+            Telemovel: args.Contacto.Telemovel || '',
           }
         })
-        moradaId = novaMorada.MoradaId
+
+        await context.entities.Utilizador.update({
+          where: { id: args.id },
+          data: {
+            ContactoContactoId: novoContacto.ContactoId
+          }
+        })
       } else {
-        const moradaExistente = await context.entities.Morada.findFirst({
-          where: {
-            MoradaId: utilizador.MoradaMoradaId,
-          },
+        await context.entities.Contacto.update({
+          where: { ContactoId: utilizador.ContactoContactoId },
+          data: {
+            Email: args.Contacto.Email,
+            Telemovel: args.Contacto.Telemovel,
+          }
+        })
+      }
+    }
+
+    if (args.Morada) {
+      let codigoPostalId: number | null = null
+
+      if (args.Morada.CodigoPostal?.Localidade) {
+        let codigoPostal = await context.entities.CodigoPostal.findFirst({
+          where: { Localidade: args.Morada.CodigoPostal.Localidade },
         })
 
-        if (moradaExistente) {
-          await context.entities.Morada.update({
-            where: { MoradaId: utilizador.MoradaMoradaId },
+        if (!codigoPostal) {
+          codigoPostal = await context.entities.CodigoPostal.create({
+            data: { Localidade: args.Morada.CodigoPostal.Localidade },
+          })
+        }
+
+        codigoPostalId = codigoPostal.CodigoPostalId
+      }
+
+      const concelho = args.Morada.Concelho ? capitalize(args.Morada.Concelho) : null
+      const distrito = args.Morada.Distrito ? capitalize(args.Morada.Distrito) : null
+
+      let moradaId: number | null = null
+
+      if (concelho || distrito || codigoPostalId) {
+        if (!utilizador.MoradaMoradaId) {
+          const novaMorada = await context.entities.Morada.create({
             data: {
-              Concelho: concelho !== null ? concelho : undefined,
-              Distrito: distrito !== null ? distrito : undefined,
-              CodigoPostalCodigoPostalId: codigoPostalId !== null ? codigoPostalId : undefined,
+              Concelho: concelho || '',
+              Distrito: distrito || '',
+              CodigoPostalCodigoPostalId: codigoPostalId || -1,
             }
           })
-          moradaId = moradaExistente.MoradaId
+          moradaId = novaMorada.MoradaId
+        } else {
+          const moradaExistente = await context.entities.Morada.findFirst({
+            where: {
+              MoradaId: utilizador.MoradaMoradaId,
+            },
+          })
+
+          if (moradaExistente) {
+            await context.entities.Morada.update({
+              where: { MoradaId: utilizador.MoradaMoradaId },
+              data: {
+                Concelho: concelho !== null ? concelho : undefined,
+                Distrito: distrito !== null ? distrito : undefined,
+                CodigoPostalCodigoPostalId: codigoPostalId !== null ? codigoPostalId : undefined,
+              }
+            })
+            moradaId = moradaExistente.MoradaId
+          }
         }
       }
+
+      await context.entities.Utilizador.update({
+        where: { id: utilizador.id },
+        data: {
+          MoradaMoradaId: moradaId,
+        }
+      })
     }
 
-    await context.entities.Utilizador.update({
-      where: { id: utilizador.id },
+    let novoNumSocio = utilizador.NumSocio
+    if (!utilizador.NumSocio) {
+      const ultimoUtilizador = await context.entities.Utilizador.findFirst({
+        orderBy: { NumSocio: 'desc' },
+        select: { NumSocio: true },
+        where: { NumSocio: { not: null } }
+      })
+      novoNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
+    }
+    
+    let imageUrl = args.Imagem
+    if (args.Imagem && !args.Imagem.startsWith("http")) {
+      imageUrl = await saveImageLocally(args.Imagem)
+    }
+
+    const updatedUtilizador = await context.entities.Utilizador.update({
+      where: { id: args.id },
       data: {
-        MoradaMoradaId: moradaId,
+        Nome: args.Nome,
+        NIF: args.NIF,
+        NumSocio: novoNumSocio,
+        DataNascimento: args.DataNascimento,
+        Imagem: imageUrl,
       }
     })
-  }
 
-  let novoNumSocio = utilizador.NumSocio
-  if (!utilizador.NumSocio) {
-    const ultimoUtilizador = await context.entities.Utilizador.findFirst({
-      orderBy: { NumSocio: 'desc' },
-      select: { NumSocio: true },
-      where: { NumSocio: { not: null } }
+    await registarAuditLog('auditUtilizador',{
+      entidade: 'Utilizador',
+      operacao: 'UPDATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: utilizador,
+      dadosDepois: updatedUtilizador,
+      resultado: 'SUCCESS',
+      mensagemErro: ""
     })
-    novoNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
-  }
-  
-  let imageUrl = args.Imagem
-  if (args.Imagem && !args.Imagem.startsWith("http")) {
-    imageUrl = await saveImageLocally(args.Imagem)
-  }
 
-  const updatedUtilizador = await context.entities.Utilizador.update({
-    where: { id: args.id },
-    data: {
-      Nome: args.Nome,
-      NIF: args.NIF,
-      NumSocio: novoNumSocio,
-      DataNascimento: args.DataNascimento,
-      Imagem: imageUrl,
-    }
-  })
+    return updatedUtilizador
 
-  return updatedUtilizador
+  } catch (error) {
+    await registarAuditLog('auditUtilizador',{
+      entidade: 'Utilizador',
+      operacao: 'UPDATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: null,
+      dadosDepois: null,
+      resultado: 'FAILURE',
+      mensagemErro: error instanceof Error ? error.message : JSON.stringify(error)
+    })
+
+    throw error
+  }
 }
 
 export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<UpdateUtilizadorPayload, Utilizador> = async (
@@ -560,6 +623,9 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
     }
   })
 
+  const parametrosRecebidos = args
+  const idUtilizadorResponsavel = context.user.id
+
   if (!args.NIF || !args.NumSocio) {
     throw new Error("Necessario NIF e NumSocio para editar os seus dados")
   }
@@ -568,7 +634,8 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
     throw new Error("Utilizador não encontrado")
   }
 
-  if (args.Contacto) {
+  try {
+    if (args.Contacto) {
     if (!utilizador.ContactoContactoId) {
       throw new Error("ContactoContactoId não encontrado")
     }
@@ -582,66 +649,92 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
     })
   }
 
-  let codigoPostalId: number | undefined
-  if (args.Morada?.CodigoPostal?.Localidade) {
-    let codigoPostal = await context.entities.CodigoPostal.findFirst({
-      where: { Localidade: args.Morada.CodigoPostal.Localidade },
-    })
-
-    if (!codigoPostal) {
-      codigoPostal = await context.entities.CodigoPostal.create({
-        data: { Localidade: args.Morada.CodigoPostal.Localidade },
+    let codigoPostalId: number | undefined
+    if (args.Morada?.CodigoPostal?.Localidade) {
+      let codigoPostal = await context.entities.CodigoPostal.findFirst({
+        where: { Localidade: args.Morada.CodigoPostal.Localidade },
       })
+
+      if (!codigoPostal) {
+        codigoPostal = await context.entities.CodigoPostal.create({
+          data: { Localidade: args.Morada.CodigoPostal.Localidade },
+        })
+      }
+
+      codigoPostalId = codigoPostal.CodigoPostalId
     }
 
-    codigoPostalId = codigoPostal.CodigoPostalId
-  }
+    if (args.Morada) {
+      const concelho = capitalize(args.Morada.Concelho || "")
+      const distrito = capitalize(args.Morada.Distrito || "")
 
-  if (args.Morada) {
-    const concelho = capitalize(args.Morada.Concelho || "")
-    const distrito = capitalize(args.Morada.Distrito || "")
+      if (!codigoPostalId) {
+        throw new Error("codigoPostalId não encontrado")
+      }
 
-    if (codigoPostalId === undefined) {
-      throw new Error("codigoPostalId não encontrado")
-    }
-
-    let morada = await context.entities.Morada.findFirst({
-      where: {
-        Concelho: concelho,
-        Distrito: distrito,
-        CodigoPostalCodigoPostalId: codigoPostalId,
-      },
-    })
-
-    if (!morada) {
-      morada = await context.entities.Morada.create({
-        data: {
+      let morada = await context.entities.Morada.findFirst({
+        where: {
           Concelho: concelho,
           Distrito: distrito,
           CodigoPostalCodigoPostalId: codigoPostalId,
         },
       })
+
+      if (!morada) {
+        morada = await context.entities.Morada.create({
+          data: {
+            Concelho: concelho,
+            Distrito: distrito,
+            CodigoPostalCodigoPostalId: codigoPostalId,
+          },
+        })
+      }
+
+      await context.entities.Utilizador.update({
+        where: { id: utilizador.id },
+        data: {
+          MoradaMoradaId: morada.MoradaId,
+        },
+      })
     }
 
-    await context.entities.Utilizador.update({
-      where: { id: utilizador.id },
-      data: {
-        MoradaMoradaId: morada.MoradaId,
+    const updatedUtilizador = await context.entities.Utilizador.update({
+      where: { 
+        NIF: args.NIF,
+        NumSocio: args.NumSocio
       },
+      data: {
+        Nome: args.Nome,
+      }
     })
+
+    await registarAuditLog('auditUtilizador',{
+      entidade: 'Utilizador',
+      operacao: 'UPDATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: utilizador,
+      dadosDepois: updatedUtilizador,
+      resultado: 'SUCCESS',
+      mensagemErro: ""
+    })
+
+    return updatedUtilizador
+
+  } catch (error) {
+      await registarAuditLog('auditUtilizador',{
+        entidade: 'Utilizador',
+        operacao: 'UPDATE',
+        idUtilizadorResponsavel,
+        parametrosRecebidos,
+        dadosAntes: null,
+        dadosDepois: null,
+        resultado: 'FAILURE',
+        mensagemErro: error instanceof Error ? error.message : JSON.stringify(error)
+      })
+
+      throw error
   }
-
-  const updatedUtilizador = await context.entities.Utilizador.update({
-    where: { 
-      NIF: args.NIF,
-      NumSocio: args.NumSocio
-    },
-    data: {
-      Nome: args.Nome,
-    }
-  })
-
-  return updatedUtilizador
 }
 
 type UpdateEstadoUtilizadorPayLoad = Pick<Utilizador, 'id' | 'EstadoUtilizador'>
@@ -658,16 +751,46 @@ export const updateEstadoUtilizador: UpdateEstadoUtilizador<UpdateEstadoUtilizad
     where: { id: args.id }
   })
 
+  const parametrosRecebidos = args
+  const idUtilizadorResponsavel = context.user.id
+
   if(!utilizador) {
     throw new Error("Utilizador nao encontrado")
   }
 
-  const updatedEstadoUtilizador = await context.entities.Utilizador.update({
-    where: { id: args.id },
-    data: {
-      EstadoUtilizador: !utilizador.EstadoUtilizador,
-    }
-  })
+  try {
+    const updatedEstadoUtilizador = await context.entities.Utilizador.update({
+      where: { id: args.id },
+      data: {
+        EstadoUtilizador: !utilizador.EstadoUtilizador,
+      }
+    })
 
-  return updatedEstadoUtilizador
+    await registarAuditLog('auditUtilizador',{
+      entidade: 'Utilizador',
+      operacao: 'UPDATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: utilizador,
+      dadosDepois: updatedEstadoUtilizador,
+      resultado: 'SUCCESS',
+      mensagemErro: ""
+    })
+
+    return updatedEstadoUtilizador
+
+  } catch (error) {
+    await registarAuditLog('auditUtilizador',{
+      entidade: 'Utilizador',
+      operacao: 'UPDATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: null,
+      dadosDepois: null,
+      resultado: 'FAILURE',
+      mensagemErro: error instanceof Error ? error.message : JSON.stringify(error)
+    })
+
+    throw error
+  }
 }
