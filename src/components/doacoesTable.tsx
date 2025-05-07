@@ -29,9 +29,6 @@ const DoacoesTable = () => {
 
   return (
     <div className="w-full transition-all duration-300">
-      {/* Título (mantido fora da tabela como pedido) */}
-      <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Histórico de Doações</h2>
-
       {/* Tabela com novo estilo */}
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         {/* Barra superior com pesquisa e paginação - novo estilo */}
