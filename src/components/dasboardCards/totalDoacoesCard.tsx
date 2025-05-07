@@ -1,15 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HandCoins } from 'lucide-react';
-import { useQuery, getDoacao } from 'wasp/client/operations';
+import { useQuery, getDoacoes } from 'wasp/client/operations';
 
 const DoacoesCard: React.FC = () => {
-  const { data, isLoading, error } = useQuery(getDoacao, {});
+  const { data, isLoading, error } = useQuery(getDoacoes, {});
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  
-  const totalDoacoes = data?.length || 0;
 
   return (
     <div className="w-64 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow dark:border-strokedark dark:bg-boxdark">
@@ -25,7 +23,7 @@ const DoacoesCard: React.FC = () => {
 
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
-          {totalDoacoes}
+          {data}
         </h4>
       </div>
 

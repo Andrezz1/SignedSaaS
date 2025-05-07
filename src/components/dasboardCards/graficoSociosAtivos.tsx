@@ -2,24 +2,21 @@ import React from 'react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { useQuery, getSocios } from 'wasp/client/operations';
+import { useQuery, getSociosPagantes, getSocios } from 'wasp/client/operations';
 
 const GraficoSociosAtivos: React.FC = () => {
   const { data: socios, isLoading, error } = useQuery(getSocios);
+  const { data: sociosPagantes} = useQuery(getSociosPagantes);
 
   if (isLoading) return <div>Carregando...</div>;
   if (error) return <div>Erro ao carregar dados.</div>;
 
-  const totalSocios = socios.length;
-
-  const sociosAtivos = socios.filter((utilizador: any) =>
-    utilizador.Subscricoes.some((sub: any) => sub.EstadoSubscricao === true)
-  ).length;
-
-  const sociosInativos = totalSocios - sociosAtivos;
+  const totalSocios = socios;
+  const totalSociosPagantes = sociosPagantes || 0;
+  const sociosInativos = totalSocios - totalSociosPagantes;
 
   const data = [
-    { name: 'Ativos', value: sociosAtivos },
+    { name: 'Ativos', value: totalSociosPagantes },
     { name: 'Inativos', value: sociosInativos },
   ];
 
