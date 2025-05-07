@@ -95,10 +95,16 @@ page MbwayDetailsPage {
   component: import MbwayDetailsPage from "@src/pages/MbwayDetailsPage"
 }
 
-route HistoricoDoacoesROute { path: "/historico-doacoes", to: HistoricoDoacoesPage }
+route HistoricoDoacoesRoute { path: "/historico-doacoes", to: HistoricoDoacoesPage }
 page HistoricoDoacoesPage {
   authRequired: true,
   component: import HistoricoDoacoesPage from "@src/pages/HistoricoDoacoesPage"
+}
+
+route CreateDoacaoRoute { path: "/create-doacao", to: CreateDoacaoPage }
+page CreateDoacaoPage {
+  authRequired: true,
+  component: import CreateDoacaoPage from "@src/pages/CreateDoacaoPage"
 }
 
 // As queries abaixo apenas obtêm os dados de cada tabela
