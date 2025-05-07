@@ -108,7 +108,7 @@ export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, '
 type CreateDoacaoPayload = {
   ValorDoacao: number,
   DataDoacao: Date,
-  Nota: string,
+  Nota?: string,
   UtilizadorId: number
 }
 
@@ -132,7 +132,7 @@ Doacao
     data: {
       ValorDoacao: args.ValorDoacao,
       DataDoacao: new Date(),
-      Nota: args.Nota,
+      Nota: args.Nota || '',
       UtilizadorId: args.UtilizadorId
     }
   })
