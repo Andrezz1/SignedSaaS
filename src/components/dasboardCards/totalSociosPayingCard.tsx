@@ -1,19 +1,13 @@
 import React from 'react';
-import { useQuery, getSocios } from 'wasp/client/operations';
+import { useQuery, getSociosPagantes } from 'wasp/client/operations';
 import { useNavigate } from 'react-router-dom';
 
 const SociosPagantesCard: React.FC = () => {
-  const { data, isLoading, error } = useQuery(getSocios, {});
+  const { data, isLoading, error } = useQuery(getSociosPagantes, {});
   const navigate = useNavigate();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-
-  // Filtra sócios com subscrição ativa
-  const sociosPagantes = data.filter((utilizador: any) =>
-    utilizador.Subscricoes.some((sub: any) => sub.EstadoSubscricao === true)
-  );
-  const totalSociosPagantes = sociosPagantes.length;
 
   // Navega para a página de sócios com filtro pré-selecionado
   const handleVerSociosPagantes = () => {
@@ -50,7 +44,7 @@ const SociosPagantesCard: React.FC = () => {
       {/* Número de sócios pagantes */}
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
-          {totalSociosPagantes}
+          {data}
         </h4>
       </div>
 

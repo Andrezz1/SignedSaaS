@@ -5,11 +5,6 @@ import { Link } from 'react-router-dom';
 const SociosCard: React.FC = () => {
   const { data, isLoading, error } = useQuery(getSocios, {});
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  
-  const totalSocios = data?.length || 0;
-
   return (
     <div className="w-64 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow dark:border-strokedark dark:bg-boxdark">
       {/* Título no topo */}
@@ -34,7 +29,7 @@ const SociosCard: React.FC = () => {
       {/* Número de sócios */}
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
-          {totalSocios}
+          {data}
         </h4>
       </div>
 
