@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "DetalheSubscricao" ALTER COLUMN "ValorFinal" SET DATA TYPE DOUBLE PRECISION;
