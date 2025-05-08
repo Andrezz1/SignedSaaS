@@ -35,10 +35,10 @@ page EditProfilePage {
   component: import  EditProfile  from "@src/pages/EditProfilePage"
 }
 
-route SociosRoute { path: "/socios", to: SociosPage }
-page SociosPage {
+route MembrosRoute { path: "/membros", to: MembrosPage }
+page MembrosPage {
   authRequired: true,
-  component: import  SociosPage  from "@src/pages/SociosPage"
+  component: import  MembrosPage  from "@src/pages/MembrosPage"
 }
 
 route DashboardRoute { path: "/dashboard", to: DashboardPage }
@@ -47,16 +47,16 @@ page DashboardPage {
   component: import  DashboardPage  from "@src/pages/DashboardPage"
 }
 
-route CreateSocioRoute { path: "/create-socio", to: CreateSocioPage }
-page CreateSocioPage {
+route CreateMembroRoute { path: "/create-membro", to: CreateMembroPage }
+page CreateMembroPage {
   authRequired: true,
-  component: import  CreateSocioPage  from "@src/pages/CreateSocioPage"
+  component: import  CreateMembroPage  from "@src/pages/CreateMembroPage"
 }
 
-route RemovedSociosRoute { path: "/socios-desabilitados", to: RemovedSociosPage }
-page RemovedSociosPage {
+route RemovedMembrosRoute { path: "/membros-desabilitados", to: RemovedMembrosPage }
+page RemovedMembrosPage {
   authRequired: true,
-  component: import RemovedSociosPage from "@src/pages/RemovedSociosPage"
+  component: import RemovedMembrosPage from "@src/pages/RemovedMembrosPage"
 }
 
 route PlanFormRoute { path: "/planos", to: PlanFormPage }

@@ -61,7 +61,7 @@ const EditUserContainer = ({ user, onClose }: any) => {
     const payload = {
       id: utilizador.id,
       Nome: nome,
-      NumSocio: utilizador.NumSocio,
+      NumMembro: utilizador.NumMembro,
       TipoUtilizadorId: tipoUtilizadorId,
       Contacto: { Email: email, Telemovel: formattedTelemovel },
       Morada: {

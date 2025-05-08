@@ -26,7 +26,7 @@ const ExpandedUserDetails = ({ user }: any) => {
         <div>
           <dt className="font-medium text-gray-600 dark:text-gray-300">Nº Sócio</dt>
           <dd className="text-gray-800 dark:text-white">
-            {utilizador.NumSocio || "N/A"}
+            {utilizador.NumMembro || "N/A"}
           </dd>
         </div>
 

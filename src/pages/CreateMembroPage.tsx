@@ -6,7 +6,7 @@ import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import ProfilePhotoInput from '../components/profilePhotoInput'
 
-const CreateSocioPage = () => {
+const CreateMembroPage = () => {
   const navigate = useNavigate()
   const [nome, setNome] = useState('')
   const [dataNascimento, setDataNascimento] = useState('')
@@ -67,7 +67,7 @@ const CreateSocioPage = () => {
     }
     try {
       await createUserAction(payload)
-      navigate('/socios')
+      navigate('/membros')
     } catch {
       setErrorMsg('Erro ao criar o utilizador. Por favor, tente novamente.')
     }
@@ -240,4 +240,4 @@ const CreateSocioPage = () => {
   )
 }
 
-export default CreateSocioPage
+export default CreateMembroPage

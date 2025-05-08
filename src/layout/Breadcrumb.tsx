@@ -11,7 +11,7 @@ const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
       <nav>
         <ol className="flex items-center gap-2 text-sm">
           <li>
-            <WaspRouterLink to={routes.SociosRoute.to}>Socios  /</WaspRouterLink>
+            <WaspRouterLink to={routes.MembrosRoute.to}>Membros  /</WaspRouterLink>
           </li>
           <li className="text-primary">{pageName}</li>
         </ol>

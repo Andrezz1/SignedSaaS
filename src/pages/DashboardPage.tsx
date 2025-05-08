@@ -1,10 +1,10 @@
 import { type AuthUser } from 'wasp/auth';
-import SociosCard from '../components/dasboardCards/totalSociosCard';
-import SociosPagantesCard from '../components/dasboardCards/totalSociosPayingCard';
+import MembrosCard from '../components/dasboardCards/totalMembrosCard';
+import MembrosPagantesCard from '../components/dasboardCards/totalMembrosPayingCard';
 import DoacoesCard from '../components/dasboardCards/totalDoacoesCard';
 import PagamentosCard from '../components/dasboardCards/totalPagamentosCard';
 import DefaultLayout from '../layout/DefaultLayout';
-import GraficoSociosAtivos from '../components/dasboardCards/graficoSociosAtivos';
+import GraficoMembrosAtivos from '../components/dasboardCards/graficoMembrosAtivos';
 
 const DashboardPage = ({ user }: { user: AuthUser }) => {
   return (
@@ -12,8 +12,8 @@ const DashboardPage = ({ user }: { user: AuthUser }) => {
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-12">
         {/* Container dos cards com largura controlada */}
         <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8 px-6">
-          <SociosCard />
-          <SociosPagantesCard />
+          <MembrosCard />
+          <MembrosPagantesCard />
           <PagamentosCard />
           <DoacoesCard />
         </div>
@@ -25,7 +25,7 @@ const DashboardPage = ({ user }: { user: AuthUser }) => {
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
             Estatísticas Visuais
           </h2>
-          <GraficoSociosAtivos />
+          <GraficoMembrosAtivos />
         </div>
       </div>
     </DefaultLayout>
