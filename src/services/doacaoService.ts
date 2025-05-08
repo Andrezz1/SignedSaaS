@@ -130,9 +130,9 @@ export const createDoacao: CreateDoacao<
 CreateDoacaoPayload, 
 Doacao
 > = async (args, context) => {
-  // if (!context.user) {
-  //   throw new Error("Não tem permissão")
-  // }
+  if (!context.user) {
+    throw new Error("Não tem permissão")
+  }
 
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.UtilizadorId }

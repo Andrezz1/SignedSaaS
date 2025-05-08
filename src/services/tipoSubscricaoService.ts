@@ -18,7 +18,7 @@ export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = asyn
   })
 }
 
-type CreateTipoSubscricaoPayLoad = Pick <TipoSubscricao, 'Descricao' | 'Preco'>
+type CreateTipoSubscricaoPayLoad = Pick <TipoSubscricao, 'Nome' | 'Preco' | 'Descricao'>
 
 export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayLoad, TipoSubscricao> = async (
   args,
@@ -30,7 +30,8 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayL
 
   const tiposSubscricoes = await context.entities.TipoSubscricao.create({
     data: {
-      Descricao: capitalize(args.Descricao),
+      Nome: capitalize(args.Nome),
+      Descricao: args.Descricao,
       Preco: args.Preco,
     }
   })

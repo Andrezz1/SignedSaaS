@@ -1,45 +1,45 @@
 import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao} from 'wasp/entities'
 import { 
-  type GetSocios, 
+  type GetMembros, 
   type GetUtilizadorByNIF, 
   type GetUtilizadoresInfoByTipo, 
   type CreateUtilizador, 
   type UpdateUtilizador, 
   type GetUtilizadorDesabilitado,
   type UpdateEstadoUtilizador,
-  type UpdateUtilizadorByNIFNumSocio,
+  type UpdateUtilizadorByNIFNumMembro,
   type GetUtilizadorInfoById,
-  type GetSociosPagantes,
+  type GetMembrosPagantes,
 } from 'wasp/server/operations'
 import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
 import { registarAuditLog } from './auditService'
 
-export const getSocios: GetSocios<void, number> = async (_args, context) => {
+export const getMembros: GetMembros<void, number> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, 'Não tem permissão')
   }
 
   const where: any = {
-    NumSocio: { not: null },
+    Nummembro: { not: null },
     EstadoUtilizador: true
   }
 
-  const totalSocios = await context.entities.Utilizador.count({
+  const totalMembros = await context.entities.Utilizador.count({
     where,
   })
 
-  return totalSocios
+  return totalMembros
 }
 
-export const getSociosPagantes: GetSociosPagantes<void, number  
+export const getMembrosPagantes: GetMembrosPagantes<void, number  
 > = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, 'Não tem permissão')
   }
 
   const where: any= {
-    NumSocio: { not: null },
+    NumMembro: { not: null },
     Subscricoes: {
       some: {
         EstadoSubscricao: true
@@ -47,11 +47,11 @@ export const getSociosPagantes: GetSociosPagantes<void, number
     }
   }
 
-  const totalSociosPagantes = await context.entities.Utilizador.count({
+  const totalMembrosPagantes = await context.entities.Utilizador.count({
     where,
   })
 
-  return totalSociosPagantes
+  return totalMembrosPagantes
 }
 
 export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
@@ -93,7 +93,7 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
   const utilizadores = await context.entities.Utilizador.findMany({
     where: {
       EstadoUtilizador: false,
-      NumSocio: { not: null }
+      NumMembro: { not: null }
     },
     orderBy: {
       id: 'desc',
@@ -237,7 +237,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
 
   const utilizadoresativos: any = {
     EstadoUtilizador: true,
-    NumSocio: { not: null }
+    NumMembro: { not: null }
   }
 
   if (searchTerm) {
@@ -347,12 +347,12 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 
   try {
     let ultimoUtilizador = await context.entities.Utilizador.findFirst({
-      orderBy: { NumSocio: 'desc' },
-      select: { NumSocio: true },
-      where: { NumSocio: { not: null } }
+      orderBy: { NumMembro: 'desc' },
+      select: { NumMembro: true },
+      where: { NumMembro: { not: null } }
     })
 
-    const proxNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
+    const proxNumMembro = (ultimoUtilizador?.NumMembro ?? 0) + 1
 
     const contacto = await context.entities.Contacto.create({
       data: {
@@ -396,7 +396,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 
     const utilizador = await context.entities.Utilizador.create({
       data: {
-        NumSocio: proxNumSocio,
+        NumMembro: proxNumMembro,
         Nome: args.Nome,
         DataNascimento: new Date(args.DataNascimento),
         NIF: args.NIF,
@@ -439,7 +439,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 
 type UpdateUtilizadorPayload = {
   id: number
-  NumSocio: number
+  NumMembro: number
   Nome?: string
   DataNascimento?: Date
   NIF?: string
@@ -569,14 +569,14 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       })
     }
 
-    let novoNumSocio = utilizador.NumSocio
-    if (!utilizador.NumSocio) {
+    let novoNumMembro = utilizador.NumMembro
+    if (!utilizador.NumMembro) {
       const ultimoUtilizador = await context.entities.Utilizador.findFirst({
-        orderBy: { NumSocio: 'desc' },
-        select: { NumSocio: true },
-        where: { NumSocio: { not: null } }
+        orderBy: { NumMembro: 'desc' },
+        select: { NumMembro: true },
+        where: { NumMembro: { not: null } }
       })
-      novoNumSocio = (ultimoUtilizador?.NumSocio ?? 0) + 1
+      novoNumMembro = (ultimoUtilizador?.NumMembro ?? 0) + 1
     }
     
     let imageUrl = args.Imagem
@@ -589,7 +589,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       data: {
         Nome: args.Nome,
         NIF: args.NIF,
-        NumSocio: novoNumSocio,
+        NumMembro: novoNumMembro,
         DataNascimento: args.DataNascimento,
         Imagem: imageUrl,
       }
@@ -624,7 +624,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   }
 }
 
-export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<UpdateUtilizadorPayload, Utilizador> = async (
+export const updateUtilizadorByNIFNumMembro: UpdateUtilizadorByNIFNumMembro<UpdateUtilizadorPayload, Utilizador> = async (
   args,
   context
 ) => {
@@ -635,7 +635,7 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { 
       NIF: args.NIF,
-      NumSocio: args.NumSocio
+      NumMembro: args.NumMembro
     },
     include: { 
       Morada: true, 
@@ -646,8 +646,8 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
   const parametrosRecebidos = args
   const idUtilizadorResponsavel = context.user.id
 
-  if (!args.NIF || !args.NumSocio) {
-    throw new Error("Necessario NIF e NumSocio para editar os seus dados")
+  if (!args.NIF || !args.NumMembro) {
+    throw new Error("Necessario NIF e NumMembro para editar os seus dados")
   }
 
   if (!utilizador) {
@@ -721,7 +721,7 @@ export const updateUtilizadorByNIFNumSocio: UpdateUtilizadorByNIFNumSocio<Update
     const updatedUtilizador = await context.entities.Utilizador.update({
       where: { 
         NIF: args.NIF,
-        NumSocio: args.NumSocio
+        NumMembro: args.NumMembro
       },
       data: {
         Nome: args.Nome,

@@ -158,13 +158,13 @@ query getTipoUtilizador {
   entities: [TipoUtilizador]
 }
 
-query getSocios {
-  fn: import { getSocios } from "@src/services/utilizadorService",
+query getMembros {
+  fn: import { getMembros } from "@src/services/utilizadorService",
   entities: [Utilizador]
 }
 
-query getSociosPagantes {
-  fn: import { getSociosPagantes } from "@src/services/utilizadorService",
+query getMembrosPagantes {
+  fn: import { getMembrosPagantes } from "@src/services/utilizadorService",
   entities: [Utilizador, Subscricao]
 }
 
@@ -299,8 +299,8 @@ action updateEstadoUtilizador {
   entities: [Utilizador]
 }
 
-action updateUtilizadorByNIFNumSocio {
-  fn: import { updateUtilizadorByNIFNumSocio } from "@src/services/utilizadorService",
+action updateUtilizadorByNIFNumMembro {
+  fn: import { updateUtilizadorByNIFNumMembro } from "@src/services/utilizadorService",
   entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
 }
 
