@@ -9,7 +9,7 @@ const MembrosCard: React.FC = () => {
     <div className="w-64 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow dark:border-strokedark dark:bg-boxdark">
       {/* Título no topo */}
       <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-        Total Sócios Registados
+        Membros Registados
       </h3>
 
       {/* Ícone e número central */}
@@ -26,20 +26,20 @@ const MembrosCard: React.FC = () => {
         </div>
       </div>
 
-      {/* Número de sócios */}
+      {/* Número de membros */}
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
           {data}
         </h4>
       </div>
 
-      {/* Link para ver sócios no rodapé */}
+      {/* Link para ver membros no rodapé */}
       <div className="mt-6 text-center">
         <Link 
           to="/membros" 
           className="inline-flex items-center text-gray-500 hover:text-gray-400 text-sm font-medium"
         >
-          Ver sócios
+          Ver membros
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             className="h-4 w-4 ml-1" 

@@ -59,7 +59,7 @@ page RemovedMembrosPage {
   component: import RemovedMembrosPage from "@src/pages/RemovedMembrosPage"
 }
 
-route PlanFormRoute { path: "/planos", to: PlanFormPage }
+route PlanFormRoute { path: "/ver-planos", to: PlanFormPage }
 page PlanFormPage  {
   authRequired: true,
   component: import PlanFormPage from "@src/pages/PlanFormPage"

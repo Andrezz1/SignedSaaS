@@ -11,7 +11,8 @@ const DefaultLayout: FC<Props> = ({ children, user }) => {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'Membros', path: '/membros' },
-    { name: 'Conta', path: '/conta' },
+    { name: 'Doações', path: '/historico-doacoes' },
+    { name: 'Planos', path: '/planos' },
   ];
 
   return (
