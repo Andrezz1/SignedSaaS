@@ -25,7 +25,7 @@ const GraficoMembrosAtivos: React.FC = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md dark:bg-boxdark">
       <h3 className="text-lg text-center font-semibold text-gray-800 dark:text-white mb-4">
-        Sócios Ativos vs Inativos
+        Membros Ativos vs Membros Inativos
       </h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
