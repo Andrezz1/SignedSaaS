@@ -22,9 +22,9 @@ const ExpandedUserDetails = ({ user }: any) => {
       </h4>
 
       <dl className="grid grid-cols-4 gap-x-6 gap-y-4 text-sm">
-        {/* Número de Sócio */}
+        {/* Número de Membro */}
         <div>
-          <dt className="font-medium text-gray-600 dark:text-gray-300">Nº Sócio</dt>
+          <dt className="font-medium text-gray-600 dark:text-gray-300">Nº Membro</dt>
           <dd className="text-gray-800 dark:text-white">
             {utilizador.NumMembro || "N/A"}
           </dd>

@@ -86,7 +86,7 @@ const CreateMembroPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="bg-white w-full max-w-4xl p-12 rounded-2xl shadow-lg">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8">Criar Sócio</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-8">Criar Membro</h2>
         {errorMsg && <p className="mb-6 text-red-500 text-sm">{errorMsg}</p>}
 
         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
@@ -146,7 +146,7 @@ const CreateMembroPage = () => {
             </label>
             <input
               type="text"
-              value="Sócio"
+              value="Membro"
               disabled
               className="block w-full p-3 border border-gray-200 bg-gray-100 text-gray-500 rounded-lg cursor-not-allowed"
             />

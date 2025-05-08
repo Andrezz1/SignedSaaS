@@ -7,7 +7,7 @@ const RemovedMembrosPage = ({ user }: { user: AuthUser }) => {
     <DefaultLayout user={user}>
       <div className="w-full">
         <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">
-          Sócios Desabilitados
+          Membros Desabilitados
         </h2>
         <DisabledUsersTable />
       </div>

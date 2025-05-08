@@ -9,7 +9,7 @@ const MembrosPagantesCard: React.FC = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  // Navega para a página de sócios com filtro pré-selecionado
+  // Navega para a página de membros com filtro pré-selecionado
   const handleVerMembrosPagantes = () => {
     navigate('/membros', {
       state: {
@@ -24,7 +24,7 @@ const MembrosPagantesCard: React.FC = () => {
     <div className="w-64 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow dark:border-strokedark dark:bg-boxdark">
       {/* Título no topo */}
       <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-        Total Sócios Pagantes
+        Total Membros Pagantes
       </h3>
 
       {/* Ícone e número central */}
@@ -41,20 +41,20 @@ const MembrosPagantesCard: React.FC = () => {
         </div>
       </div>
 
-      {/* Número de sócios pagantes */}
+      {/* Número de membros pagantes */}
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
           {data}
         </h4>
       </div>
 
-      {/* Link para ver sócios no rodapé */}
+      {/* Link para ver membros no rodapé */}
       <div className="mt-6 text-center">
         <button 
           onClick={handleVerMembrosPagantes}
           className="inline-flex items-center text-gray-500 hover:text-gray-400 text-sm font-medium cursor-pointer"
         >
-          Ver sócios pagantes
+          Ver Membros pagantes
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             className="h-4 w-4 ml-1" 
