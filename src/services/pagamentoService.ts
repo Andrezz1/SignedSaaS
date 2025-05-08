@@ -72,6 +72,7 @@ type CreatePagamentoPayload = {
   Valor: number
   UtilizadorId: number
   MetodoPagamentoId: number
+  Nota?: string
   DadosEspecificos?: any
   EstadoPagamento?: string
   NIFPagamento: string
@@ -133,6 +134,7 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
         Valor: input.Valor,
         DadosEspecificos: dadosEspecificos,
         DataPagamento: new Date(),
+        Nota: input.Nota || '',
         EstadoPagamento: input.EstadoPagamento || 'pendente',
         NIFPagamento: input.NIFPagamento,
         MetodoPagamentoId: input.MetodoPagamentoId,
