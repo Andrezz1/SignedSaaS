@@ -24,7 +24,7 @@ const MembrosPagantesCard: React.FC = () => {
     <div className="w-64 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow dark:border-strokedark dark:bg-boxdark">
       {/* Título no topo */}
       <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-        Total Membros Pagantes
+        Membros Pagantes
       </h3>
 
       {/* Ícone e número central */}

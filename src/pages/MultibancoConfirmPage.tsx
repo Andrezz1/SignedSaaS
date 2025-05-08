@@ -97,7 +97,7 @@ const MultibancoConfirmPage: React.FC = () => {
     navigate('/payment-picker', { state: { planId } });
   };
   const handleChangePlan = () => {
-    navigate('/planos');
+    navigate('/ver-planos');
   };
 
   const methodKey = metodo!.Nome.toLowerCase().replace(/\s+/g, '');
