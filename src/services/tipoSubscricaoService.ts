@@ -15,6 +15,13 @@ export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = asyn
 
   return context.entities.TipoSubscricao.findMany({
     orderBy: { TipoSubscricaoID: 'asc' },
+    include: {
+      Duracoes: {
+        include: {
+          Duracao: true,
+        }
+      }
+    }
   })
 }
 

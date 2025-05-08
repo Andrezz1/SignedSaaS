@@ -150,7 +150,7 @@ query getSubscricao {
 
 query getTipoSubscricao {
   fn: import { getTipoSubscricao } from "@src/services/tipoSubscricaoService",
-  entities: [TipoSubscricao]
+  entities: [TipoSubscricao, Subscricao, Duracao]
 }
 
 query getTipoUtilizador {
