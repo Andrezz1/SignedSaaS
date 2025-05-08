@@ -6,7 +6,7 @@ import UsersTable from '../components/usersTable';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const SociosPage = ({ user }: { user: AuthUser }) => {
+const MembrosPage = ({ user }: { user: AuthUser }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState({});
   const location = useLocation();
@@ -22,11 +22,11 @@ const SociosPage = ({ user }: { user: AuthUser }) => {
   }, [location.state]);
 
   const handleAddUser = () => {
-    navigate('/create-socio');
+    navigate('/create-membro');
   };
 
   const handleDisabledUsers = () => {
-    navigate('/socios-desabilitados');
+    navigate('/membros-desabilitados');
   };
 
   return (
@@ -75,4 +75,4 @@ const SociosPage = ({ user }: { user: AuthUser }) => {
   );
 };
 
-export default SociosPage;
+export default MembrosPage;

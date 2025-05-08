@@ -156,8 +156,8 @@ model Subscricao {
 
 model TipoSubscricao {
   TipoSubscricaoID Int                 @id @default(autoincrement())
-  Nome        String
-  Descricao   String
+  Nome        String @default("")
+  Descricao   String @default("")
   Preco           Int
   Subscricoes      Subscricao[]
   Detalhes         DetalheSubscricao[]

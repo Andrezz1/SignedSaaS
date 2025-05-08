@@ -2,22 +2,22 @@ import React from 'react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { useQuery, getSociosPagantes, getSocios } from 'wasp/client/operations';
+import { useQuery, getMembrosPagantes, getMembros } from 'wasp/client/operations';
 
-const GraficoSociosAtivos: React.FC = () => {
-  const { data: socios, isLoading, error } = useQuery(getSocios);
-  const { data: sociosPagantes} = useQuery(getSociosPagantes);
+const GraficoMembrosAtivos: React.FC = () => {
+  const { data: membros, isLoading, error } = useQuery(getMembros);
+  const { data: membrosPagantes} = useQuery(getMembrosPagantes);
 
   if (isLoading) return <div>Carregando...</div>;
   if (error) return <div>Erro ao carregar dados.</div>;
 
-  const totalSocios = socios;
-  const totalSociosPagantes = sociosPagantes || 0;
-  const sociosInativos = totalSocios - totalSociosPagantes;
+  const totalMembros = membros;
+  const totalMembrosPagantes = membrosPagantes || 0;
+  const membrosInativos = totalMembros - totalMembrosPagantes;
 
   const data = [
-    { name: 'Ativos', value: totalSociosPagantes },
-    { name: 'Inativos', value: sociosInativos },
+    { name: 'Ativos', value: totalMembrosPagantes },
+    { name: 'Inativos', value: membrosInativos },
   ];
 
   const COLORS = ['#10B981', '#EF4444'];
@@ -54,4 +54,4 @@ const GraficoSociosAtivos: React.FC = () => {
   );
 };
 
-export default GraficoSociosAtivos;
+export default GraficoMembrosAtivos;

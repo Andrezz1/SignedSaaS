@@ -2,7 +2,7 @@ import { type AuthUser } from 'wasp/auth';
 import DefaultLayout from '../layout/DefaultLayout';
 import DisabledUsersTable from '../components/removedUsersTable';
 
-const RemovedSociosPage = ({ user }: { user: AuthUser }) => {
+const RemovedMembrosPage = ({ user }: { user: AuthUser }) => {
   return (
     <DefaultLayout user={user}>
       <div className="w-full">
@@ -15,4 +15,4 @@ const RemovedSociosPage = ({ user }: { user: AuthUser }) => {
   );
 };
 
-export default RemovedSociosPage;
+export default RemovedMembrosPage;

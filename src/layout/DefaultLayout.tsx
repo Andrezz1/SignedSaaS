@@ -10,7 +10,7 @@ interface Props {
 const DefaultLayout: FC<Props> = ({ children, user }) => {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Sócios', path: '/socios' },
+    { name: 'Membros', path: '/membros' },
     { name: 'Conta', path: '/conta' },
   ];
 

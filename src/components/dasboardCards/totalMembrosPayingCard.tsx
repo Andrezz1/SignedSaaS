@@ -1,17 +1,17 @@
 import React from 'react';
-import { useQuery, getSociosPagantes } from 'wasp/client/operations';
+import { useQuery, getMembrosPagantes } from 'wasp/client/operations';
 import { useNavigate } from 'react-router-dom';
 
-const SociosPagantesCard: React.FC = () => {
-  const { data, isLoading, error } = useQuery(getSociosPagantes, {});
+const MembrosPagantesCard: React.FC = () => {
+  const { data, isLoading, error } = useQuery(getMembrosPagantes, {});
   const navigate = useNavigate();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   // Navega para a página de sócios com filtro pré-selecionado
-  const handleVerSociosPagantes = () => {
-    navigate('/socios', {
+  const handleVerMembrosPagantes = () => {
+    navigate('/membros', {
       state: {
         appliedFilters: {
           estadoSubscricao: 'ativa'
@@ -51,7 +51,7 @@ const SociosPagantesCard: React.FC = () => {
       {/* Link para ver sócios no rodapé */}
       <div className="mt-6 text-center">
         <button 
-          onClick={handleVerSociosPagantes}
+          onClick={handleVerMembrosPagantes}
           className="inline-flex items-center text-gray-500 hover:text-gray-400 text-sm font-medium cursor-pointer"
         >
           Ver sócios pagantes
@@ -75,4 +75,4 @@ const SociosPagantesCard: React.FC = () => {
   );
 };
 
-export default SociosPagantesCard;
+export default MembrosPagantesCard;

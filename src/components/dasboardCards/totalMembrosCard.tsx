@@ -1,9 +1,9 @@
 import React from 'react';
-import { useQuery, getSocios } from 'wasp/client/operations';
+import { useQuery, getMembros } from 'wasp/client/operations';
 import { Link } from 'react-router-dom';
 
-const SociosCard: React.FC = () => {
-  const { data, isLoading, error } = useQuery(getSocios, {});
+const MembrosCard: React.FC = () => {
+  const { data, isLoading, error } = useQuery(getMembros, {});
 
   return (
     <div className="w-64 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow dark:border-strokedark dark:bg-boxdark">
@@ -36,7 +36,7 @@ const SociosCard: React.FC = () => {
       {/* Link para ver sócios no rodapé */}
       <div className="mt-6 text-center">
         <Link 
-          to="/socios" 
+          to="/membros" 
           className="inline-flex items-center text-gray-500 hover:text-gray-400 text-sm font-medium"
         >
           Ver sócios
@@ -60,4 +60,4 @@ const SociosCard: React.FC = () => {
   );
 };
 
-export default SociosCard;
+export default MembrosCard;

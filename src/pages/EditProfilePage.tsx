@@ -80,7 +80,7 @@ const EditProfile: React.FC = () => {
       id: u.utilizador.id,
       Nome: nome,
       NIF: nif,
-      NumSocio: u.utilizador.NumSocio ?? 0,
+      NumMembro: u.utilizador.NumMembro ?? 0,
       Contacto: {
         Email: email,
         Telemovel: `${countryCode} ${phoneNumber}`
