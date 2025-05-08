@@ -83,24 +83,13 @@ model Doacao {
   UtilizadorId Int
 }
 
+
 model Duracao {
   DuracaoId   Int    @id @default(autoincrement())
   Nome        String // Ex: "Mensal", "Trimestral", "Anual"
-  Dias        Int 
-
+  Meses       Int    // Número de meses que esta duração representa
   TipoSubscricaoDuracoes TipoSubscricaoDuracao[]
-  Subscricoes            Subscricao[]
-}
-
-model TipoSubscricaoDuracao {
-  TipoSubscricaoDuracaoId Int @id @default(autoincrement())
-
-  TipoSubscricaoID Int
-  DuracaoId        Int
-  Preco            Int // Preco especifico de cada combinação
-
-  TipoSubscricao TipoSubscricao @relation(fields: [TipoSubscricaoID], references: [TipoSubscricaoID])
-  Duracao        Duracao        @relation(fields: [DuracaoId], references: [DuracaoId])
+  Subscricoes Subscricao[]
 }
 
 model MetodoPagamento {
@@ -156,11 +145,25 @@ model Subscricao {
 
 model TipoSubscricao {
   TipoSubscricaoID Int                 @id @default(autoincrement())
-  Nome        String @default("")
-  Descricao   String @default("")
-  Preco           Int
-  Subscricoes      Subscricao[]
-  Detalhes         DetalheSubscricao[]
+  Nome            String @default("")
+  Descricao       String @default("")
+  PrecoBaseMensal Int    @default(0)  // Este é o preço base mensal
+  Subscricoes     Subscricao[]
+  Detalhes        DetalheSubscricao[]
+  Duracoes        TipoSubscricaoDuracao[]
+}
+
+model TipoSubscricaoDuracao {
+  TipoSubscricaoDuracaoId Int @id @default(autoincrement())
+  TipoSubscricaoID Int
+  DuracaoId        Int
+  Desconto         Float? // Desconto aplicável
+  ValorFinal       Float  @default(0)
+  
+  TipoSubscricao TipoSubscricao @relation(fields: [TipoSubscricaoID], references: [TipoSubscricaoID])
+  Duracao       Duracao        @relation(fields: [DuracaoId], references: [DuracaoId])
+  
+  @@unique([TipoSubscricaoID, DuracaoId])
 }
 
 model TipoUtilizador {

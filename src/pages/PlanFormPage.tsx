@@ -75,7 +75,7 @@ const PlanFormPage: React.FC = () => {
             <h3 className="text-xl font-semibold capitalize">
               {tipo.Descricao}
             </h3>
-            <p className="mt-4 text-3xl font-bold">€{tipo.Preco}</p>
+            <p className="mt-4 text-3xl font-bold">€{tipo.PrecoBaseMensal}</p>
           </div>
         ))}
       </div>

@@ -18,9 +18,14 @@ export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = asyn
   })
 }
 
-type CreateTipoSubscricaoPayLoad = Pick <TipoSubscricao, 'Nome' | 'Preco' | 'Descricao'>
+type CreateTipoSubscricaoPayload = {
+  Nome: string
+  PrecoBaseMensal: number
+  Descricao: string
+  Duracoes: { DuracaoId: number; Desconto?: number }[]
+}
 
-export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayLoad, TipoSubscricao> = async (
+export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayload, TipoSubscricao> = async (
   args,
   context
 ) => {
@@ -28,48 +33,75 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayL
     throw new HttpError(401, "Não tem permissão")
   }
 
-  const tiposSubscricoes = await context.entities.TipoSubscricao.create({
-    data: {
-      Nome: capitalize(args.Nome),
-      Descricao: args.Descricao,
-      Preco: args.Preco,
-    }
-  })
-
+  const { Nome, PrecoBaseMensal, Descricao, Duracoes } = args
   const parametrosRecebidos = args
   const idUtilizadorResponsavel = context.user.id
 
   try {
-    await registarAuditLog('auditTipoSubscricao',{
-          entidade: 'TipoSubscricao',
-          operacao: 'CREATE',
-          idUtilizadorResponsavel,
-          parametrosRecebidos,
-          dadosAntes: null,
-          dadosDepois: tiposSubscricoes,
-          resultado: 'SUCCESS',
-          mensagemErro: ""
+    const duracoes = await context.entities.Duracao.findMany({
+      where: {
+        DuracaoId: { in: Duracoes.map(d => d.DuracaoId) }
+      }
     })
 
-    return tiposSubscricoes
+    const tipoSubscricao = await context.entities.TipoSubscricao.create({
+      data: {
+        Nome: capitalize(Nome),
+        Descricao,
+        PrecoBaseMensal,
+        Duracoes: {
+          create: Duracoes.map(({ DuracaoId, Desconto }) => {
+            const duracao = duracoes.find(d => d.DuracaoId === DuracaoId)
+            if (!duracao) throw new Error(`Duração com ID ${DuracaoId} não encontrada`)
+
+            const meses = duracao.Meses
+            const desconto = Desconto ?? 0
+            const valorBase = PrecoBaseMensal * meses
+            const valorFinal = valorBase * (1 - desconto)
+
+            return {
+              Duracao: { connect: { DuracaoId } },
+              Desconto: desconto,
+              ValorFinal: valorFinal
+            }
+          })
+        }
+      },
+      include: {
+        Duracoes: true
+      }
+    })
+
+    await registarAuditLog('auditTipoSubscricao', {
+      entidade: 'TipoSubscricao',
+      operacao: 'CREATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: null,
+      dadosDepois: tipoSubscricao,
+      resultado: 'SUCCESS',
+      mensagemErro: ""
+    })
+
+    return tipoSubscricao
 
   } catch (error) {
-      await registarAuditLog('auditTipoSubscricao',{
-        entidade: 'TipoSubscricao',
-        operacao: 'CREATE',
-        idUtilizadorResponsavel,
-        parametrosRecebidos,
-        dadosAntes: null,
-        dadosDepois: null,
-        resultado: 'FAILURE',
-        mensagemErro: error instanceof Error ? error.message : JSON.stringify(error)
-      })
+    await registarAuditLog('auditTipoSubscricao', {
+      entidade: 'TipoSubscricao',
+      operacao: 'CREATE',
+      idUtilizadorResponsavel,
+      parametrosRecebidos,
+      dadosAntes: null,
+      dadosDepois: null,
+      resultado: 'FAILURE',
+      mensagemErro: error instanceof Error ? error.message : JSON.stringify(error)
+    })
 
-      throw error
+    throw error
   }
 }
 
-type UpdateTipoSubscricaoPayLoad = Pick<TipoSubscricao, 'TipoSubscricaoID' | 'Descricao' | 'Preco'>
+type UpdateTipoSubscricaoPayLoad = Pick<TipoSubscricao, 'TipoSubscricaoID' | 'Descricao' | 'PrecoBaseMensal'>
 
 export const updateTipoSubscricao: UpdateTipoSubscricao<UpdateTipoSubscricaoPayLoad, TipoSubscricao> = async (
   args,
@@ -87,7 +119,7 @@ export const updateTipoSubscricao: UpdateTipoSubscricao<UpdateTipoSubscricaoPayL
     where: { TipoSubscricaoID: args.TipoSubscricaoID },
     data: {
       Descricao: capitalize(args.Descricao),
-      Preco: args.Preco,
+      PrecoBaseMensal: args.PrecoBaseMensal,
     }
   })
 
