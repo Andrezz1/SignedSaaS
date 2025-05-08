@@ -21,7 +21,7 @@ export const getMembros: GetMembros<void, number> = async (_args, context) => {
   }
 
   const where: any = {
-    Nummembro: { not: null },
+    NumMembro: { not: null },
     EstadoUtilizador: true
   }
 
@@ -228,9 +228,9 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     totalPages: number
   }
 > = async ({ page, pageSize, searchTerm, filters }, context) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
 
   const skip = (page - 1) * pageSize
   const take = pageSize
