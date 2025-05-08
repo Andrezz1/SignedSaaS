@@ -115,7 +115,7 @@ const MbwayConfirmPage: React.FC = () => {
               <span className="font-semibold">Descrição:</span> {plan!.Descricao}
             </span>
             <span className="mt-1 text-base text-gray-900">
-              <span className="font-semibold">Valor:</span> €{plan!.Preco}
+              <span className="font-semibold">Valor:</span> €{plan!.PrecoBaseMensal}
             </span>
           </div>
           <span className="text-sm text-blue-600 font-medium">Alterar Plano</span>

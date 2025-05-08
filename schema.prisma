@@ -147,7 +147,7 @@ model TipoSubscricao {
   TipoSubscricaoID Int                 @id @default(autoincrement())
   Nome            String @default("")
   Descricao       String @default("")
-  PrecoBaseMensal Int    // Este é o preço base mensal
+  PrecoBaseMensal Int    @default(0)  // Este é o preço base mensal
   Subscricoes     Subscricao[]
   Detalhes        DetalheSubscricao[]
   Duracoes        TipoSubscricaoDuracao[]

@@ -1,4 +1,4 @@
-import { TipoSubscricao, Duracao } from 'wasp/entities'
+import { TipoSubscricao } from 'wasp/entities'
 import { 
   type GetTipoSubscricao, 
   type CreateTipoSubscricao, 
@@ -38,20 +38,20 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayl
   const idUtilizadorResponsavel = context.user.id
 
   try {
-    const duracoesBD = await context.entities.Duracao.findMany({
+    const duracoes = await context.entities.Duracao.findMany({
       where: {
         DuracaoId: { in: Duracoes.map(d => d.DuracaoId) }
       }
     })
 
-    const tipoSubscricaoCriado = await context.entities.TipoSubscricao.create({
+    const tipoSubscricao = await context.entities.TipoSubscricao.create({
       data: {
         Nome: capitalize(Nome),
         Descricao,
         PrecoBaseMensal,
         Duracoes: {
           create: Duracoes.map(({ DuracaoId, Desconto }) => {
-            const duracao = duracoesBD.find(d => d.DuracaoId === DuracaoId)
+            const duracao = duracoes.find(d => d.DuracaoId === DuracaoId)
             if (!duracao) throw new Error(`Duração com ID ${DuracaoId} não encontrada`)
 
             const meses = duracao.Meses
@@ -72,19 +72,18 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayl
       }
     })
 
-    // 3. Registar log de auditoria
     await registarAuditLog('auditTipoSubscricao', {
       entidade: 'TipoSubscricao',
       operacao: 'CREATE',
       idUtilizadorResponsavel,
       parametrosRecebidos,
       dadosAntes: null,
-      dadosDepois: tipoSubscricaoCriado,
+      dadosDepois: tipoSubscricao,
       resultado: 'SUCCESS',
       mensagemErro: ""
     })
 
-    return tipoSubscricaoCriado
+    return tipoSubscricao
 
   } catch (error) {
     await registarAuditLog('auditTipoSubscricao', {

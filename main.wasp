@@ -264,7 +264,7 @@ action createUtilizador {
 
 action createTipoSubscricao {
   fn: import { createTipoSubscricao } from "@src/services/tipoSubscricaoService",
-  entities: [TipoSubscricao]
+  entities: [TipoSubscricao, Duracao]
 }
 
 action createSubscricaoCompleta {
