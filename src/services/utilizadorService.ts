@@ -228,9 +228,9 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     totalPages: number
   }
 > = async ({ page, pageSize, searchTerm, filters }, context) => {
-  // if (!context.user) {
-  //   throw new HttpError(401, "Não tem permissão")
-  // }
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
 
   const skip = (page - 1) * pageSize
   const take = pageSize
