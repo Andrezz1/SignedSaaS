@@ -57,12 +57,17 @@ const CreatePlanoPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const duracoesParaEnviar = selectedDuracoes.map(d => ({
+      DuracaoId: d.DuracaoId,
+      Desconto: d.Desconto !== undefined ? d.Desconto / 100 : undefined,
+    }));
+
     try {
       await createTipoSubscricao({
         Nome: nome,
         Descricao: descricao,
         PrecoBaseMensal: Number(precoBaseMensal),
-        Duracoes: selectedDuracoes,
+        Duracoes: duracoesParaEnviar,
       });
 
       navigate('/planos');
@@ -152,23 +157,30 @@ const CreatePlanoPage = () => {
                     {isSelected && (
                       <div className="mt-2">
                         <label className="block text-xs text-gray-600 mb-1">
-                          Desconto (ex: 0.1)
+                          Desconto (%)
                         </label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                          value={currentDesconto}
-                          onChange={(e) =>
-                            handleDescontoChange(
-                              duracao.DuracaoId,
-                              Number(e.target.value)
-                            )
-                          }
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        />
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={currentDesconto}
+                            onChange={(e) =>
+                              handleDescontoChange(
+                                duracao.DuracaoId,
+                                Number(e.target.value)
+                              )
+                            }
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full p-2 pr-8 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 no-spinner"
+                            style={{
+                              MozAppearance: 'textfield',
+                            }}
+                          />
+                          <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 pointer-events-none">
+                            %
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>

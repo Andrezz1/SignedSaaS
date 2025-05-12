@@ -77,6 +77,7 @@ const MbwayConfirmPage: React.FC = () => {
         DataFim: new Date(new Date().setMonth(new Date().getMonth() + 1)),
         UtilizadorId: 1, // <-- Placeholder
         TipoSubscricaoId: planId,
+        DuracaoId: 1, // <-- Placeholder
         DetalheSubscricao: { Quantidade: 1 },
         Pagamento: {
           MetodoPagamentoId: metodoId,
