@@ -133,6 +133,11 @@ query getDoacoes {
   entities: [Doacao]
 }
 
+query getDuracao {
+  fn: import { getDuracao } from "@src/services/duracaoService",
+  entities: [Duracao]
+}
+
 query getMorada {
   fn: import { getMorada } from "@src/services/moradaService",
   entities: [Morada]
