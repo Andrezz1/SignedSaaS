@@ -26,10 +26,12 @@ export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = asyn
   })
 }
 
+// Esta funcao foi feita para utilizar na tabela de planos.
 export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   page: number,
   pageSize: number,
   searchTerm?: string,
+  duracaoNome?: string,
 },
 {
   data: {
@@ -41,7 +43,7 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   page: number
   pageSize: number
   totalPages: number
-}> = async ({ page, pageSize, searchTerm }, context) => {
+}> = async ({ page, pageSize, searchTerm, duracaoNome }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -51,11 +53,27 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
 
   const where: any = {}
 
+if (searchTerm || duracaoNome) {
+  where.OR = []
+
   if (searchTerm) {
     where.OR = [
       { Nome: { contains: searchTerm, mode: 'insensitive' } }
     ]
   }
+
+  if (duracaoNome) {
+    where.Duracoes = {
+      some: {
+        Duracao: {
+          Nome: { equals: duracaoNome, mode: 'insensitive' }
+        }
+      }
+    }
+  }
+}
+
+  
 
   const tiposSubscricao = await context.entities.TipoSubscricao.findMany({
     where,
