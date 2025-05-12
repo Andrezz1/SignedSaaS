@@ -286,7 +286,7 @@ action createTipoSubscricao {
 
 action createSubscricaoCompleta {
   fn: import { createSubscricaoCompleta } from "@src/services/subscricaoService",
-  entities: [Subscricao, TipoSubscricao, DetalheSubscricao, Pagamento]
+  entities: [Subscricao, TipoSubscricao, DetalheSubscricao, Pagamento, TipoSubscricaoDuracao, Duracao]
 }
 
 action createUtilizadorFiltro {
