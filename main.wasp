@@ -107,6 +107,12 @@ page CreateDoacaoPage {
   component: import CreateDoacaoPage from "@src/pages/CreateDoacaoPage"
 }
 
+route GerirPlanosRoute { path: "/planos", to: GerirPlanosPage }
+page GerirPlanosPage {
+  authRequired: true,
+  component: import GerirPlanosPage from "@src/pages/GerirPlanosPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
