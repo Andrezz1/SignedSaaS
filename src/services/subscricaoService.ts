@@ -1,4 +1,4 @@
-import { Subscricao, Utilizador, Pagamento, TipoSubscricao } from 'wasp/entities'
+import { Subscricao, Utilizador, Pagamento, TipoSubscricao, Duracao } from 'wasp/entities'
 import { 
   type GetSubscricao, 
   type GetSubscricaoInfo, 
@@ -71,6 +71,7 @@ type CreateSubscricaoPayload = {
   DataFim: Date
   UtilizadorId: number
   TipoSubscricaoId: number
+  DuracaoId: number
   DetalheSubscricao: {
     Quantidade: number
     Desconto?: number
@@ -81,22 +82,32 @@ export async function createSubscricao(
   input: CreateSubscricaoPayload,
   context: any
 ) {
-  const tipoSubscricao = await context.entities.TipoSubscricao.findUnique({
-    where: { TipoSubscricaoID: input.TipoSubscricaoId }
+  const tipoSubscricaoDuracao = await context.entities.TipoSubscricaoDuracao.findFirst({
+    where: { 
+      TipoSubscricaoID: input.TipoSubscricaoId,
+      DuracaoId: input.DuracaoId
+    }
   })
 
-  const dataInicio = new Date()
-  dataInicio.setHours(0, 0, 0, 0)
-
-  // A subscricao esta feita para durar sempre um ano, alterar caso se adicione diferentes durações a uma subscricao
-  const dataFim = new Date(dataInicio)
-  dataFim.setFullYear(dataFim.getFullYear() + 1) 
-
-  if (!tipoSubscricao) {
-    throw new Error('Tipo de subscrição não encontrado')
+  if (!tipoSubscricaoDuracao) {
+    throw new Error('Combinação de Tipo de Subscrição e Duração não encontrada')
   }
 
-  const valorBase = tipoSubscricao.Preco * input.DetalheSubscricao.Quantidade
+  const dataInicio = input.DataInicio || new Date()
+  dataInicio.setHours(0, 0, 0, 0)
+
+  const duracao = await context.entities.Duracao.findUnique({
+    where: { DuracaoId: input.DuracaoId }
+  })
+
+  if (!duracao) {
+    throw new Error('Duração não encontrada')
+  }
+
+  const dataFim = new Date(dataInicio)
+  dataFim.setMonth(dataFim.getMonth() + duracao.Meses)
+
+  const valorBase = tipoSubscricaoDuracao.ValorFinal * input.DetalheSubscricao.Quantidade
   const valorFinal = input.DetalheSubscricao.Desconto 
     ? valorBase * (1 - input.DetalheSubscricao.Desconto)
     : valorBase
@@ -107,7 +118,8 @@ export async function createSubscricao(
       DataFim: dataFim,
       EstadoSubscricao: false,
       Utilizador: { connect: { id: input.UtilizadorId } },
-      TipoSubscricao: { connect: { TipoSubscricaoID: input.TipoSubscricaoId } }
+      TipoSubscricao: { connect: { TipoSubscricaoID: input.TipoSubscricaoId } },
+      Duracao: { connect: { DuracaoId: input.DuracaoId } }
     }
   })
 
@@ -129,6 +141,7 @@ type CreateSubscricaoCompletaPayload = {
   DataFim: Date
   UtilizadorId: number
   TipoSubscricaoId: number
+  DuracaoId: number
   DetalheSubscricao: {
     Quantidade: number
     Desconto?: number

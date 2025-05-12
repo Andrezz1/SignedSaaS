@@ -1,4 +1,4 @@
-import { TipoSubscricao } from 'wasp/entities'
+import { TipoSubscricao, Duracao, TipoSubscricaoDuracao } from 'wasp/entities'
 import { 
   type GetTipoSubscricao, 
   type CreateTipoSubscricao, 
@@ -8,12 +8,39 @@ import { capitalize } from './utils'
 import { HttpError } from 'wasp/server'
 import { registarAuditLog } from './auditService'
 
-export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = async (_args, context) => {
+export const getTipoSubscricao: GetTipoSubscricao<{ 
+  page: number,
+  pageSize: number,
+  searchTerm?: string,
+},
+{
+  data: {
+    tipoSubscricao: TipoSubscricao
+    duracao: Duracao
+    tipoSubscricaoduracao: TipoSubscricaoDuracao
+  }[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}> = async ({ page, pageSize, searchTerm }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
 
-  return context.entities.TipoSubscricao.findMany({
+  const skip = (page - 1) * pageSize
+  const take = pageSize
+
+  const where: any = {}
+
+  if (searchTerm) {
+    where.OR = [
+      { Nome: { contains: searchTerm, mode: 'insensitive' } }
+    ]
+  }
+
+  const tiposSubscricao = await context.entities.TipoSubscricao.findMany({
+    where,
     orderBy: { TipoSubscricaoID: 'asc' },
     include: {
       Duracoes: {
@@ -21,8 +48,40 @@ export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = asyn
           Duracao: true,
         }
       }
-    }
+    },
+    skip,
+    take,
   })
+
+  const totalSubscricao = await context.entities.TipoSubscricao.count({
+    where,
+  })
+
+  const transformedData = tiposSubscricao.flatMap(tipo => 
+    tipo.Duracoes.map(duracaoRel => ({
+      tipoSubscricao: {
+        TipoSubscricaoID: tipo.TipoSubscricaoID,
+        Nome: tipo.Nome,
+        Descricao: tipo.Descricao,
+        PrecoBaseMensal: tipo.PrecoBaseMensal,
+      },
+      duracao: duracaoRel.Duracao,
+      tipoSubscricaoduracao: {
+        TipoSubscricaoDuracaoId: duracaoRel.TipoSubscricaoDuracaoId,
+        TipoSubscricaoID: duracaoRel.TipoSubscricaoID,
+        DuracaoId: duracaoRel.DuracaoId,
+        Desconto: duracaoRel.Desconto,
+        ValorFinal: duracaoRel.ValorFinal,
+      }
+    })))
+
+  return {
+    data: transformedData,
+    total: totalSubscricao,
+    page,
+    pageSize,
+    totalPages: Math.ceil(totalSubscricao / pageSize),
+  }
 }
 
 type CreateTipoSubscricaoPayload = {
