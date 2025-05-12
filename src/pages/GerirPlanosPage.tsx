@@ -1,19 +1,20 @@
 import { type AuthUser } from 'wasp/auth';
 import DefaultLayout from '../layout/DefaultLayout';
-import PlanosTable from '../components/planosTable';
 import { PlusIcon } from 'lucide-react';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import PlanosTable from '../components/planosTable';
+import FilterDuracoes from '../components/filterDuracoes';
+import { useState } from 'react';
 
 const GerirPlanosPage = ({ user }: { user: AuthUser }) => {
   const navigate = useNavigate();
+  const [showFilters, setShowFilters] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState<{ duracoes: number[] }>({ duracoes: [] });
 
-  const handleAddPlan = () => {
-    navigate('/create-plano');
-  };
+  const handleAddPlan = () => navigate('/create-plano');
 
   return (
     <DefaultLayout user={user}>
-      {/* Título + botão lado a lado */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800 dark:text-white">Lista de Planos Disponíveis</h2>
         <button
@@ -24,12 +25,26 @@ const GerirPlanosPage = ({ user }: { user: AuthUser }) => {
           Adicionar Plano
         </button>
       </div>
-  
-      {/* Tabela */}
-      <div className="w-full">
-        <PlanosTable />
+
+      <div className="flex gap-4">
+        {showFilters && (
+          <aside className="w-64">
+            <FilterDuracoes
+              applyFilters={setAppliedFilters}
+              appliedFilters={appliedFilters}
+            />
+          </aside>
+        )}
+        <div className="flex-1">
+          <PlanosTable
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+            appliedFilters={appliedFilters}
+          />
+        </div>
       </div>
     </DefaultLayout>
   );
-}
+};
+
 export default GerirPlanosPage;

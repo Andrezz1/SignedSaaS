@@ -113,6 +113,12 @@ page GerirPlanosPage {
   component: import GerirPlanosPage from "@src/pages/GerirPlanosPage"
 }
 
+route CreatePlanoRoute { path: "/create-plano", to: CreatePlanoPage }
+page CreatePlanoPage {
+  authRequired: true,
+  component: import CreatePlanoPage from "@src/pages/CreatePlanoPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
