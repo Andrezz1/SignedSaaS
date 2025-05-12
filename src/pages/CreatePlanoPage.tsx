@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createTipoSubscricao, getDuracoes } from 'wasp/client/operations';
+import { createTipoSubscricao, getDuracao } from 'wasp/client/operations';
 import LoadingSpinner from '../layout/LoadingSpinner';
 
 type Duracao = {
@@ -8,7 +8,7 @@ type Duracao = {
   Nome: string;
 };
 
-const CreatePlano = () => {
+const CreatePlanoPage = () => {
   const navigate = useNavigate();
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -23,7 +23,7 @@ const CreatePlano = () => {
   useEffect(() => {
     const fetchDuracoes = async () => {
       try {
-        const data = await getDuracoes();
+        const data = await getDuracao();
         setDuracoes(data);
       } catch {
         setErro('Erro ao carregar durações');
@@ -80,96 +80,137 @@ const CreatePlano = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 bg-white p-6 rounded shadow-md">
-      <h1 className="text-xl font-semibold mb-6">Criar Novo Plano</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="bg-white w-full max-w-4xl p-12 rounded-2xl shadow-lg">
+        <h2 className="text-3xl font-bold text-gray-800 mb-8">Criar Novo Plano</h2>
 
-      {erro && <p className="text-red-500 mb-4">{erro}</p>}
+        {erro && <p className="mb-6 text-red-500 text-sm">{erro}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-medium">Nome</label>
-          <input
-            type="text"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            className="w-full mt-1 border rounded px-3 py-2"
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-x-8 gap-y-6">
+          <div className="col-span-2">
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Nome
+            </label>
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
+              required
+            />
+          </div>
 
-        <div>
-          <label className="block font-medium">Descrição</label>
-          <textarea
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-            className="w-full mt-1 border rounded px-3 py-2"
-            required
-          />
-        </div>
+          <div className="col-span-2">
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Descrição
+            </label>
+            <textarea
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              rows={3}
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
+              required
+            />
+          </div>
 
-        <div>
-          <label className="block font-medium">Preço Base Mensal (€)</label>
-          <input
-            type="number"
-            value={precoBaseMensal}
-            onChange={(e) => setPrecoBaseMensal(Number(e.target.value))}
-            className="w-full mt-1 border rounded px-3 py-2"
-            required
-            step="0.01"
-          />
-        </div>
+          <div className="col-span-2">
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Durações
+            </label>
+            <div className="grid grid-cols-4 gap-4">
+              {duracoes.map((duracao) => {
+                const isSelected = selectedDuracoes.some(
+                  (d) => d.DuracaoId === duracao.DuracaoId
+                );
+                const currentDesconto =
+                  selectedDuracoes.find((d) => d.DuracaoId === duracao.DuracaoId)
+                    ?.Desconto ?? '';
 
-        <div>
-          <label className="block font-medium mb-2">Durações</label>
-          {duracoes.map((duracao) => {
-            const isChecked = selectedDuracoes.some(
-              (d) => d.DuracaoId === duracao.DuracaoId
-            );
-            const currentDesconto =
-              selectedDuracoes.find((d) => d.DuracaoId === duracao.DuracaoId)
-                ?.Desconto ?? '';
+                return (
+                  <div
+                    key={duracao.DuracaoId}
+                    onClick={() => handleCheckboxChange(duracao.DuracaoId)}
+                    className={`cursor-pointer border rounded-lg p-4 transition-all duration-200 shadow-sm ${
+                      isSelected
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-semibold text-gray-800">
+                        {duracao.Nome}
+                      </span>
+                      <div
+                        className={`h-4 w-4 rounded-full border ${
+                          isSelected
+                            ? 'bg-blue-500 border-blue-500'
+                            : 'border-gray-400'
+                        }`}
+                      />
+                    </div>
 
-            return (
-              <div key={duracao.DuracaoId} className="mb-2">
-                <label className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => handleCheckboxChange(duracao.DuracaoId)}
-                  />
-                  <span>{duracao.Nome}</span>
-                </label>
-                {isChecked && (
-                  <input
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    placeholder="Desconto (ex: 0.1)"
-                    value={currentDesconto}
-                    onChange={(e) =>
-                      handleDescontoChange(
-                        duracao.DuracaoId,
-                        Number(e.target.value)
-                      )
-                    }
-                    className="ml-6 mt-1 border rounded px-2 py-1 w-40"
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
+                    {isSelected && (
+                      <div className="mt-2">
+                        <label className="block text-xs text-gray-600 mb-1">
+                          Desconto (ex: 0.1)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={currentDesconto}
+                          onChange={(e) =>
+                            handleDescontoChange(
+                              duracao.DuracaoId,
+                              Number(e.target.value)
+                            )
+                          }
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-        >
-          Criar Plano
-        </button>
-      </form>
+          <div className="col-span-2">
+            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+              Preço Base Mensal (€)
+            </label>
+            <input
+              type="text"
+              value={precoBaseMensal}
+              onChange={(e) => setPrecoBaseMensal(Number(e.target.value))}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
+              required
+            />
+          </div>
+
+          <div className="col-span-2 mt-8 flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 font-semibold hover:from-gray-400 hover:to-gray-500 transition"
+            >
+              Voltar
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition"
+            >
+              Criar Plano
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default CreatePlano;
+export default CreatePlanoPage;
