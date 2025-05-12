@@ -1,14 +1,32 @@
 import { TipoSubscricao, Duracao, TipoSubscricaoDuracao } from 'wasp/entities'
 import { 
   type GetTipoSubscricao, 
+  type GetTipoSubscricaoInfo,
   type CreateTipoSubscricao, 
-  type UpdateTipoSubscricao 
+  type UpdateTipoSubscricao
 } from 'wasp/server/operations'
 import { capitalize } from './utils'
 import { HttpError } from 'wasp/server'
 import { registarAuditLog } from './auditService'
 
-export const getTipoSubscricao: GetTipoSubscricao<{ 
+export const getTipoSubscricao: GetTipoSubscricao<void, TipoSubscricao[]> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
+  return context.entities.TipoSubscricao.findMany({
+    orderBy: { TipoSubscricaoID: 'asc' },
+    include: {
+      Duracoes: {
+        include: {
+          Duracao: true,
+        }
+      }
+    }
+  })
+}
+
+export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   page: number,
   pageSize: number,
   searchTerm?: string,
@@ -57,7 +75,7 @@ export const getTipoSubscricao: GetTipoSubscricao<{
     where,
   })
 
-  const transformedData = tiposSubscricao.flatMap(tipo => 
+  const tiposSubscricaoInfo = tiposSubscricao.flatMap(tipo => 
     tipo.Duracoes.map(duracaoRel => ({
       tipoSubscricao: {
         TipoSubscricaoID: tipo.TipoSubscricaoID,
@@ -76,7 +94,7 @@ export const getTipoSubscricao: GetTipoSubscricao<{
     })))
 
   return {
-    data: transformedData,
+    data: tiposSubscricaoInfo,
     total: totalSubscricao,
     page,
     pageSize,
@@ -218,5 +236,5 @@ export const updateTipoSubscricao: UpdateTipoSubscricao<UpdateTipoSubscricaoPayL
     })
 
     throw error
-}
+  }
 }
