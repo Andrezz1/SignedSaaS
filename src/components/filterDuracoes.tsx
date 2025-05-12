@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getDuracao } from 'wasp/client/operations';
 
 interface Duracao {
-  DuracaoID: number;
+  DuracaoId: number;
   Nome: string;
 }
 
@@ -20,7 +20,7 @@ const FilterDuracoes = ({ applyFilters, appliedFilters }: FilterDuracoesProps) =
     const fetchDuracoes = async () => {
       try {
         const data = await getDuracao();
-        setDuracoes(data.map(d => ({ ...d, DuracaoID: d.DuracaoId })));
+        setDuracoes(data);
       } catch (error) {
         console.error('Erro ao buscar durações:', error);
       }
@@ -34,8 +34,10 @@ const FilterDuracoes = ({ applyFilters, appliedFilters }: FilterDuracoesProps) =
   }, [appliedFilters]);
 
   useEffect(() => {
-    applyFilters({ duracoes: selected });
-  }, [selected]);
+    if (duracoes.length > 0) {
+      applyFilters({ duracoes: selected });
+    }
+  }, [selected, duracoes]);
 
   const toggleCheckbox = (id: number) => {
     setSelected(prev =>
@@ -44,51 +46,61 @@ const FilterDuracoes = ({ applyFilters, appliedFilters }: FilterDuracoesProps) =
   };
 
   return (
-    <div className="bg-gray-50 shadow p-4 rounded-md w-64 space-y-4">
-      <h2 className="text-lg font-semibold">Filtros</h2>
+    <div className="bg-white shadow-md rounded-lg p-5 w-64 border border-gray-200">
+      <h2 className="text-lg font-bold text-gray-800 mb-4">Filtros</h2>
 
-      <div className="border-b border-gray-200 pb-2">
+      {/* Linha de separação acima da secção de duração */}
+      <div className="border-t border-gray-200 pt-3 mb-3">
         <div
-          className="flex justify-between items-center cursor-pointer"
-          onClick={() => setIsOpen(o => !o)}
+          className="flex justify-between items-center cursor-pointer mb-1"
+          onClick={() => setIsOpen(prev => !prev)}
         >
-          <h3 className="font-medium text-sm">Duração</h3>
-          {isOpen ? (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 7l5 5 5-5" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 5l5 5-5 5" />
-            </svg>
-          )}
+          <h3 className="text-sm font-medium text-gray-700">Duração</h3>
+          <svg
+            className={`w-4 h-4 transition-transform transform ${isOpen ? 'rotate-90' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </div>
+
         {isOpen && (
-          <div className="mt-2 space-y-2">
-            {duracoes.map((d) => (
-              <div key={d.DuracaoID} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id={`dur-${d.DuracaoID}`}
-                  checked={selected.includes(d.DuracaoID)}
-                  onChange={() => toggleCheckbox(d.DuracaoID)}
-                  className="form-checkbox h-4 w-4 text-blue-600"
-                />
-                <label htmlFor={`dur-${d.DuracaoID}`} className="text-sm text-gray-700">
-                  {d.Nome}
+          <div className="space-y-2 mt-2">
+            {duracoes.length === 0 ? (
+              <p className="text-sm text-gray-400 italic">A carregar...</p>
+            ) : (
+              duracoes.map((d) => (
+                <label
+                  key={d.DuracaoId}
+                  htmlFor={`dur-${d.DuracaoId}`}
+                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
+                >
+                  <input
+                    type="checkbox"
+                    id={`dur-${d.DuracaoId}`}
+                    checked={selected.includes(d.DuracaoId)}
+                    onChange={() => toggleCheckbox(d.DuracaoId)}
+                    className="text-blue-600 rounded focus:ring-0"
+                  />
+                  <span className="text-sm text-gray-700">{d.Nome}</span>
                 </label>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>
 
-      <button
-        onClick={() => setSelected([])}
-        className="w-full px-4 py-1 text-sm rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition"
-      >
-        Limpar Filtros
-      </button>
+      {/* Linha de separação abaixo da secção, visível sempre */}
+      <div className="border-t border-gray-200 pt-4">
+        <button
+          onClick={() => setSelected([])}
+          className="w-full py-2 text-sm rounded-md bg-red-500 hover:bg-red-600 text-white font-semibold transition"
+        >
+          Limpar Filtros
+        </button>
+      </div>
     </div>
   );
 };

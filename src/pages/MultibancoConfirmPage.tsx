@@ -76,6 +76,7 @@ const MultibancoConfirmPage: React.FC = () => {
         DataInicio: new Date(),
         DataFim: new Date(new Date().setMonth(new Date().getMonth() + 1)),
         UtilizadorId: 1,
+        DuracaoId: 1, // <-- Placeholder
         TipoSubscricaoId: planId,
         DetalheSubscricao: { Quantidade: 1 },
         Pagamento: {
