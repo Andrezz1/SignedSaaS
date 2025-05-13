@@ -7,13 +7,12 @@ interface Duracao {
 }
 
 interface FilterDuracoesProps {
-  applyFilters: (filters: { duracoes: number[] }) => void;
-  appliedFilters: { duracoes: number[] };
+  applyFilters: (filters: { duracaoNome?: string }) => void;
 }
 
-const FilterDuracoes = ({ applyFilters, appliedFilters }: FilterDuracoesProps) => {
+const FilterDuracoes = ({ applyFilters }: FilterDuracoesProps) => {
   const [duracoes, setDuracoes] = useState<Duracao[]>([]);
-  const [selected, setSelected] = useState<number[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
@@ -30,26 +29,28 @@ const FilterDuracoes = ({ applyFilters, appliedFilters }: FilterDuracoesProps) =
   }, []);
 
   useEffect(() => {
-    setSelected(appliedFilters.duracoes || []);
-  }, [appliedFilters]);
-
-  useEffect(() => {
-    if (duracoes.length > 0) {
-      applyFilters({ duracoes: selected });
+    if (selectedId === null) {
+      applyFilters({ duracaoNome: undefined });
+    } else {
+      const selectedDuracao = duracoes.find(d => d.DuracaoId === selectedId);
+      if (selectedDuracao) {
+        applyFilters({ duracaoNome: selectedDuracao.Nome });
+      }
     }
-  }, [selected, duracoes]);
+  }, [selectedId, duracoes]);
 
   const toggleCheckbox = (id: number) => {
-    setSelected(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
+    setSelectedId(prev => (prev === id ? null : id));
+  };
+
+  const clearFilters = () => {
+    setSelectedId(null);
   };
 
   return (
     <div className="bg-white shadow-md rounded-lg p-5 w-64 border border-gray-200">
       <h2 className="text-lg font-bold text-gray-800 mb-4">Filtros</h2>
 
-      {/* Linha de separação acima da secção de duração */}
       <div className="border-t border-gray-200 pt-3 mb-3">
         <div
           className="flex justify-between items-center cursor-pointer mb-1"
@@ -80,7 +81,7 @@ const FilterDuracoes = ({ applyFilters, appliedFilters }: FilterDuracoesProps) =
                   <input
                     type="checkbox"
                     id={`dur-${d.DuracaoId}`}
-                    checked={selected.includes(d.DuracaoId)}
+                    checked={selectedId === d.DuracaoId}
                     onChange={() => toggleCheckbox(d.DuracaoId)}
                     className="text-blue-600 rounded focus:ring-0"
                   />
@@ -92,10 +93,9 @@ const FilterDuracoes = ({ applyFilters, appliedFilters }: FilterDuracoesProps) =
         )}
       </div>
 
-      {/* Linha de separação abaixo da secção, visível sempre */}
       <div className="border-t border-gray-200 pt-4">
         <button
-          onClick={() => setSelected([])}
+          onClick={clearFilters}
           className="w-full py-2 text-sm rounded-md bg-red-500 hover:bg-red-600 text-white font-semibold transition"
         >
           Limpar Filtros
