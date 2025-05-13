@@ -37,6 +37,21 @@ model AuditTipoSubscricao {
   UtilizadorResponsavel   Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
 }
 
+model AuditPagamento {
+  AuditPagamentoId        Int       @id @default(autoincrement())
+  Entidade                String
+  Operacao                String
+  DataHora                DateTime  @default(now())
+  IdUtilizadorResponsavel Int
+  ParametrosRecebidos     Json
+  DadosAntes              Json?
+  DadosDepois             Json?
+  Resultado               String
+  MensagemErro            String?
+
+  UtilizadorResponsavel   Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
+}
+
 model CodigoPostal {
   CodigoPostalId Int    @id @default(autoincrement())
   Localidade     String
@@ -190,6 +205,7 @@ model Utilizador {
   UtilizadorFiltro UtilizadorFiltro[]
   AuditUtilizador AuditUtilizador[]
   AuditTipoSubscricao AuditTipoSubscricao[]
+  AuditPagamento AuditPagamento[]
   Imagem        String?
   
   MoradaMoradaId         Int?

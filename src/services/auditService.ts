@@ -13,7 +13,7 @@ interface AuditLogInput {
 }
 
 export async function registarAuditLog(
-  tabela: 'auditUtilizador' | 'auditTipoSubscricao',
+  tabela: 'auditUtilizador' | 'auditTipoSubscricao' | 'auditPagamento',
   data: AuditLogInput
 ) {
   try {

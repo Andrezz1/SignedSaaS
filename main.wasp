@@ -306,6 +306,11 @@ action createDoacao {
 
 // As actions abaixo servem para alterar dados da base de dados
 
+action confirmarPagamentoFisico {
+  fn: import { confirmarPagamentoFisico } from "@src/services/pagamentoService",
+  entities: [Pagamento, Subscricao, Utilizador]
+}
+
 action updateUtilizador {
   fn: import { updateUtilizador } from "@src/services/utilizadorService",
   entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
