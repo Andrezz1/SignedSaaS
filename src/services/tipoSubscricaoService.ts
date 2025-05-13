@@ -32,7 +32,7 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   pageSize: number,
   searchTerm?: string,
   filters?: {
-    duracaoNome?: string,
+    duracaoId?: number,
   }
 },
 {
@@ -55,27 +55,21 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
 
   const where: any = {}
 
-if (searchTerm || filters?.duracaoNome) {
-  where.OR = []
-
   if (searchTerm) {
     where.OR = [
       { Nome: { contains: searchTerm, mode: 'insensitive' } }
     ]
   }
 
-  if (filters?.duracaoNome) {
+  if (filters?.duracaoId) {
     where.Duracoes = {
       some: {
         Duracao: {
-          Nome: { equals: filters?.duracaoNome, mode: 'insensitive' }
+          DuracaoId: { equals: filters?.duracaoId }
         }
       }
     }
   }
-}
-
-  
 
   const tiposSubscricao = await context.entities.TipoSubscricao.findMany({
     where,

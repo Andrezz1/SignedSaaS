@@ -254,8 +254,8 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     const anoMin = hoje.getFullYear() - filters.faixaEtaria.max
     
     utilizadoresativos.DataNascimento = {
-      lte: new Date(anoMax, hoje.getMonth(), hoje.getDate()), 
-      gte: new Date(anoMin, hoje.getMonth(), hoje.getDate()) 
+      lte: new Date(anoMax, hoje.getMonth(), hoje.getDate()),
+      gte: new Date(anoMin, hoje.getMonth(), hoje.getDate())
     }
   }
 

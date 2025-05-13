@@ -107,7 +107,10 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
     } else if (input.MetodoPagamentoId === 3) { // Pagamento cartao de credito
       endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/creditcard/create'
     } else if (input.MetodoPagamentoId === 4) { // Pagamento fisico
-      
+      dadosEspecificos = {
+        tipo: 'pagamento_fisico',
+        instrucoes: 'Pagamento a ser efetuado fisicamente e verificado manualmente.'
+      }
     } else {
       throw new Error('Método de pagamento inválido')
     }
@@ -171,3 +174,39 @@ export async function connectPagamentoASubscricao(
 
   return subscricaoAtualizada
 }
+
+export async function confirmarPagamentoFisico(pagamentoId: number, acao: 'concluir' | 'cancelar', prisma: any) {
+  try {
+    const pagamento = await prisma.pagamento.findUnique({ where: { id: pagamentoId } })
+    if (!pagamento){
+      throw new Error('Pagamento não encontrado')
+    }
+    if (pagamento.MetodoPagamentoId !== 4){
+      throw new Error('Este pagamento não é físico')
+    } 
+
+    if (acao === 'concluir') {
+      await prisma.pagamento.update({
+        where: { id: pagamentoId },
+        data: { EstadoPagamento: 'concluido' }
+      })
+
+      await prisma.subscricao.updateMany({
+        where: { UtilizadorId: pagamento.UtilizadorId },
+        data: { ativa: true }
+      })
+    } else if (acao === 'cancelar') {
+      await prisma.pagamento.update({
+        where: { id: pagamentoId },
+        data: { EstadoPagamento: 'cancelado' }
+      })
+    } else {
+      throw new Error('Ação inválida')
+    }
+
+    return { sucesso: true }
+  } catch (err: any) {
+    throw new Error(`Erro ao confirmar pagamento físico: ${err.message}`)
+  }
+}
+
