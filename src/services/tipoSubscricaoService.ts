@@ -56,7 +56,6 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   const where: any = {}
 
 if (searchTerm || filters?.duracaoNome) {
-  where.OR = []
 
   if (searchTerm) {
     where.OR = [

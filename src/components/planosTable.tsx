@@ -25,7 +25,7 @@ type Props = {
   showFilters: boolean;
   setShowFilters: (value: boolean) => void;
   appliedFilters: {
-    duracoes: number[];
+    duracaoNome?: string;
   };
 };
 
@@ -46,11 +46,19 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
           page: currentPage,
           pageSize,
           searchTerm: searchFilter,
+          filters: appliedFilters,
         });
-
+  
+        console.log('🧾 Dados recebidos do backend:', response.data);
+  
+        // Agrupa planos baseando-se só nas durações filtradas recebidas
         const agrupados: Plano[] = [];
-        response.data.forEach(entry => {
-          const planoIndex = agrupados.findIndex(p => p.TipoSubscricaoID === entry.tipoSubscricao.TipoSubscricaoID);
+  
+        response.data.forEach((entry) => {
+          const planoIndex = agrupados.findIndex(
+            (p) => p.TipoSubscricaoID === entry.tipoSubscricao.TipoSubscricaoID
+          );
+  
           const duracaoObj = {
             Duracao: {
               DuracaoID: entry.duracao.DuracaoId,
@@ -59,6 +67,7 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
             Desconto: entry.tipoSubscricaoduracao.Desconto ?? undefined,
             ValorFinal: entry.tipoSubscricaoduracao.ValorFinal,
           };
+  
           if (planoIndex >= 0) {
             agrupados[planoIndex].Duracoes.push(duracaoObj);
           } else {
@@ -67,19 +76,12 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
               Nome: entry.tipoSubscricao.Nome,
               Descricao: entry.tipoSubscricao.Descricao,
               PrecoBaseMensal: entry.tipoSubscricao.PrecoBaseMensal,
-              Duracoes: [duracaoObj],
+              Duracoes: [duracaoObj], // <-- apenas as que vieram do backend (já filtradas)
             });
           }
         });
-
-        const filtroDuracoes = appliedFilters.duracoes ?? [];
-        const filtrados = filtroDuracoes.length
-          ? agrupados.filter(p =>
-              p.Duracoes.some(d => filtroDuracoes.includes(d.Duracao.DuracaoID))
-            )
-          : agrupados;
-
-        setPlanos(filtrados);
+  
+        setPlanos(agrupados);
         setTotalPages(response.totalPages);
       } catch (err) {
         console.error('Erro ao carregar planos:', err);
@@ -87,18 +89,13 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
         setLoading(false);
       }
     };
-
-    fetchData();
-  }, [searchFilter, appliedFilters, currentPage, pageSize]);
-
-  {loading && (
-    <div className="flex justify-center py-4">
-      <LoadingSpinner />
-    </div>
-  )}
   
+    fetchData();
+  }, [searchFilter, appliedFilters, currentPage, pageSize]); 
+
   return (
     <div className="w-full transition-all duration-300">
+      {/* UI de topo */}
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex items-center justify-between p-6 gap-3 bg-gray-100/40 dark:bg-gray-700/50">
           <div className="flex items-center gap-8">
@@ -112,6 +109,7 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
               </svg>
               {showFilters ? "Esconder Filtros" : "Mostrar Filtros"}
             </span>
+
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-black">Por página:</span>
               <select
@@ -134,13 +132,13 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
             onSubmit={(e) => {
               e.preventDefault();
               setSearchFilter(tempSearch);
+              setCurrentPage(1); 
             }}
           >
             <div className="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-500" aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
               </svg>
             </div>
             <input
@@ -156,6 +154,7 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
                 onClick={() => {
                   setTempSearch('');
                   setSearchFilter('');
+                  setCurrentPage(1);
                 }}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
@@ -167,15 +166,17 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
           </form>
         </div>
 
-        {/* Cabeçalho */}
+        {/* Cabeçalhos */}
         <div className="grid grid-cols-12 border-t-4 border-stroke py-4 px-4 font-medium text-sm dark:border-strokedark md:px-6">
           <div className="col-span-2">Nome</div>
           <div className="col-span-3">Descrição</div>
           <div className="col-span-7 text-center">Detalhes</div>
         </div>
 
-        {/* Conteúdo */}
-        {planos.map((plano, index) => (
+        {/* Tabela */}
+        {loading ? (
+          <div className="flex justify-center py-4"><LoadingSpinner /></div>
+        ) : planos.map((plano, index) => (
           <div key={index} className="grid grid-cols-12 border-t border-stroke px-4 py-6 text-sm dark:border-strokedark md:px-6">
             <div className="col-span-2 flex items-center">{plano.Nome}</div>
             <div className="col-span-3 flex items-center">{plano.Descricao || '-'}</div>
@@ -207,7 +208,7 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
           <li>
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+              className="px-3 h-8 border border-e-0 rounded-s-lg"
             >
               Anterior
             </button>
@@ -216,11 +217,7 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
             <li key={i}>
               <button
                 onClick={() => setCurrentPage(i + 1)}
-                className={`flex items-center justify-center px-3 h-8 leading-tight ${
-                  currentPage === i + 1 
-                    ? "text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                }`}
+                className={`px-3 h-8 border ${currentPage === i + 1 ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 {i + 1}
               </button>
@@ -229,7 +226,7 @@ const PlanosTable = ({ showFilters, setShowFilters, appliedFilters }: Props) => 
           <li>
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+              className="px-3 h-8 border rounded-e-lg"
             >
               Seguinte
             </button>

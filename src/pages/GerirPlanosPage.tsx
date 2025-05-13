@@ -6,10 +6,14 @@ import PlanosTable from '../components/planosTable';
 import FilterDuracoes from '../components/filterDuracoes';
 import { useState } from 'react';
 
+type Filters = {
+  duracaoNome?: string;
+};
+
 const GerirPlanosPage = ({ user }: { user: AuthUser }) => {
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
-  const [appliedFilters, setAppliedFilters] = useState<{ duracoes: number[] }>({ duracoes: [] });
+  const [appliedFilters, setAppliedFilters] = useState<Filters>({});
 
   const handleAddPlan = () => navigate('/create-plano');
 
@@ -29,10 +33,7 @@ const GerirPlanosPage = ({ user }: { user: AuthUser }) => {
       <div className="flex gap-4">
         {showFilters && (
           <aside className="w-64">
-            <FilterDuracoes
-              applyFilters={setAppliedFilters}
-              appliedFilters={appliedFilters}
-            />
+            <FilterDuracoes applyFilters={setAppliedFilters} />
           </aside>
         )}
         <div className="flex-1">
