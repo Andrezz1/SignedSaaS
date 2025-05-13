@@ -46,9 +46,9 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   pageSize: number
   totalPages: number
 }> = async ({ page, pageSize, searchTerm, filters }, context) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
 
   const skip = (page - 1) * pageSize
   const take = pageSize
@@ -64,16 +64,14 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   if (filters?.duracaoId) {
     where.Duracoes = {
       some: {
-        Duracao: {
-          DuracaoId: { equals: filters?.duracaoId }
-        }
+        DuracaoId: { equals: filters?.duracaoId }
       }
     }
   }
 
   const tiposSubscricao = await context.entities.TipoSubscricao.findMany({
     where,
-    orderBy: { TipoSubscricaoID: 'asc' },
+    orderBy: { TipoSubscricaoID: 'desc' },
     include: {
       Duracoes: {
         include: {
