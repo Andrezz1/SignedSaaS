@@ -31,7 +31,9 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   page: number,
   pageSize: number,
   searchTerm?: string,
-  duracaoNome?: string,
+  filters?: {
+    duracaoNome?: string,
+  }
 },
 {
   data: {
@@ -43,7 +45,7 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
   page: number
   pageSize: number
   totalPages: number
-}> = async ({ page, pageSize, searchTerm, duracaoNome }, context) => {
+}> = async ({ page, pageSize, searchTerm, filters }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -53,7 +55,7 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
 
   const where: any = {}
 
-if (searchTerm || duracaoNome) {
+if (searchTerm || filters?.duracaoNome) {
   where.OR = []
 
   if (searchTerm) {
@@ -62,11 +64,11 @@ if (searchTerm || duracaoNome) {
     ]
   }
 
-  if (duracaoNome) {
+  if (filters?.duracaoNome) {
     where.Duracoes = {
       some: {
         Duracao: {
-          Nome: { equals: duracaoNome, mode: 'insensitive' }
+          Nome: { equals: filters?.duracaoNome, mode: 'insensitive' }
         }
       }
     }

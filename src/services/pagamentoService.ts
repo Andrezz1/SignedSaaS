@@ -106,6 +106,8 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
       endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/multibanco/create'
     } else if (input.MetodoPagamentoId === 3) { // Pagamento cartao de credito
       endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/creditcard/create'
+    } else if (input.MetodoPagamentoId === 4) { // Pagamento fisico
+      
     } else {
       throw new Error('Método de pagamento inválido')
     }
