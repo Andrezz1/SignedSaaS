@@ -1,4 +1,4 @@
-import { Subscricao, Utilizador, Pagamento, TipoSubscricao, Duracao } from 'wasp/entities'
+import { Subscricao, Utilizador, Pagamento, TipoSubscricao } from 'wasp/entities'
 import { 
   type GetSubscricao, 
   type GetSubscricaoInfo, 
@@ -81,6 +81,10 @@ export async function createSubscricao(
   input: CreateSubscricaoPayload,
   context: any
 ) {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
   const tipoSubscricaoDuracao = await context.entities.TipoSubscricaoDuracao.findFirst({
     where: { 
       TipoSubscricaoID: input.TipoSubscricaoId,
@@ -92,7 +96,7 @@ export async function createSubscricao(
     throw new Error('Combinação de Tipo de Subscrição e Duração não encontrada')
   }
 
-  const dataInicio = input.DataInicio || new Date()
+  const dataInicio = new Date()
   dataInicio.setHours(0, 0, 0, 0)
 
   const duracao = await context.entities.Duracao.findUnique({
@@ -157,6 +161,10 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
   args,
   context
 ) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+  
   const { subscricao, valorFinal } = await createSubscricao(args, context)
 
   const pagamento = await createPagamento({
@@ -180,6 +188,68 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
 
 const prisma = new PrismaClient()
 
+async function CreateSubscricoesAposExpirar() {
+  const hoje = new Date()
+  hoje.setHours(0, 0, 0, 0)
+
+  const utilizadores = await prisma.utilizador.findMany({
+    where: {
+      Subscricoes: {
+        some: {}
+      }
+    },
+    include: {
+      Subscricoes: {
+        orderBy: { DataFim: 'desc' },
+        take: 1
+      }
+    }
+  })
+
+  for (const utilizador of utilizadores) {
+    const ultimaSubscricao = utilizador.Subscricoes[0]
+    if (!ultimaSubscricao) continue
+
+    const dataFim = new Date(ultimaSubscricao.DataFim)
+    dataFim.setHours(0, 0, 0, 0)
+
+    if (dataFim >= hoje) {
+      continue
+    }
+
+    if(!ultimaSubscricao.DuracaoId) {
+      continue
+    }
+
+    const duracao = await prisma.duracao.findUnique({
+      where: { DuracaoId: ultimaSubscricao.DuracaoId }
+    })
+
+    if (!duracao) continue
+
+    const novaDataInicio = new Date(dataFim)
+    novaDataInicio.setDate(novaDataInicio.getDate() + 1)
+
+    const novaDataFim = new Date(novaDataInicio)
+    novaDataFim.setMonth(novaDataFim.getMonth() + duracao.Meses)
+
+    await prisma.subscricao.create({
+      data: {
+        DataInicio: novaDataInicio,
+        DataFim: novaDataFim,
+        EstadoSubscricao: false,
+        Utilizador: { connect: { id: utilizador.id } },
+        TipoSubscricao: {
+          connect: { TipoSubscricaoID: ultimaSubscricao.TipoSubscricaoTipoSubscricaoID }
+        },
+        Duracao: { connect: { DuracaoId: ultimaSubscricao.DuracaoId } }
+      }
+    })
+
+    console.log(`Nova subscrição criada para utilizador #${utilizador.id}`)
+  }
+}
+
 const updateAllSubscricoesStatus = async () => {
   try {
     const currentDate = new Date()
@@ -199,6 +269,11 @@ const updateAllSubscricoesStatus = async () => {
     console.error('Erro ao atualizar subscrições:', error)
   }
 }
+
+// cron.schedule ('1 1 * * *', async()=> {
+//   console.log("A criar subscricoes...")
+//   await CreateSubscricoesAposExpirar()
+// }) 
 
 cron.schedule('1 0 * * *', async () => {
   console.log('A procurar subscricoes...')
