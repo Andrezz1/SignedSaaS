@@ -39,7 +39,5 @@ export const getDuracaoByTipoSubscricaoId: GetDuracaoByTipoSubscricaoId<Pick<Tip
     ...tsd.Duracao,
     Desconto: tsd.Desconto,
     ValorFinal: tsd.ValorFinal,
-    TipoSubscricaoDuracaoId: tsd.TipoSubscricaoDuracaoId
   }))
 }
-
