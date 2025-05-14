@@ -1,99 +1,104 @@
-// src/pages/MultibancoDetailsPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getPagamento } from 'wasp/client/operations';
 import type { Pagamento } from 'wasp/entities';
 
 interface LocationState {
   paymentId: number;
+  planName: string;
+  planDesc: string;
+  duracaoNome: string;
+  duracaoMeses: number;
+  valorFinal: string;
 }
 
 const MultibancoDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { paymentId } = state as LocationState;
+  const {
+    paymentId,
+    planName,
+    planDesc,
+    duracaoNome,
+    duracaoMeses,
+  } = state as LocationState;
 
-  const [pagamento, setPagamento] = useState<Pagamento|null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [pagamento, setPagamento] = useState<Pagamento | null>(null);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
 
   useEffect(() => {
-    const fetch = async () => {
+    (async () => {
       try {
         const all = await getPagamento();
         const found = all.find(p => p.PagamentoId === paymentId);
-        if (!found) throw new Error('Pagamento não encontrado.');
+        if (!found) throw new Error('Não encontramos este pagamento.');
         setPagamento(found);
       } catch (e: any) {
         setError(e.message);
       } finally {
         setLoading(false);
       }
-    };
-    fetch();
+    })();
   }, [paymentId]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      Carregando dados de pagamento…
+      <span className="text-sm text-gray-500">Carregando detalhes…</span>
     </div>
   );
   if (error) return (
-    <div className="min-h-screen flex items-center justify-center text-red-500 bg-gray-50">
-      {error}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <span className="text-sm text-red-500">{error}</span>
     </div>
   );
 
-  // Extrai os dados específicos de Multibanco
-  const detalhes = pagamento!.DadosEspecificos as {
-    entidade?: string;
-    referencia?: string;
-    validade?: string;
-  } || {};
+  // extrai entidade/referência já calculados
+  const detalhes = (pagamento!.DadosEspecificos as any) || {};
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-left">
-        <h1 className="text-2xl font-bold mb-4 text-center">Detalhes do Pagamento</h1>
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-lg p-6 space-y-6">
+        <h1 className="text-xl font-bold text-center">Detalhes do Pagamento</h1>
 
-        <p className="mb-2">
-          <span className="font-semibold">ID Pagamento:</span> {pagamento!.PagamentoId}
-        </p>
-        <p className="mb-4">
-          <span className="font-semibold">Valor:</span> €{pagamento!.Valor}
-        </p>
+        {/* Plano */}
+        <div>
+          <h2 className="text-sm font-medium text-gray-600">Plano</h2>
+          <div className="mt-1 text-gray-800 space-y-1 text-sm">
+            <p><span className="font-semibold">Nome:</span> {planName}</p>
+            <p><span className="font-semibold">Descrição:</span> {planDesc}</p>
+          </div>
+        </div>
 
-        <hr className="border-t border-gray-200 my-4"/>
+        {/* Duração */}
+        <div>
+          <h2 className="text-sm font-medium text-gray-600">Duração</h2>
+          <div className="mt-1 text-gray-800 space-y-1 text-sm">
+            <p><span className="font-semibold">Tipo:</span> {duracaoNome}</p>
+            <p><span className="font-semibold">Meses:</span> {duracaoMeses}</p>
+          </div>
+        </div>
+        <hr className="border-gray-200"/>
 
-        <h2 className="text-lg font-medium mb-2">Detalhes Multibanco</h2>
-        {detalhes.entidade && (
-          <p className="mb-1">
-            <span className="font-semibold">Entidade:</span> {detalhes.entidade}
-          </p>
-        )}
-        {detalhes.referencia && (
-          <p className="mb-1">
-            <span className="font-semibold">Referência:</span> {detalhes.referencia}
-          </p>
-        )}
-        {detalhes.validade && (
-          <p className="mb-4">
-            <span className="font-semibold">Validade:</span> {detalhes.validade}
-          </p>
-        )}
-
-        {pagamento!.NIFPagamento && (
-          <>
-            <hr className="border-t border-gray-200 my-4"/>
-            <p className="mb-4">
-              <span className="font-semibold">NIF:</span> {pagamento!.NIFPagamento}
-            </p>
-          </>
-        )}
+        {/* Multibanco */}
+        <div>
+          <h2 className="text-sm font-medium text-gray-600">Detalhes Multibanco</h2>
+          <div className="mt-1 text-gray-800 space-y-1 text-sm">
+            {detalhes.entidade && (
+              <p><span className="font-semibold">Entidade:</span> {detalhes.entidade}</p>
+            )}
+            {detalhes.referencia && (
+              <p><span className="font-semibold">Referência:</span> {detalhes.referencia}</p>
+            )}
+            {detalhes.valor && (
+              <p><span className="font-semibold">Montante:</span> €{Number(detalhes.valor).toFixed(2)}</p>
+            )}
+          </div>
+        </div>
 
         <button
-          onClick={() => navigate('/')}
-          className="mt-6 w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          onClick={() => navigate('/dashboard')}
+          className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
         >
           Voltar ao Início
         </button>
