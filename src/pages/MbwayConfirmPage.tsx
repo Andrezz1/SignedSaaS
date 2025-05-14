@@ -100,9 +100,9 @@ const MbwayConfirmPage: React.FC = () => {
     }
   };
 
-  const goPlan     = () => navigate('/ver-planos',       { state: { userId } });
-  const goDuration = () => navigate('/duration-picker',{ state: { userId, planId, planName: plan!.Nome } });
-  const goMethod   = () => navigate('/payment-picker',{ state: { userId, planId, duracaoId } });
+  const goVerPlanos     = () => navigate('/ver-planos',       { state: { userId } });
+  const goDurationPicker = () => navigate('/duration-picker',{ state: { userId, planId, planName: plan!.Nome } });
+  const goPaymentPicker   = () => navigate('/payment-picker',{ state: { userId, planId, duracaoId } });
 
   const key     = metodo!.Nome.toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -118,7 +118,7 @@ const MbwayConfirmPage: React.FC = () => {
         <hr className="border-gray-200"/>
         <label className="block font-medium mt-2">Plano Subscrito</label>
         <div
-          onClick={goPlan}
+          onClick={goVerPlanos }
           className="flex items-center justify-between mt-1 p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           <div className="space-y-1">
@@ -134,7 +134,7 @@ const MbwayConfirmPage: React.FC = () => {
         <hr className="border-gray-200"/>
         <label className="block font-medium mt-2">Duração</label>
         <div
-          onClick={goDuration}
+          onClick={goDurationPicker}
           className="flex items-center justify-between mt-1 p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           <div className="space-y-1">
@@ -150,7 +150,7 @@ const MbwayConfirmPage: React.FC = () => {
         <hr className="border-gray-200"/>
         <label className="block font-medium mt-2">Método de Pagamento</label>
         <div
-          onClick={goMethod}
+          onClick={goPaymentPicker}
           className="flex items-center justify-between mt-1 p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           <div className="flex items-center space-x-2">
