@@ -1,4 +1,3 @@
-// src/pages/PaymentPickerPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getMetodoPagamento } from 'wasp/client/operations';
@@ -8,16 +7,19 @@ import type { MetodoPagamento } from 'wasp/entities';
 const logos: Record<string, string> = {
   mbway: '/images/mbway-logo.png',
   multibanco: '/images/multibanco-logo.png',
+  cartãodecrédito: '/images/cartao-logo.png',
+  dinheiro: '/images/dinheiro-logo.png',
 };
 
 interface LocationState {
   planId: number;
+  userId: number;
 }
 
 const PaymentPickerPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { planId } = state as LocationState;
+  const { planId,userId } = state as LocationState;
 
   const [methods, setMethods] = useState<MetodoPagamento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,11 +65,20 @@ const PaymentPickerPage: React.FC = () => {
   
     if (methodKey === 'mbway') {
       navigate('/mbway-confirm', {
-        state: { planId, metodoId: selectedId },
+        state: { planId,userId ,metodoId: selectedId },
       });
-    } else {
+    } else if (methodKey === 'multibanco') {
       navigate('/multibanco-confirm', {
-        state: { planId, metodoId: selectedId },
+        state: { planId,userId, metodoId: selectedId },
+      });
+    } else if (methodKey === 'cartãodecrédito') {
+      navigate('/cartao-confirm', {
+        state: { planId,userId, metodoId: selectedId },
+      });
+    }
+    else if (methodKey === 'dinheiro') {
+      navigate('/dinheiro-confirm', {
+        state: { planId,userId, metodoId: selectedId },
       });
     }
   };
@@ -85,9 +96,8 @@ const PaymentPickerPage: React.FC = () => {
       >
         {methods.map((m) => {
           const key = m.Nome.toLowerCase().replace(/\s+/g, '');
-          const logoSrc = logos[key];  // só mostra img se existir
+          const logoSrc = logos[key]; 
 
-          // Define tamanho do <img> segundo o método
           const imgSizeClass = key === 'mbway'
             ? 'w-24 h-24'
             : 'w-16 h-16';

@@ -119,6 +119,12 @@ page CreatePlanoPage {
   component: import CreatePlanoPage from "@src/pages/CreatePlanoPage"
 }
 
+route DurationPickerRoute { path: "/duration-picker", to: DurationFormPage }
+page DurationFormPage {
+  authRequired: true,
+  component: import DurationFormPage from "@src/pages/DurationFormPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
