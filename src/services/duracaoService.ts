@@ -15,7 +15,7 @@ export const getDuracao: GetDuracao<void, Duracao[]> = async (_args, context) =>
   })
 }
 
-export const getDuracaoByTipoSubscricaoId: GetDuracaoByTipoSubscricaoId<Pick<TipoSubscricao, 'TipoSubscricaoID'>, Duracao[]> 
+export const getDuracaoByTipoSubscricaoId: GetDuracaoByTipoSubscricaoId<Pick<TipoSubscricao, 'TipoSubscricaoID'>, any[]> 
 = async (args, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
@@ -30,9 +30,16 @@ export const getDuracaoByTipoSubscricaoId: GetDuracaoByTipoSubscricaoId<Pick<Tip
       TipoSubscricaoID: args.TipoSubscricaoID
     },
     include: {
-      Duracao: true
+      Duracao: true,
+      TipoSubscricao: true
     }
   })
 
-  return tipoSubscricaoDuracoes.map((tsd: { Duracao: any }) => tsd.Duracao)
+  return tipoSubscricaoDuracoes.map((tsd) => ({
+    ...tsd.Duracao,
+    Desconto: tsd.Desconto,
+    ValorFinal: tsd.ValorFinal,
+    TipoSubscricaoDuracaoId: tsd.TipoSubscricaoDuracaoId
+  }))
 }
+
