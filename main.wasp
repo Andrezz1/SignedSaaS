@@ -277,6 +277,12 @@ query getUtilizadorInfoById {
   fn: import { getUtilizadorInfoById } from "@src/services/utilizadorService",
   entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao]
 }
+
+query getDuracaoByTipoSubscricaoId {
+  fn: import { getDuracaoByTipoSubscricaoId } from "@src/services/duracaoService",
+  entities: [TipoSubscricao, Duracao, TipoSubscricaoDuracao]
+}
+
 // As actions abaixo servem para adicionar novos dados a base de dados
 
 action createUtilizador {
