@@ -67,8 +67,7 @@ export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utili
 }
 
 type CreateSubscricaoPayload = {
-  DataInicio: Date
-  DataFim: Date
+  DataInicio?: Date
   UtilizadorId: number
   TipoSubscricaoId: number
   DuracaoId: number
@@ -137,8 +136,7 @@ export async function createSubscricao(
 }
 
 type CreateSubscricaoCompletaPayload = {
-  DataInicio: Date
-  DataFim: Date
+  DataInicio?: Date
   UtilizadorId: number
   TipoSubscricaoId: number
   DuracaoId: number

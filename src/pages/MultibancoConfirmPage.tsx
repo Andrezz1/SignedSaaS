@@ -74,7 +74,6 @@ const MultibancoConfirmPage: React.FC = () => {
     try {
       const result = await createSub({
         DataInicio: new Date(),
-        DataFim: new Date(new Date().setMonth(new Date().getMonth() + 1)),
         UtilizadorId: 1,
         DuracaoId: 1, // <-- Placeholder
         TipoSubscricaoId: planId,
