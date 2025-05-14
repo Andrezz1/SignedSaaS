@@ -7,19 +7,20 @@ import type { MetodoPagamento } from 'wasp/entities';
 const logos: Record<string, string> = {
   mbway: '/images/mbway-logo.png',
   multibanco: '/images/multibanco-logo.png',
-  cartãodecrédito: '/images/cartao-logo.png',
+  cartaodecredito: '/images/cartao-logo.png',
   dinheiro: '/images/dinheiro-logo.png',
 };
 
 interface LocationState {
   planId: number;
   userId: number;
+  duracaoId: number;
 }
 
 const PaymentPickerPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { planId,userId } = state as LocationState;
+  const { planId,userId,duracaoId } = state as LocationState;
 
   const [methods, setMethods] = useState<MetodoPagamento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,20 +66,20 @@ const PaymentPickerPage: React.FC = () => {
   
     if (methodKey === 'mbway') {
       navigate('/mbway-confirm', {
-        state: { planId,userId ,metodoId: selectedId },
+        state: { planId,userId,duracaoId,metodoId: selectedId },
       });
     } else if (methodKey === 'multibanco') {
       navigate('/multibanco-confirm', {
-        state: { planId,userId, metodoId: selectedId },
+        state: { planId,userId,duracaoId,metodoId: selectedId },
       });
     } else if (methodKey === 'cartãodecrédito') {
       navigate('/cartao-confirm', {
-        state: { planId,userId, metodoId: selectedId },
+        state: { planId,userId,duracaoId,metodoId: selectedId },
       });
     }
     else if (methodKey === 'dinheiro') {
       navigate('/dinheiro-confirm', {
-        state: { planId,userId, metodoId: selectedId },
+        state: { planId,userId,duracaoId,metodoId: selectedId },
       });
     }
   };
@@ -95,8 +96,14 @@ const PaymentPickerPage: React.FC = () => {
         style={{ gridTemplateColumns: `repeat(${methods.length}, minmax(0, 1fr))` }}
       >
         {methods.map((m) => {
-          const key = m.Nome.toLowerCase().replace(/\s+/g, '');
-          const logoSrc = logos[key]; 
+          const key = m.Nome
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '');
+        
+        const logoSrc = logos[key];
+        
 
           const imgSizeClass = key === 'mbway'
             ? 'w-24 h-24'

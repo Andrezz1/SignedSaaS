@@ -37,7 +37,6 @@ const DurationFormPage: React.FC = () => {
     </div>
   );
 
-  // Ordena por DuracaoId ascendente
   const sortedDuracoes = [...duracoes].sort(
     (a, b) => a.DuracaoId - b.DuracaoId
   );

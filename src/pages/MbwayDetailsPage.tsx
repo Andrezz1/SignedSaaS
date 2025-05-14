@@ -91,7 +91,7 @@ const MbwayDetailsPage: React.FC = () => {
         )}
 
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/dashboard')}
           className="mt-6 w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Voltar ao Início
