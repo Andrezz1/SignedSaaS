@@ -17,9 +17,9 @@ export const getDuracao: GetDuracao<void, Duracao[]> = async (_args, context) =>
 
 export const getDuracaoByTipoSubscricaoId: GetDuracaoByTipoSubscricaoId<Pick<TipoSubscricao, 'TipoSubscricaoID'>, any[]> 
 = async (args, context) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
 
   if (!args.TipoSubscricaoID) {
     throw new Error("TipoSubscricaoID não foi fornecido")

@@ -8,6 +8,7 @@ import { useState } from 'react';
 import LoadingSpinner from '../layout/LoadingSpinner';
 import ExpandedUserDetails from './userDetails';
 import EditUserContainer from './editUserContainer';
+import { useNavigate } from 'react-router-dom';
 
 interface UsersTableProps {
   showFilters: boolean;
@@ -28,6 +29,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   const [pageSize, setPageSize] = useState(10);
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfoByTipo, {
     page: currentPage,
@@ -63,9 +65,9 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   };
 
   const handleSubscription = (user: any) => {
-    // Lógica para lidar com a ação de subscrição
-    console.log("Subscrição para o usuário:", user.utilizador.Nome);
-    // Implemente a lógica específica para a subscrição aqui
+    navigate('/ver-planos', {
+      state: { userId: user.utilizador.id }
+    });
   };
 
 
