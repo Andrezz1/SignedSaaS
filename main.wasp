@@ -332,6 +332,11 @@ action createDoacao {
   entities: [Doacao, Utilizador]
 }
 
+action createPagamentoSubscricaoExistente {
+  fn: import { createPagamentoSubscricaoExistente } from "@src/services/subscricaoService",
+  entities: [Pagamento, Subscricao, MetodoPagamento, DetalheSubscricao] 
+}
+
 // As actions abaixo servem para alterar dados da base de dados
 
 action confirmarPagamentoFisico {

@@ -5,6 +5,7 @@ import {
   type GetSubscricaoByUtilizadorId,
   type CreateSubscricaoCompleta,
   type GetDataSubscricao,
+  type CreatePagamentoSubscricaoExistente,
 } from 'wasp/server/operations'
 import { PrismaClient } from '@prisma/client'
 import cron from 'node-cron'
@@ -319,3 +320,114 @@ cron.schedule('1 0 * * *', async () => {
   console.log('A procurar subscricoes...')
   await updateAllSubscricoesStatus()
 })
+
+type CreatePagamentoSubscricaoExistentePayload = {
+  Valor: number | 0
+  UtilizadorId: number
+  MetodoPagamentoId: number
+  Nota?: string
+  DadosEspecificos?: any
+  EstadoPagamento?: string
+  NIFPagamento: string
+  TelemovelMbway?: string
+  SubscricaoId: number 
+}
+
+export const createPagamentoSubscricaoExistente: CreatePagamentoSubscricaoExistente <CreatePagamentoSubscricaoExistentePayload, Pagamento> = async (args, context) => {
+  const subscricao = await context.entities.Subscricao.findUnique({
+    where: { SubscricaoId: args.SubscricaoId },
+    include: {
+      Detalhes: true
+    }
+  })
+
+  if(!subscricao) {
+    throw new Error("Subscricao nao encontrada")
+  }
+
+  const valorFinal = subscricao.Detalhes.reduce((total, detalhe) => {
+      return total + detalhe.ValorFinal
+    }, 0)
+    
+  const pagamento = await createPagamento(
+    {
+      Valor: valorFinal,
+      UtilizadorId: args.UtilizadorId,
+      MetodoPagamentoId: args.MetodoPagamentoId,
+      DadosEspecificos: args.DadosEspecificos,
+      EstadoPagamento: args.EstadoPagamento || 'pendente',
+      NIFPagamento: args.NIFPagamento,
+      TelemovelMbway: args?.DadosEspecificos?.telemovelMbway,
+    },
+    context.entities
+  )
+
+  const subscricaoFinal = await connectPagamentoASubscricao(
+    args.SubscricaoId,
+    pagamento.PagamentoId,
+    context
+  )
+
+  return subscricaoFinal;
+}
+
+// Ver esta funcao, e por a funcionar com wasp
+
+// export const criarPagamentoParaSubscricaoExistente = async (
+//   {
+//     SubscricaoId,
+//     UtilizadorId,
+//     Pagamento,
+//   }: {
+//     SubscricaoId: string;
+//     UtilizadorId: string;
+//     Pagamento: {
+//       MetodoPagamentoId: string;
+//       DadosEspecificos?: any;
+//       EstadoPagamento: string;
+//       NIFPagamento: string;
+//     };
+//   },
+//   context: Context
+// ) => {
+//   // Optional: verificar se o utilizador tem acesso à subscrição
+//   // if (!context.user) {
+//   //   throw new HttpError(401, "Não tem permissão")
+//   // }
+
+//   // 1. Calcular ou obter valor da subscrição, se necessário
+//   const subscricao = await context.prisma.subscricao.findUnique({
+//     where: { SubscricaoId },
+//   });
+
+//   if (!subscricao) {
+//     throw new Error("Subscrição não encontrada");
+//   }
+
+//   const valorFinal = subscricao.Valor; // Ou calcular se for dinâmico
+
+//   // 2. Criar o pagamento
+//   const pagamento = await createPagamento(
+//     {
+//       Valor: valorFinal,
+//       UtilizadorId,
+//       MetodoPagamentoId: Pagamento.MetodoPagamentoId,
+//       DadosEspecificos: Pagamento.DadosEspecificos,
+//       EstadoPagamento: Pagamento.EstadoPagamento,
+//       NIFPagamento: Pagamento.NIFPagamento,
+//       TelemovelMbway: Pagamento?.DadosEspecificos?.telemovelMbway,
+//     },
+//     context.prisma
+//   );
+
+//   // 3. Associar o pagamento à subscrição
+//   const subscricaoFinal = await connectPagamentoASubscricao(
+//     SubscricaoId,
+//     pagamento.PagamentoId,
+//     context
+//   );
+
+//   return subscricaoFinal;
+// };
+
+
