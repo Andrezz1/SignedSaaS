@@ -21,24 +21,62 @@ export const getPagamento: GetPagamento<void, Pagamento[]> = async (_args, conte
   })
 }
 
-export const getPagamentoByMetodoId: GetPagamentoByMetodoId<Pick<MetodoPagamento, 'MetodoPagamentoId'>, Pagamento[]
-> = async (args, context) => {
+export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
+  {
+    MetodoPagamentoId: number,
+    page: number,
+    pageSize: number,
+    searchTerm?: string,
+  },
+  {
+    data: Pagamento[],
+    total: number,
+    page: number,
+    pageSize: number,
+    totalPages: number,
+  }
+> = async ({ MetodoPagamentoId, page, pageSize, searchTerm }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
 
+  const skip = (page - 1) * pageSize
+  const take = pageSize
+
+  const where: any = {
+    MetodoPagamentoId,
+    EstadoPagamento: "pendente",
+  }
+
+  if (searchTerm) {
+    where.OR = [
+      { Utilizador: { Nome: { contains: searchTerm, mode: 'insensitive' } } },
+      { Utilizador: { NIF: { contains: searchTerm, mode: 'insensitive' } } },
+    ]
+  }
+
   const pagamentos = await context.entities.Pagamento.findMany({
-    where: { 
-      MetodoPagamentoId: args.MetodoPagamentoId,
-      EstadoPagamento: "pendente"
-     },
+    where,
     include: {
       Utilizador: true,
-    }
+    },
+    skip,
+    take,
   })
 
-  return pagamentos
+  const total = await context.entities.Pagamento.count({
+    where,
+  })
+
+  return {
+    data: pagamentos,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  }
 }
+
 
 export const getMetodoPagamento: GetMetodoPagamento <void, MetodoPagamento[]> = async (_args, context) => {
   if (!context.user) {
@@ -125,7 +163,9 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
         }
         break
 
-      case 1 || 2 || 3: 
+      case 1:
+      case 2:
+      case 3: 
         if (!EUPAGO_API_KEY) throw new Error('Chave API da EuPago não configurada')
 
         const payload: Record<string, any> = {
@@ -168,9 +208,9 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
 
       default:
         throw new Error('Método de pagamento inválido')
-    }
+  }
 
-    const pagamento = await prisma.pagamento.create({
+    const pagamento = await prisma.Pagamento.create({
       data: {
         Valor: input.Valor,
         DadosEspecificos: dadosEspecificos,
