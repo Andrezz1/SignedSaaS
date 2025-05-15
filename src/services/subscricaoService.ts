@@ -109,9 +109,9 @@ export async function createSubscricao(
   input: CreateSubscricaoPayload,
   context: any
 ) {
-  // if (!context.user) {
-  //   throw new HttpError(401, "Não tem permissão")
-  // }
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
 
   const tipoSubscricaoDuracao = await context.entities.TipoSubscricaoDuracao.findFirst({
     where: { 
@@ -190,9 +190,9 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
   args,
   context
 ) => {
-  // if (!context.user) {
-  //   throw new HttpError(401, "Não tem permissão")
-  // }
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
   
   const { subscricao, valorFinal } = await createSubscricao(args, context)
 

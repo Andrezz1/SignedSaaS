@@ -105,18 +105,7 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
   const EUPAGO_API_KEY = process.env.EUPAGO_API_KEY!
   let dadosEspecificos = input.DadosEspecificos || {}
 
-  try {
-    if (input.Valor <= 0) {
-      throw new Error('Valor deve ser positivo')
-    }
-
-    if (input.MetodoPagamentoId === 4) {
-      dadosEspecificos = {
-        tipo: 'pagamento_fisico',
-        instrucoes: 'Pagamento a ser efetuado fisicamente e verificado manualmente.'
-      }
-
-      const pagamento = await prisma.pagamento.create({
+  const pagamento = await prisma.pagamento.create({
         data: {
           Valor: input.Valor,
           DadosEspecificos: dadosEspecificos,
@@ -128,6 +117,25 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
           UtilizadorId: input.UtilizadorId
         }
       })
+
+  try {
+    if (input.Valor <= 0) {
+      throw new Error('Valor deve ser positivo')
+    }
+
+    
+
+    if (input.MetodoPagamentoId === 4) {
+      dadosEspecificos = {
+        tipo: 'Dinheiro',
+        instrucoes: 'Pagamento a ser efetuado fisicamente e verificado manualmente.'
+      }
+      return pagamento
+    } else if (input.MetodoPagamentoId === 5) {
+      dadosEspecificos = {
+        tipo: 'Transferência Bancária',
+        instrucoes: 'Pagamento a ser efetuado via transferência bancária e verificado manualmente.'
+      }
 
       return pagamento
     }
@@ -184,19 +192,6 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
   }
 
   try {
-    const pagamento = await prisma.pagamento.create({
-      data: {
-        Valor: input.Valor,
-        DadosEspecificos: dadosEspecificos,
-        DataPagamento: new Date(),
-        Nota: input.Nota || '',
-        EstadoPagamento: input.EstadoPagamento || 'pendente',
-        NIFPagamento: input.NIFPagamento,
-        MetodoPagamentoId: input.MetodoPagamentoId,
-        UtilizadorId: input.UtilizadorId
-      }
-    })
-
     return pagamento
   } catch (err) {
     throw new Error('Erro ao registrar o pagamento')
