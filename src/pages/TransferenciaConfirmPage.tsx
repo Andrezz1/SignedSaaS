@@ -1,4 +1,3 @@
-// src/pages/DinheiroConfirmPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -6,14 +5,12 @@ import {
   getMetodoPagamento,
   getDuracaoByTipoSubscricaoId,
   createSubscricaoCompleta,
-  confirmarPagamentoFisico,
   useAction
 } from 'wasp/client/operations';
 import type { TipoSubscricao, MetodoPagamento } from 'wasp/entities';
-import ConfirmModal from '../components/dinheiroVerifyModal';
 
 const logos: Record<string,string> = {
-  dinheiro: '/images/dinheiro-logo.png',
+  transferenciabancaria: '/images/transferencia-logo.png',
 };
 
 interface LocationState {
@@ -30,7 +27,7 @@ interface DuracaoWithExtras {
   ValorFinal: number;
 }
 
-const DinheiroConfirmPage: React.FC = () => {
+const TransferenciaConfirmPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { planId, metodoId, userId, duracaoId } = state as LocationState;
@@ -41,15 +38,10 @@ const DinheiroConfirmPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
   const [nifPagamento, setNifPagamento] = useState('');
+  const [nota, setNota]       = useState('');
   const [actionError, setActionError]   = useState('');
-  const [nota, setNota]                   = useState('');
 
-  // para abrir o modal
-  const [isModalOpen, setModalOpen]           = useState(false);
-  const [createdPaymentId, setCreatedPaymentId] = useState<number|null>(null);
-
-  const createSub          = useAction(createSubscricaoCompleta);
-  const confirmPhysicalPay = useAction(confirmarPagamentoFisico);
+  const createSub = useAction(createSubscricaoCompleta);
 
   useEffect(() => {
     (async () => {
@@ -83,7 +75,7 @@ const DinheiroConfirmPage: React.FC = () => {
 
   const handleContinue = async () => {
     try {
-      const res = await createSub({
+      await createSub({
         UtilizadorId:       userId,
         TipoSubscricaoId:   planId,
         DuracaoId:          duracaoId,
@@ -91,42 +83,13 @@ const DinheiroConfirmPage: React.FC = () => {
         Pagamento: {
           MetodoPagamentoId: metodoId,
           NIFPagamento:      nifPagamento,
-          Nota:nota,
+          Nota:              nota,
         },
         PagamentoPagamentoId: 0
       });
-      setCreatedPaymentId(res.PagamentoPagamentoId);
-      setModalOpen(true);
+      navigate('/dashboard');
     } catch {
       setActionError('Não foi possível criar a subscrição.');
-    }
-  };
-
-  const onModalConfirm = async () => {
-    if (!createdPaymentId) return;
-    try {
-      await confirmPhysicalPay({
-        PagamentoId:     createdPaymentId,
-        EstadoPagamento: 'concluir',
-        Utilizador:      { id: userId }
-      });
-      navigate('/dashboard');
-    } catch (e: any) {
-      setActionError(e.message);
-    }
-  };
-
-  const onModalCancel = async () => {
-    if (!createdPaymentId) return;
-    try {
-      await confirmPhysicalPay({
-        PagamentoId:     createdPaymentId,
-        EstadoPagamento: 'cancelar',
-        Utilizador:      { id: userId }
-      });
-      navigate('/dashboard');
-    } catch (e: any) {
-      setActionError(e.message);
     }
   };
 
@@ -156,7 +119,9 @@ const DinheiroConfirmPage: React.FC = () => {
             <div><span className="font-semibold">Nome:</span> {plan!.Nome}</div>
             <div><span className="font-semibold">Descrição:</span> {plan!.Descricao}</div>
           </div>
-          <button className="text-sm font-medium text-blue-600 hover:underline">Alterar</button>
+          <button className="text-sm font-medium text-blue-600 hover:underline">
+            Alterar
+          </button>
         </div>
 
         {/* Duração */}
@@ -170,7 +135,9 @@ const DinheiroConfirmPage: React.FC = () => {
             <div><span className="font-semibold">Tipo:</span> {duracao!.Nome}</div>
             <div><span className="font-semibold">Meses:</span> {duracao!.Meses}</div>
           </div>
-          <button className="text-sm font-medium text-blue-600 hover:underline">Alterar</button>
+          <button className="text-sm font-medium text-blue-600 hover:underline">
+            Alterar
+          </button>
         </div>
 
         {/* Método de Pagamento */}
@@ -184,7 +151,9 @@ const DinheiroConfirmPage: React.FC = () => {
             {logoSrc && <img src={logoSrc} alt="" className="w-8 h-8 object-contain"/>}
             <span>{metodo!.Nome}</span>
           </div>
-          <button className="text-sm font-medium text-blue-600 hover:underline">Alterar</button>
+          <button className="text-sm font-medium text-blue-600 hover:underline">
+            Alterar
+          </button>
         </div>
 
         {/* NIF */}
@@ -199,14 +168,14 @@ const DinheiroConfirmPage: React.FC = () => {
           className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
         />
 
-        {/* campo Nota */}
+        {/* Nota */}
         <hr className="border-gray-200"/>
         <label htmlFor="nota" className="block font-medium mt-2">Nota (opcional)</label>
         <textarea
           id="nota"
           value={nota}
           onChange={e => setNota(e.target.value)}
-          placeholder="Deixe aqui uma observação..."
+          placeholder="Observações sobre a transferência..."
           className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
           rows={3}
         />
@@ -231,16 +200,8 @@ const DinheiroConfirmPage: React.FC = () => {
           <p className="mt-2 text-red-600 text-center text-sm">{actionError}</p>
         )}
       </div>
-
-      <ConfirmModal
-        title="Confirmação de Pagamento"
-        message="Pagamento em dinheiro recebido com sucesso?"
-        isOpen={isModalOpen}
-        onCancel={onModalCancel}
-        onConfirm={onModalConfirm}
-      />
     </div>
   );
 };
 
-export default DinheiroConfirmPage;
+export default TransferenciaConfirmPage;

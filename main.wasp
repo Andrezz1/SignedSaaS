@@ -131,6 +131,18 @@ page DinheiroConfirmPage {
   component: import DinheiroConfirmPage from "@src/pages/DinheiroConfirmPage"
 }
 
+route TransferenciaConfirmRoute { path: "/transferencia-confirm", to: TransferenciaConfirmPage }
+page TransferenciaConfirmPage {
+  authRequired: true,
+  component: import TransferenciaConfirmPage from "@src/pages/TransferenciaConfirmPage"
+}
+
+route PendingPaymentsRoute { path: "/pending-payments", to: PendingPaymentsPage }
+page PendingPaymentsPage {
+  authRequired: true,
+  component: import PendingPaymentsPage from "@src/pages/PendingPaymentsPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
