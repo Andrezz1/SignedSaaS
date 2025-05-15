@@ -289,6 +289,16 @@ query getDuracaoByTipoSubscricaoId {
   entities: [TipoSubscricao, Duracao, TipoSubscricaoDuracao]
 }
 
+query getDataSubscricao {
+  fn: import { getDataSubscricao } from "@src/services/subscricaoService",
+  entities: [Utilizador, Subscricao]
+}
+
+query getPagamentoByMetodoId {
+  fn: import { getPagamentoByMetodoId } from "@src/services/pagamentoService",
+  entities: [Pagamento, Utilizador, MetodoPagamento]
+}
+
 // As actions abaixo servem para adicionar novos dados a base de dados
 
 action createUtilizador {
@@ -312,7 +322,7 @@ action createUtilizadorFiltro {
 }
 
 action createDoacao {
-  fn:import { createDoacao } from "@src/services/doacaoService",
+  fn: import { createDoacao } from "@src/services/doacaoService",
   entities: [Doacao, Utilizador]
 }
 

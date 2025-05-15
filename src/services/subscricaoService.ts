@@ -4,6 +4,7 @@ import {
   type GetSubscricaoInfo, 
   type GetSubscricaoByUtilizadorId,
   type CreateSubscricaoCompleta,
+  type GetDataSubscricao,
 } from 'wasp/server/operations'
 import { PrismaClient } from '@prisma/client'
 import cron from 'node-cron'
@@ -19,6 +20,33 @@ export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, co
     orderBy: { SubscricaoId: 'asc' },
   })
 }
+
+export const getDataSubscricao: GetDataSubscricao<Pick<Utilizador, 'id'>, { dataInicio: Date | null, dataFim: Date | null }>
+= async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
+  const datas = await context.entities.Subscricao.aggregate({
+    where: {
+      UtilizadorId: args.id,
+      EstadoSubscricao: true,
+    },
+    _min: {
+      DataInicio: true,
+    },
+    _max: {
+      DataFim: true,
+    }
+  });
+
+  return {
+    dataInicio: datas._min.DataInicio,
+    dataFim: datas._max.DataFim,
+  }
+}
+
+
 
 export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{ 
   subscricao: Subscricao, 
@@ -81,9 +109,9 @@ export async function createSubscricao(
   input: CreateSubscricaoPayload,
   context: any
 ) {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
 
   const tipoSubscricaoDuracao = await context.entities.TipoSubscricaoDuracao.findFirst({
     where: { 
@@ -153,6 +181,7 @@ type CreateSubscricaoCompletaPayload = {
     EstadoPagamento?: string
     NIFPagamento?: string
     MetodoPagamentoId: number
+    Nota?: string
   }
   PagamentoPagamentoId: number
 }
@@ -161,9 +190,9 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
   args,
   context
 ) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
   
   const { subscricao, valorFinal } = await createSubscricao(args, context)
 
@@ -174,7 +203,8 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
     DadosEspecificos: args.Pagamento.DadosEspecificos,
     EstadoPagamento: args.Pagamento.EstadoPagamento,
     NIFPagamento: args.Pagamento.NIFPagamento!,
-    TelemovelMbway: args.Pagamento?.DadosEspecificos?.telemovelMbway
+    TelemovelMbway: args.Pagamento?.DadosEspecificos?.telemovelMbway,
+    Nota: args.Pagamento.Nota
   }, prisma)
 
   const subscricaoFinal = await connectPagamentoASubscricao(
@@ -208,7 +238,11 @@ async function CreateSubscricoesAposExpirar() {
 
   for (const utilizador of utilizadores) {
     const ultimaSubscricao = utilizador.Subscricoes[0]
-    if (!ultimaSubscricao) continue
+    // log para testes
+    //console.log(`Utilizador ${utilizador.id} - DataFim: ${ultimaSubscricao?.DataFim}`)
+    if (!ultimaSubscricao) {
+      continue
+    }
 
     const dataFim = new Date(ultimaSubscricao.DataFim)
     dataFim.setHours(0, 0, 0, 0)
@@ -221,11 +255,17 @@ async function CreateSubscricoesAposExpirar() {
       continue
     }
 
+    if(utilizador.EstadoUtilizador === false) {
+      continue
+    }
+
     const duracao = await prisma.duracao.findUnique({
       where: { DuracaoId: ultimaSubscricao.DuracaoId }
     })
 
-    if (!duracao) continue
+    if (!duracao) {
+      continue
+    }
 
     const novaDataInicio = new Date(dataFim)
     novaDataInicio.setDate(novaDataInicio.getDate() + 1)
@@ -270,10 +310,10 @@ const updateAllSubscricoesStatus = async () => {
   }
 }
 
-// cron.schedule ('1 1 * * *', async()=> {
-//   console.log("A criar subscricoes...")
-//   await CreateSubscricoesAposExpirar()
-// }) 
+cron.schedule ('1 0 * * *', async()=> {
+  console.log("A criar subscricoes...")
+  await CreateSubscricoesAposExpirar()
+}) 
 
 cron.schedule('1 0 * * *', async () => {
   console.log('A procurar subscricoes...')
