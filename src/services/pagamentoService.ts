@@ -1,13 +1,14 @@
-import { Comprovativo, MetodoPagamento, Pagamento, Utilizador } from 'wasp/entities'
+import { Comprovativo, MetodoPagamento, Pagamento, Utilizador, Subscricao } from 'wasp/entities'
 import axios from 'axios'
 import { 
   type GetPagamento, 
   type GetPagamentoInfo,
   type GetPagamentoByUtilizadorId,
   type GetMetodoPagamento,
-  type ConfirmarPagamentoFisico
+  type ConfirmarPagamentoFisico,
+  type GetPagamentoByMetodoId
 } from 'wasp/server/operations'
-import { HttpError } from 'wasp/server'
+import { HttpError, prisma } from 'wasp/server'
 import { registarAuditLog } from './auditService'
 
 export const getPagamento: GetPagamento<void, Pagamento[]> = async (_args, context) => {
@@ -18,6 +19,25 @@ export const getPagamento: GetPagamento<void, Pagamento[]> = async (_args, conte
   return context.entities.Pagamento.findMany({
     orderBy: { PagamentoId: 'asc' },
   })
+}
+
+export const getPagamentoByMetodoId: GetPagamentoByMetodoId<Pick<MetodoPagamento, 'MetodoPagamentoId'>, Pagamento[]
+> = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
+  const pagamentos = await context.entities.Pagamento.findMany({
+    where: { 
+      MetodoPagamentoId: args.MetodoPagamentoId,
+      EstadoPagamento: "pendente"
+     },
+    include: {
+      Utilizador: true,
+    }
+  })
+
+  return pagamentos
 }
 
 export const getMetodoPagamento: GetMetodoPagamento <void, MetodoPagamento[]> = async (_args, context) => {
@@ -135,7 +155,7 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
       endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/multibanco/create'
 
     } else if (input.MetodoPagamentoId === 3) { // Cartão de Crédito
-      endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/creditcard/create'
+      endpoint = 'https://sandbox.eupago.pt/api/rest_api/creditcard/create'
 
     } else {
       throw new Error('Método de pagamento inválido')
@@ -151,6 +171,7 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
         timeout: 10000
       }
     )
+    
 
     if (response.data.estado !== 0) {
       throw new Error(`Erro EuPago [${response.data.estado}]: ${response.data.mensagem}`)
