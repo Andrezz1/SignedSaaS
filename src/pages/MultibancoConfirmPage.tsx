@@ -39,6 +39,7 @@ const MultibancoConfirmPage: React.FC = () => {
   const [error, setError]     = useState('');
   const [nifPagamento, setNifPagamento]     = useState('');
   const [actionError, setActionError]       = useState('');
+  const [nota, setNota]                     = useState('');
 
   const createSub = useAction(createSubscricaoCompleta);
 
@@ -82,6 +83,7 @@ const MultibancoConfirmPage: React.FC = () => {
         Pagamento: {
           MetodoPagamentoId: metodoId,
           NIFPagamento:      nifPagamento,
+          Nota:nota,
         },
         PagamentoPagamentoId: 0
       });
@@ -173,6 +175,18 @@ const MultibancoConfirmPage: React.FC = () => {
           onChange={e => setNifPagamento(e.target.value.replace(/\D/g, ''))}
           placeholder="Insira o NIF"
           className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
+        />
+
+         {/* campo Nota */}
+         <hr className="border-gray-200"/>
+        <label htmlFor="nota" className="block font-medium mt-2">Nota (opcional)</label>
+        <textarea
+          id="nota"
+          value={nota}
+          onChange={e => setNota(e.target.value)}
+          placeholder="Deixe aqui uma observação..."
+          className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
+          rows={3}
         />
 
         {/* Total a pagar */}

@@ -43,6 +43,7 @@ const MbwayConfirmPage: React.FC = () => {
   const [telemovel, setTelemovel]             = useState('');
   const [telemovelLimpo, setTelemovelLimpo]   = useState('');
   const [actionError, setActionError]         = useState('');
+  const [nota, setNota]                     = useState('');
 
   const createSub = useAction(createSubscricaoCompleta);
 
@@ -91,6 +92,7 @@ const MbwayConfirmPage: React.FC = () => {
           MetodoPagamentoId: metodoId,
           NIFPagamento:      nifPagamento,
           DadosEspecificos:  { telemovelMbway: telemovelLimpo },
+          Nota:nota,
         },
         PagamentoPagamentoId: 0
       });
@@ -190,6 +192,18 @@ const MbwayConfirmPage: React.FC = () => {
           dropdownClass="border-gray-300 rounded-lg shadow-lg"
           inputStyle={{ paddingLeft: '46px', height: '42px', width: '100%' }}
           buttonStyle={{ height: '42px', borderRadius: '0.5rem 0 0 0.5rem' }}
+        />
+
+        {/* campo Nota */}
+        <hr className="border-gray-200"/>
+        <label htmlFor="nota" className="block font-medium mt-2">Nota (opcional)</label>
+        <textarea
+          id="nota"
+          value={nota}
+          onChange={e => setNota(e.target.value)}
+          placeholder="Deixe aqui uma observação..."
+          className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
+          rows={3}
         />
 
         {/* Valor total */}
