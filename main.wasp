@@ -125,6 +125,12 @@ page DurationFormPage {
   component: import DurationFormPage from "@src/pages/DurationFormPage"
 }
 
+route DinheiroConfirmRoute { path: "/dinheiro-confirm", to: DinheiroConfirmPage }
+page DinheiroConfirmPage {
+  authRequired: true,
+  component: import DinheiroConfirmPage from "@src/pages/DinheiroConfirmPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",

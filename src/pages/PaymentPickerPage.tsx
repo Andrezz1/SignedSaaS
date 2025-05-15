@@ -9,6 +9,7 @@ const logos: Record<string, string> = {
   multibanco: '/images/multibanco-logo.png',
   cartaodecredito: '/images/cartao-logo.png',
   dinheiro: '/images/dinheiro-logo.png',
+  transferenciabancaria: '/images/transferencia-logo.png',
 };
 
 interface LocationState {
@@ -20,15 +21,15 @@ interface LocationState {
 const PaymentPickerPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { planId,userId,duracaoId } = state as LocationState;
+  const { planId, userId, duracaoId } = state as LocationState;
 
   const [methods, setMethods] = useState<MetodoPagamento[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError]     = useState('');
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchMethods = async () => {
+    (async () => {
       try {
         const data = await getMetodoPagamento();
         setMethods(data);
@@ -37,8 +38,7 @@ const PaymentPickerPage: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    };
-    fetchMethods();
+    })();
   }, []);
 
   if (loading) {
@@ -58,56 +58,44 @@ const PaymentPickerPage: React.FC = () => {
 
   const handleConfirm = () => {
     if (selectedId === null) return;
-  
     const selectedMethod = methods.find(m => m.MetodoPagamentoId === selectedId);
     if (!selectedMethod) return;
-  
-    const methodKey = selectedMethod.Nome.toLowerCase().replace(/\s+/g, '');
-  
-    if (methodKey === 'mbway') {
-      navigate('/mbway-confirm', {
-        state: { planId,userId,duracaoId,metodoId: selectedId },
-      });
-    } else if (methodKey === 'multibanco') {
-      navigate('/multibanco-confirm', {
-        state: { planId,userId,duracaoId,metodoId: selectedId },
-      });
-    } else if (methodKey === 'cartãodecrédito') {
-      navigate('/cartao-confirm', {
-        state: { planId,userId,duracaoId,metodoId: selectedId },
-      });
-    }
-    else if (methodKey === 'dinheiro') {
-      navigate('/dinheiro-confirm', {
-        state: { planId,userId,duracaoId,metodoId: selectedId },
-      });
+    const key = selectedMethod.Nome.toLowerCase().replace(/\s+/g, '');
+
+    const routeMap: Record<string,string> = {
+      mbway: '/mbway-confirm',
+      multibanco: '/multibanco-confirm',
+      cartaodecredito: '/cartao-confirm',
+      dinheiro: '/dinheiro-confirm',
+      transferenciabancaria: '/transferencia-confirm',
+    };
+    const to = routeMap[key];
+    if (to) {
+      navigate(to, { state: { planId, userId, duracaoId, metodoId: selectedId } });
     }
   };
 
-  // altura fixa para o slot de ícone em todos
-  const iconContainerHeight = 'h-32';
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-      <h2 className="text-2xl font-bold mb-6">Selecione o método de pagamento</h2>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
+      <h2 className="text-2xl font-bold mb-8">Selecione o método de pagamento</h2>
 
       <div
-        className="grid gap-6 w-full max-w-4xl"
-        style={{ gridTemplateColumns: `repeat(${methods.length}, minmax(0, 1fr))` }}
+        className="grid gap-6 w-full max-w-5xl"
+        style={{
+          gridTemplateColumns: `repeat(${methods.length}, minmax(200px, 1fr))`
+        }}
       >
-        {methods.map((m) => {
+        {methods.map(m => {
           const key = m.Nome
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/\s+/g, '');
-        
-        const logoSrc = logos[key];
-        
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '');
+          const logoSrc = logos[key];
 
-          const imgSizeClass = key === 'mbway'
-            ? 'w-24 h-24'
-            : 'w-16 h-16';
+          // Define tamanho do ícone
+          const isTransfer = key === 'transferenciabancaria';
+          const imgSize = isTransfer ? 'w-32 h-32' : 'w-20 h-20';
 
           return (
             <div
@@ -115,32 +103,35 @@ const PaymentPickerPage: React.FC = () => {
               onClick={() => setSelectedId(m.MetodoPagamentoId)}
               className={`
                 cursor-pointer bg-white p-6 rounded-2xl shadow-md
-                flex flex-col items-center transition
+                flex flex-col items-center transition-all
                 ${selectedId === m.MetodoPagamentoId
                   ? 'ring-4 ring-blue-500'
                   : 'hover:ring-2 hover:ring-blue-200'}
+                max-w-xs
               `}
             >
-              {logoSrc && (
-                <div className={`${iconContainerHeight} mb-4 flex items-center justify-center`}>
+              <div className="h-32 mb-4 flex items-center justify-center">
+                {logoSrc && (
                   <img
                     src={logoSrc}
                     alt={m.Nome}
-                    className={`${imgSizeClass} object-contain`}
+                    className={`${imgSize} object-contain`}
                   />
-                </div>
-              )}
-              <span className="text-lg font-medium capitalize">{m.Nome}</span>
+                )}
+              </div>
+              <span className="text-lg font-medium capitalize text-center break-words">
+                {m.Nome}
+              </span>
             </div>
           );
         })}
       </div>
 
       {/* Botões Voltar e Confirmar */}
-      <div className="mt-8 flex gap-4">
+      <div className="mt-10 flex gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="px-6 py-2 rounded-lg bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 font-semibold hover:from-gray-400 hover:to-gray-500 transition"
+          className="px-6 py-2 rounded-lg bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition"
         >
           Voltar
         </button>
