@@ -9,6 +9,7 @@ import LoadingSpinner from '../layout/LoadingSpinner';
 import ExpandedUserDetails from './userDetails';
 import EditUserContainer from './editUserContainer';
 import { useNavigate } from 'react-router-dom';
+import SubscriptionModal from '../components/SubscriptionModal';
 
 interface UsersTableProps {
   showFilters: boolean;
@@ -30,6 +31,9 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [subscriptionUserId, setSubscriptionUserId] = useState<number | null>(null);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+
 
   const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfoByTipo, {
     page: currentPage,
@@ -65,12 +69,10 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   };
 
   const handleSubscription = (user: any) => {
-    navigate('/ver-planos', {
-      state: { userId: user.utilizador.id }
-    });
+    setSubscriptionUserId(user.utilizador.id);
+    setIsSubscriptionModalOpen(true);
   };
-
-
+  
   const toggleDropdown = (userId: number) => {
     setDropdownOpen(dropdownOpen === userId ? null : userId);
   };
@@ -213,7 +215,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                       onClick={() => handleSubscription(user)}
                       className="px-3 py-2 text-sm font-medium rounded-l-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors border border-gray-300"
                     >
-                      Subscrição
+                      Gerir Subscrição
                     </button>
                     
                     {/* Botão do dropdown */}
@@ -306,6 +308,18 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
           })
         }
       </div>
+
+      {/* Subscription Modal */}
+      {subscriptionUserId !== null && (
+        <SubscriptionModal
+          userId={subscriptionUserId}
+          isOpen={isSubscriptionModalOpen}
+          onClose={() => {
+            setIsSubscriptionModalOpen(false);
+            setSubscriptionUserId(null);
+          }}
+        />
+      )}
 
       {/* Paginação */}
       <nav aria-label="Page navigation" className="mt-4 flex justify-center">

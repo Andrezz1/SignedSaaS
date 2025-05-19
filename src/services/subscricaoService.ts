@@ -108,7 +108,7 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
   return SubscricaoInfo
 }
 
-export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, Subscricao[]>
+export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, any[]>
 = async (
   args,
   context
@@ -126,6 +126,7 @@ export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utili
     include: {
       TipoSubscricao: true,
       Duracao: true
+
     }
   })
 }

@@ -41,7 +41,11 @@ const PendingPaymentsTable: React.FC = () => {
     refetch
   } = useQuery(
     getPagamentoByMetodoId,
-    { MetodoPagamentoId: activeMethodId! },
+    {
+      MetodoPagamentoId: activeMethodId!,
+      page: 0,
+      pageSize: 0
+    },
     {
       enabled: activeMethodId !== undefined,
       // parâmetros de paginação e pesquisa
