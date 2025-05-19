@@ -204,7 +204,12 @@ query getUtilizadorFiltros {
 
 query getDoacoesQuantia {
   fn: import { getDoacoesQuantia } from "@src/services/doacaoService",
-  entities: [Doacao]
+  entities: [Doacao, Pagamento]
+}
+
+query getSubscricoesQuantia {
+  fn: import { getSubscricoesQuantia } from "@src/services/subscricaoService",
+  entities: [Subscricao, Pagamento, DetalheSubscricao]
 }
 
 // As queries Abaixo obtêm dados de multiplas tabelas
@@ -305,6 +310,11 @@ query getPagamentoByMetodoId {
   entities: [Pagamento, Utilizador, MetodoPagamento]
 }
 
+query getComprovativoPagamentoId {
+  fn: import { getComprovativoPagamentoId } from "@src/services/comprovativoService",
+  entities: [Comprovativo, Pagamento, Doacao]
+}
+
 // As actions abaixo servem para adicionar novos dados a base de dados
 
 action createUtilizador {
@@ -327,21 +337,21 @@ action createUtilizadorFiltro {
   entities: [UtilizadorFiltro, Utilizador]
 }
 
-action createDoacao {
-  fn: import { createDoacao } from "@src/services/doacaoService",
-  entities: [Doacao, Utilizador]
-}
-
 action createPagamentoSubscricaoExistente {
   fn: import { createPagamentoSubscricaoExistente } from "@src/services/subscricaoService",
   entities: [Pagamento, Subscricao, MetodoPagamento, DetalheSubscricao] 
+}
+
+action createDoacaoCompleta {
+  fn: import { createDoacaoCompleta } from "@src/services/doacaoService",
+  entities: [Doacao, Pagamento, Utilizador]
 }
 
 // As actions abaixo servem para alterar dados da base de dados
 
 action confirmarPagamentoFisico {
   fn: import { confirmarPagamentoFisico } from "@src/services/pagamentoService",
-  entities: [Pagamento, Subscricao, Utilizador]
+  entities: [Pagamento, Subscricao, Utilizador, Comprovativo]
 }
 
 action updateUtilizador {

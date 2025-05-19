@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAction, useQuery } from 'wasp/client/operations'
-import { createDoacao, getUtilizadoresInfoByTipo } from 'wasp/client/operations'
+import { createDoacaoCompleta, getUtilizadoresInfoByTipo } from 'wasp/client/operations'
 
 const CreateDoacaoPage = () => {
   const navigate = useNavigate()
-  const createDoacaoAction = useAction(createDoacao)
+  const createDoacaoAction = useAction(createDoacaoCompleta)
 
   const [valorDoacao, setValorDoacao] = useState('')
   const [nota, setNota] = useState('')
@@ -51,7 +51,8 @@ const CreateDoacaoPage = () => {
         ValorDoacao: Number(valorDoacao),
         Nota: nota,
         UtilizadorId: selectedUser.id,
-        DataDoacao: new Date()
+        MetodoPagamentoId: 1,
+        NIFPagamento: ''
       })
       navigate('/historico-doacoes')
     } catch (err) {

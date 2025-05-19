@@ -6,6 +6,7 @@ import {
   type CreateSubscricaoCompleta,
   type GetDataSubscricao,
   type CreatePagamentoSubscricaoExistente,
+  type GetSubscricoesQuantia
 } from 'wasp/server/operations'
 import { PrismaClient } from '@prisma/client'
 import cron from 'node-cron'
@@ -20,6 +21,36 @@ export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, co
   return context.entities.Subscricao.findMany({
     orderBy: { SubscricaoId: 'asc' },
   })
+}
+
+export const getSubscricoesQuantia: GetSubscricoesQuantia<void, number> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
+  const subscricoesConcluidas = await context.entities.Subscricao.findMany({
+    where: {
+      Pagamento: {
+        EstadoPagamento: 'concluido'
+      }
+    },
+    select: {
+      SubscricaoId: true
+    }
+  })
+
+  const resultado = await context.entities.DetalheSubscricao.aggregate({
+    _sum: {
+      ValorFinal: true
+    },
+    where: {
+      SubscricaoSubscricaoId: {
+        in: subscricoesConcluidas.map(s => s.SubscricaoId)
+      }
+    }
+  })
+
+  return resultado._sum.ValorFinal ?? 0
 }
 
 export const getDataSubscricao: GetDataSubscricao<Pick<Utilizador, 'id'>, { dataInicio: Date | null, dataFim: Date | null }>
@@ -39,7 +70,7 @@ export const getDataSubscricao: GetDataSubscricao<Pick<Utilizador, 'id'>, { data
     _max: {
       DataFim: true,
     }
-  });
+  })
 
   return {
     dataInicio: datas._min.DataInicio,
@@ -92,6 +123,10 @@ export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utili
 
   return context.entities.Subscricao.findMany({
     where: {  UtilizadorId: args.id },
+    include: {
+      TipoSubscricao: true,
+      Duracao: true
+    }
   })
 }
 
@@ -370,64 +405,3 @@ export const createPagamentoSubscricaoExistente: CreatePagamentoSubscricaoExiste
 
   return subscricaoFinal;
 }
-
-// Ver esta funcao, e por a funcionar com wasp
-
-// export const criarPagamentoParaSubscricaoExistente = async (
-//   {
-//     SubscricaoId,
-//     UtilizadorId,
-//     Pagamento,
-//   }: {
-//     SubscricaoId: string;
-//     UtilizadorId: string;
-//     Pagamento: {
-//       MetodoPagamentoId: string;
-//       DadosEspecificos?: any;
-//       EstadoPagamento: string;
-//       NIFPagamento: string;
-//     };
-//   },
-//   context: Context
-// ) => {
-//   // Optional: verificar se o utilizador tem acesso à subscrição
-//   // if (!context.user) {
-//   //   throw new HttpError(401, "Não tem permissão")
-//   // }
-
-//   // 1. Calcular ou obter valor da subscrição, se necessário
-//   const subscricao = await context.prisma.subscricao.findUnique({
-//     where: { SubscricaoId },
-//   });
-
-//   if (!subscricao) {
-//     throw new Error("Subscrição não encontrada");
-//   }
-
-//   const valorFinal = subscricao.Valor; // Ou calcular se for dinâmico
-
-//   // 2. Criar o pagamento
-//   const pagamento = await createPagamento(
-//     {
-//       Valor: valorFinal,
-//       UtilizadorId,
-//       MetodoPagamentoId: Pagamento.MetodoPagamentoId,
-//       DadosEspecificos: Pagamento.DadosEspecificos,
-//       EstadoPagamento: Pagamento.EstadoPagamento,
-//       NIFPagamento: Pagamento.NIFPagamento,
-//       TelemovelMbway: Pagamento?.DadosEspecificos?.telemovelMbway,
-//     },
-//     context.prisma
-//   );
-
-//   // 3. Associar o pagamento à subscrição
-//   const subscricaoFinal = await connectPagamentoASubscricao(
-//     SubscricaoId,
-//     pagamento.PagamentoId,
-//     context
-//   );
-
-//   return subscricaoFinal;
-// };
-
-
