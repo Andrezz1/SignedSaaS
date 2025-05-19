@@ -1,10 +1,10 @@
 import { Contacto, Morada, TipoUtilizador, Utilizador, Subscricao} from 'wasp/entities'
-import { 
-  type GetMembros, 
-  type GetUtilizadorByNIF, 
-  type GetUtilizadoresInfoByTipo, 
-  type CreateUtilizador, 
-  type UpdateUtilizador, 
+import {
+  type GetMembros,
+  type GetUtilizadorByNIF,
+  type GetUtilizadoresInfoByTipo,
+  type CreateUtilizador,
+  type UpdateUtilizador,
   type GetUtilizadorDesabilitado,
   type UpdateEstadoUtilizador,
   type UpdateUtilizadorByNIFNumMembro,
@@ -32,7 +32,7 @@ export const getMembros: GetMembros<void, number> = async (_args, context) => {
   return totalMembros
 }
 
-export const getMembrosPagantes: GetMembrosPagantes<void, number  
+export const getMembrosPagantes: GetMembrosPagantes<void, number
 > = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, 'Não tem permissão')
@@ -55,7 +55,7 @@ export const getMembrosPagantes: GetMembrosPagantes<void, number
 }
 
 export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
-  { 
+  {
     page: number,
     pageSize: number,
     searchTerm?: string,
@@ -106,7 +106,7 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
   })
 
   const totalUtilizadores = await context.entities.Utilizador.count({
-    where: utilizadoresdesativados, 
+    where: utilizadoresdesativados,
   })
 
   const utilizadoresInfo = utilizadores.map(
@@ -125,10 +125,10 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
   }
 }
 
-export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<{ 
-  utilizador: Utilizador, 
+export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<{
+  utilizador: Utilizador,
   tipoUtilizador: TipoUtilizador | null,
-  morada: Morada | null, 
+  morada: Morada | null,
   contacto: Contacto | null,
   subscricoes: Subscricao[]
 }>> = async (args, context) => {
@@ -145,29 +145,29 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
       id: args.id,
     },
     include: {
-      TipoUtilizador: true, 
+      TipoUtilizador: true,
       Morada: {
         include: {
           CodigoPostal: true
         }
       },
-      Contacto: true, 
-      Subscricoes: true, 
+      Contacto: true,
+      Subscricoes: true,
     },
   }) as Array<Utilizador & {
-      TipoUtilizador: TipoUtilizador | null
-      Morada: Morada | null
-      Contacto: Contacto | null
+      TipoUtilizador: TipoUtilizador
+      Morada: Morada
+      Contacto: Contacto
       Subscricoes: Subscricao[]
     }
   >
 
   const result = utilizadores.map(({ TipoUtilizador, Morada, Contacto, Subscricoes, ...utilizador }) => ({
     utilizador,
-    tipoUtilizador: TipoUtilizador ?? null,
-    morada: Morada ?? null,
-    contacto: Contacto ?? null,
-    subscricoes: Subscricoes ?? [],
+    tipoUtilizador: TipoUtilizador,
+    morada: Morada,
+    contacto: Contacto,
+    subscricoes: Subscricoes,
   }))
 
   return result
@@ -202,7 +202,7 @@ export const getUtilizadorByNIF: GetUtilizadorByNIF<Pick<Utilizador, 'NIF' | 'Es
 }
 
 export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
-  { 
+  {
     page: number,
     pageSize: number,
     searchTerm?: string,
@@ -252,7 +252,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
     const hoje = new Date()
     const anoMax = hoje.getFullYear() - filters.faixaEtaria.min
     const anoMin = hoje.getFullYear() - filters.faixaEtaria.max
-    
+
     utilizadoresativos.DataNascimento = {
       lte: new Date(anoMax, hoje.getMonth(), hoje.getDate()),
       gte: new Date(anoMin, hoje.getMonth(), hoje.getDate())
@@ -261,7 +261,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
 
   if (filters?.estadoSubscricao && filters.estadoSubscricao !== 'todas') {
     const estadoSub = filters.estadoSubscricao === 'ativa'
-    
+
     utilizadoresativos.Subscricoes = {
       some: {
         EstadoSubscricao: estadoSub
@@ -289,7 +289,7 @@ export const getUtilizadoresInfoByTipo: GetUtilizadoresInfoByTipo<
   })
 
   const totalUtilizadores = await context.entities.Utilizador.count({
-    where: utilizadoresativos, 
+    where: utilizadoresativos,
   })
 
   const utilizadoresInfo = utilizadores.map(
@@ -372,7 +372,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
     }
 
     let morada = await context.entities.Morada.findFirst({
-      where: { 
+      where: {
         Concelho: concelho,
         Distrito: distrito,
         CodigoPostalCodigoPostalId: codigoPostal.CodigoPostalId
@@ -407,7 +407,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
         TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId,
       },
     })
-    
+
     await registarAuditLog('auditUtilizador',{
       entidade: 'Utilizador',
       operacao: 'CREATE',
@@ -468,8 +468,8 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
 
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.id },
-    include: { 
-      Morada: true, 
+    include: {
+      Morada: true,
       Contacto: true,
     }
   })
@@ -578,7 +578,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
       })
       novoNumMembro = (ultimoUtilizador?.NumMembro ?? 0) + 1
     }
-    
+
     let imageUrl = args.Imagem
     if (args.Imagem && !args.Imagem.startsWith("http")) {
       imageUrl = await saveImageLocally(args.Imagem)
@@ -633,12 +633,12 @@ export const updateUtilizadorByNIFNumMembro: UpdateUtilizadorByNIFNumMembro<Upda
   }
 
   const utilizador = await context.entities.Utilizador.findUnique({
-    where: { 
+    where: {
       NIF: args.NIF,
       NumMembro: args.NumMembro
     },
-    include: { 
-      Morada: true, 
+    include: {
+      Morada: true,
       Contacto: true,
     }
   })
@@ -719,7 +719,7 @@ export const updateUtilizadorByNIFNumMembro: UpdateUtilizadorByNIFNumMembro<Upda
     }
 
     const updatedUtilizador = await context.entities.Utilizador.update({
-      where: { 
+      where: {
         NIF: args.NIF,
         NumMembro: args.NumMembro
       },
@@ -757,9 +757,7 @@ export const updateUtilizadorByNIFNumMembro: UpdateUtilizadorByNIFNumMembro<Upda
   }
 }
 
-type UpdateEstadoUtilizadorPayLoad = Pick<Utilizador, 'id' | 'EstadoUtilizador'>
-
-export const updateEstadoUtilizador: UpdateEstadoUtilizador<UpdateEstadoUtilizadorPayLoad, Utilizador> = async (
+export const updateEstadoUtilizador: UpdateEstadoUtilizador<Pick<Utilizador, 'id' | 'EstadoUtilizador'>, Utilizador> = async (
   args,
   context,
 ) => {
