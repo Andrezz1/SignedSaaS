@@ -77,7 +77,7 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
   return SubscricaoInfo
 }
 
-export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, Subscricao[]>
+export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, any[]>
 = async (
   args,
   context
@@ -92,6 +92,10 @@ export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utili
 
   return context.entities.Subscricao.findMany({
     where: {  UtilizadorId: args.id },
+    include: {
+      TipoSubscricao: true,
+      Duracao: true,
+    }
   })
 }
 
@@ -370,64 +374,3 @@ export const createPagamentoSubscricaoExistente: CreatePagamentoSubscricaoExiste
 
   return subscricaoFinal;
 }
-
-// Ver esta funcao, e por a funcionar com wasp
-
-// export const criarPagamentoParaSubscricaoExistente = async (
-//   {
-//     SubscricaoId,
-//     UtilizadorId,
-//     Pagamento,
-//   }: {
-//     SubscricaoId: string;
-//     UtilizadorId: string;
-//     Pagamento: {
-//       MetodoPagamentoId: string;
-//       DadosEspecificos?: any;
-//       EstadoPagamento: string;
-//       NIFPagamento: string;
-//     };
-//   },
-//   context: Context
-// ) => {
-//   // Optional: verificar se o utilizador tem acesso à subscrição
-//   // if (!context.user) {
-//   //   throw new HttpError(401, "Não tem permissão")
-//   // }
-
-//   // 1. Calcular ou obter valor da subscrição, se necessário
-//   const subscricao = await context.prisma.subscricao.findUnique({
-//     where: { SubscricaoId },
-//   });
-
-//   if (!subscricao) {
-//     throw new Error("Subscrição não encontrada");
-//   }
-
-//   const valorFinal = subscricao.Valor; // Ou calcular se for dinâmico
-
-//   // 2. Criar o pagamento
-//   const pagamento = await createPagamento(
-//     {
-//       Valor: valorFinal,
-//       UtilizadorId,
-//       MetodoPagamentoId: Pagamento.MetodoPagamentoId,
-//       DadosEspecificos: Pagamento.DadosEspecificos,
-//       EstadoPagamento: Pagamento.EstadoPagamento,
-//       NIFPagamento: Pagamento.NIFPagamento,
-//       TelemovelMbway: Pagamento?.DadosEspecificos?.telemovelMbway,
-//     },
-//     context.prisma
-//   );
-
-//   // 3. Associar o pagamento à subscrição
-//   const subscricaoFinal = await connectPagamentoASubscricao(
-//     SubscricaoId,
-//     pagamento.PagamentoId,
-//     context
-//   );
-
-//   return subscricaoFinal;
-// };
-
-

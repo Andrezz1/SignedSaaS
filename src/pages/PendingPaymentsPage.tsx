@@ -1,4 +1,3 @@
-// src/pages/PendingPaymentsPage.tsx
 import { type AuthUser } from 'wasp/auth';
 import DefaultLayout from '../layout/DefaultLayout';
 import PendingPaymentsTable from '../components/pendingPaymentsTable';
