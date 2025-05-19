@@ -6,7 +6,7 @@ import {
   type GetPagamentoByUtilizadorId,
   type GetMetodoPagamento,
   type ConfirmarPagamentoFisico,
-  type GetPagamentoByMetodoId
+  type GetPagamentosPendentes
 } from 'wasp/server/operations'
 import { HttpError, prisma } from 'wasp/server'
 import { registarAuditLog } from './auditService'
@@ -21,9 +21,8 @@ export const getPagamento: GetPagamento<void, Pagamento[]> = async (_args, conte
   })
 }
 
-export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
+export const getPagamentosPendentes: GetPagamentosPendentes<
   {
-    MetodoPagamentoId: number,
     page: number,
     pageSize: number,
     searchTerm?: string,
@@ -61,7 +60,8 @@ export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
         include: {
           Contacto: true
         }
-      }
+      },
+      MetodoPagamento: true,
     },
     skip,
     take,
@@ -359,3 +359,4 @@ export const confirmarPagamentoFisico: ConfirmarPagamentoFisico<UpdatePagamentoF
       throw error
     }
 }
+

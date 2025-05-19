@@ -317,8 +317,8 @@ query getDataSubscricao {
   entities: [Utilizador, Subscricao]
 }
 
-query getPagamentoByMetodoId {
-  fn: import { getPagamentoByMetodoId } from "@src/services/pagamentoService",
+query getPagamentosPendentes {
+  fn: import { getPagamentosPendentes } from "@src/services/pagamentoService",
   entities: [Pagamento, Utilizador, MetodoPagamento]
 }
 
