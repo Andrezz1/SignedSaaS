@@ -6,7 +6,8 @@ import {
   type GetPagamentoByUtilizadorId,
   type GetMetodoPagamento,
   type ConfirmarPagamentoFisico,
-  type GetPagamentoByMetodoId
+  type GetPagamentoByMetodoId,
+  type GetTotalPagamentosPendentes
 } from 'wasp/server/operations'
 import { HttpError, prisma } from 'wasp/server'
 import { registarAuditLog } from './auditService'
@@ -20,6 +21,23 @@ export const getPagamento: GetPagamento<void, Pagamento[]> = async (_args, conte
     orderBy: { PagamentoId: 'asc' },
   })
 }
+
+export const getTotalPagamentosPendentes: GetTotalPagamentosPendentes<void,number
+> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, 'Não tem permissão')
+  }
+
+  const where = {
+    EstadoPagamento: 'pendente'
+  }
+
+  const totalPendentes = await context.entities.Pagamento.count({
+    where
+  })
+
+  return totalPendentes
+} 
 
 export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
   {
@@ -276,7 +294,7 @@ export const confirmarPagamentoFisico: ConfirmarPagamentoFisico<UpdatePagamentoF
   })
 
   const parametrosRecebidos = args
-  const idUtilizadorResponsavel = 1
+  const idUtilizadorResponsavel = context.user.id
 
   if (!pagamento) {
     throw new Error("Pagamento não encontrado")

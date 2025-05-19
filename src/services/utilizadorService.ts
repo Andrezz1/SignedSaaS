@@ -20,7 +20,7 @@ export const getMembros: GetMembros<void, number> = async (_args, context) => {
     throw new HttpError(401, 'Não tem permissão')
   }
 
-  const where: any = {
+  const where = {
     NumMembro: { not: null },
     EstadoUtilizador: true
   }

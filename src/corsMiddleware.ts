@@ -3,7 +3,13 @@ import { config, type MiddlewareConfigFn } from 'wasp/server'
 
 // CORS Middleware
 export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
-    // o server apenas aceita requests destes domains (o example apenas servem para demonstrar como adicionar novos domains)
-  middlewareConfig.set('cors', cors({ origin: [config.frontendUrl, 'https://example1.com'] }))
+  middlewareConfig.set('cors', cors({ 
+    origin: [
+      config.frontendUrl, 
+      'https://client-production-3817.up.railway.app',
+      'https://server-test.up.railway.app', 
+      'server-production-32b3.up.railway.app'
+    ] 
+  }))
   return middlewareConfig
 }
