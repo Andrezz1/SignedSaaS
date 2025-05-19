@@ -3,9 +3,6 @@ app SignedProject {
     version: "^0.16.2"
   },
   title: "SignedProject",
-  server: {
-    middlewareConfigFn: import { serverMiddlewareFn } from "@src/corsMiddleware"
-  },
   auth: {
     userEntity: Utilizador, 
     methods: {
@@ -25,7 +22,7 @@ page LoginPage {
 
 route CreateAdminRoute { path: "/create-admin", to: CreateAdminPage }
 page CreateAdminPage {
-  authRequired: false,
+  authRequired: true,
   component: import  CreateAdminPage from "@src/pages/CreateAdminPage"
 }
 
@@ -202,6 +199,11 @@ query getTipoUtilizador {
 query getMembros {
   fn: import { getMembros } from "@src/services/utilizadorService",
   entities: [Utilizador]
+}
+
+query getTotalPagamentosPendentes {
+  fn: import { getTotalPagamentosPendentes } from "@src/services/pagamentoService",
+  entities: [Pagamento]
 }
 
 query getMembrosPagantes {
