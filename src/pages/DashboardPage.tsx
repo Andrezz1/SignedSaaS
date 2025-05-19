@@ -5,6 +5,7 @@ import DoacoesCard from '../components/dasboardCards/totalDoacoesCard';
 import PagamentosCard from '../components/dasboardCards/totalPagamentosCard';
 import DefaultLayout from '../layout/DefaultLayout';
 import GraficoMembrosAtivos from '../components/dasboardCards/graficoMembrosAtivos';
+import PagamentosPendentesCard from '../components/dasboardCards/pagamentosPendentesCard';
 
 const DashboardPage = ({ user }: { user: AuthUser }) => {
   return (
@@ -16,6 +17,7 @@ const DashboardPage = ({ user }: { user: AuthUser }) => {
           <MembrosPagantesCard />
           <PagamentosCard />
           <DoacoesCard />
+          <PagamentosPendentesCard />
         </div>
         {/* Linha divisória */}
         <div className="w-full border-t border-gray-300 dark:border-gray-700 my-4" />

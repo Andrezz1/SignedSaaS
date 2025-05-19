@@ -6,8 +6,8 @@ import {
   type GetPagamentoByUtilizadorId,
   type GetMetodoPagamento,
   type ConfirmarPagamentoFisico,
-  type GetPagamentoByMetodoId,
   type GetTotalPagamentosPendentes
+  type GetPagamentosPendentes
 } from 'wasp/server/operations'
 import { HttpError, prisma } from 'wasp/server'
 import { registarAuditLog } from './auditService'
@@ -39,9 +39,9 @@ export const getTotalPagamentosPendentes: GetTotalPagamentosPendentes<void,numbe
   return totalPendentes
 } 
 
-export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
+
+export const getPagamentosPendentes: GetPagamentosPendentes<
   {
-    MetodoPagamentoId: number,
     page: number,
     pageSize: number,
     searchTerm?: string,
@@ -79,7 +79,8 @@ export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
         include: {
           Contacto: true
         }
-      }
+      },
+      MetodoPagamento: true,
     },
     skip,
     take,
@@ -377,3 +378,4 @@ export const confirmarPagamentoFisico: ConfirmarPagamentoFisico<UpdatePagamentoF
       throw error
     }
 }
+
