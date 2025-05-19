@@ -2,7 +2,8 @@ import { Comprovativo, Utilizador, Pagamento, Subscricao } from 'wasp/entities'
 import { 
   type GetComprovativo, 
   type GetComprovativoInfo, 
-  type GetComprovativoByUtilizadorId 
+  type GetComprovativoByUtilizadorId,
+  type GetComprovativoPagamentoId
 } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
 
@@ -20,7 +21,7 @@ export const getComprovativoInfo: GetComprovativoInfo<void, Array<{
   comprovativo: Comprovativo,
   utilizador: Utilizador,
   pagamento: Pagamento,
-  subscricao: Subscricao
+  subscricao: Subscricao | null
 }>> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
@@ -64,4 +65,32 @@ export const getComprovativoByUtilizadorId: GetComprovativoByUtilizadorId<Pick<U
       Subscricao: true,
     }
   })
+}
+
+export const getComprovativoPagamentoId: GetComprovativoPagamentoId<Pick<Pagamento, 'PagamentoId'>, Comprovativo
+> = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
+
+  const comprovativo = await context.entities.Comprovativo.findFirst({
+    where: {
+      PagamentoPagamentoId: args.PagamentoId
+    },
+    include: {
+      Pagamento: {
+        include: {
+          Doacao: true
+        }
+      },
+      Subscricao: true,
+      Utilizador: true
+    }
+  })
+
+  if(!comprovativo) {
+    throw new Error("Comprovativo nao encontrado")
+  }
+
+  return comprovativo
 }

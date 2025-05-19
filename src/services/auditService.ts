@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-interface AuditLogInput {
+interface AuditLogPayload {
   entidade: string
   operacao: 'CREATE' | 'UPDATE' | 'DELETE'
   dataHora?: Date
@@ -14,7 +14,7 @@ interface AuditLogInput {
 
 export async function registarAuditLog(
   tabela: 'auditUtilizador' | 'auditTipoSubscricao' | 'auditPagamento',
-  data: AuditLogInput
+  data: AuditLogPayload
 ) {
   try {
     await (prisma as any)[tabela].create({

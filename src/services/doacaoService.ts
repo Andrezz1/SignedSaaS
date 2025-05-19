@@ -1,12 +1,13 @@
 import { Doacao, Utilizador } from 'wasp/entities'
 import { 
-  type GetDoacoes, 
-  type GetDoacaoInfo, 
+  type GetDoacoes,
+  type GetDoacaoInfo,
   type GetDoacaoByUtilizadorId,
   type GetDoacoesQuantia,
-  type CreateDoacao,
+  type CreateDoacaoCompleta
 } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
+import { createPagamento } from './pagamentoService'
 
 export const getDoacoes: GetDoacoes<void, number> = async (_args, context) => {
   if (!context.user) {
@@ -28,6 +29,11 @@ export const getDoacoesQuantia: GetDoacoesQuantia<void, number> = async (_args, 
   }
 
   const resultado = await context.entities.Doacao.aggregate({
+    where: {
+      Pagamento: {
+        EstadoPagamento: 'concluido'
+      }
+    },
     _sum: {
       ValorDoacao: true,
     },
@@ -119,20 +125,22 @@ export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, '
   })
 }
 
-type CreateDoacaoPayload = {
+type CreateDoacaoCompletaPayload = {
   ValorDoacao: number,
-  DataDoacao: Date,
   Nota?: string,
-  UtilizadorId: number
+  UtilizadorId: number,
+  MetodoPagamentoId: number,
+  NIFPagamento: string,
+  TelemovelMbway?: string
 }
 
-export const createDoacao: CreateDoacao<
-CreateDoacaoPayload, 
-Doacao
+export const createDoacaoCompleta: CreateDoacaoCompleta<
+  CreateDoacaoCompletaPayload,
+  Doacao
 > = async (args, context) => {
-  if (!context.user) {
-    throw new Error("Não tem permissão")
-  }
+  // if (!context.user) {
+  //   throw new Error("Não tem permissão")
+  // }
 
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.UtilizadorId }
@@ -142,12 +150,26 @@ Doacao
     throw new Error("Utilizador não encontrado")
   }
 
-  return await context.entities.Doacao.create({
+  const pagamento = await createPagamento({
+    Valor: args.ValorDoacao,
+    UtilizadorId: args.UtilizadorId,
+    MetodoPagamentoId: args.MetodoPagamentoId,
+    NIFPagamento: args.NIFPagamento,
+    Nota: args.Nota,
+    TelemovelMbway: args.TelemovelMbway
+  }, context.entities) 
+
+  const doacao = await context.entities.Doacao.create({
     data: {
       ValorDoacao: args.ValorDoacao,
       DataDoacao: new Date(),
       Nota: args.Nota || '',
-      UtilizadorId: args.UtilizadorId
+      UtilizadorId: args.UtilizadorId,
+      Pagamento: {
+        connect: { PagamentoId: pagamento.PagamentoId }
+      }
     }
   })
+
+  return doacao
 }
