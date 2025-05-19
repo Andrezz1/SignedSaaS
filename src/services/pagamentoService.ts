@@ -35,7 +35,7 @@ export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
     pageSize: number,
     totalPages: number,
   }
-> = async ({ MetodoPagamentoId, page, pageSize, searchTerm }, context) => {
+> = async ({ page, pageSize, searchTerm }, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
   }
@@ -44,7 +44,6 @@ export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
   const take = pageSize
 
   const where: any = {
-    MetodoPagamentoId,
     EstadoPagamento: "pendente",
   }
 
@@ -58,7 +57,11 @@ export const getPagamentoByMetodoId: GetPagamentoByMetodoId<
   const pagamentos = await context.entities.Pagamento.findMany({
     where,
     include: {
-      Utilizador: true,
+      Utilizador: {
+        include: {
+          Contacto: true
+        }
+      }
     },
     skip,
     take,
@@ -273,7 +276,7 @@ export const confirmarPagamentoFisico: ConfirmarPagamentoFisico<UpdatePagamentoF
   })
 
   const parametrosRecebidos = args
-  const idUtilizadorResponsavel = context.user.id
+  const idUtilizadorResponsavel = 1
 
   if (!pagamento) {
     throw new Error("Pagamento não encontrado")
@@ -291,19 +294,35 @@ export const confirmarPagamentoFisico: ConfirmarPagamentoFisico<UpdatePagamentoF
 
   try {
     if (args.EstadoPagamento === 'concluir') {
-      updatedPagamento = await context.entities.Pagamento.update({
-        where: { PagamentoId: args.PagamentoId },
-        data: {
-          EstadoPagamento: 'concluido'
-        }
-      })
+  updatedPagamento = await context.entities.Pagamento.update({
+    where: { PagamentoId: args.PagamentoId },
+    data: {
+      EstadoPagamento: 'concluido'
+    }
+  })
 
-      await context.entities.Subscricao.updateMany({
-        where: { PagamentoPagamentoId: args.PagamentoId },
-        data: { EstadoSubscricao: true }
-      })
+  await context.entities.Subscricao.updateMany({
+    where: { PagamentoPagamentoId: args.PagamentoId },
+    data: { EstadoSubscricao: true }
+  })
 
-    } else if (args.EstadoPagamento === 'cancelar') {
+  const comprovativoData: any = {
+    PagamentoPagamentoId: updatedPagamento.PagamentoId,
+    UtilizadorId: updatedPagamento.UtilizadorId
+  }
+
+  const subscricao = await context.entities.Subscricao.findFirst({
+    where: { PagamentoPagamentoId: updatedPagamento.PagamentoId }
+  })
+
+  if (subscricao) {
+    comprovativoData.SubscricaoSubscricaoId = subscricao.SubscricaoId
+  }
+
+  await context.entities.Comprovativo.create({
+    data: comprovativoData
+  })
+  } else if (args.EstadoPagamento === 'cancelar') {
       updatedPagamento = await context.entities.Pagamento.update({
         where: { PagamentoId: args.PagamentoId },
         data: { EstadoPagamento: 'cancelado' }
