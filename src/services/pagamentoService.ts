@@ -6,7 +6,7 @@ import {
   type GetPagamentoByUtilizadorId,
   type GetMetodoPagamento,
   type ConfirmarPagamentoFisico,
-  type GetTotalPagamentosPendentes
+  type GetTotalPagamentosPendentes,
   type GetPagamentosPendentes
 } from 'wasp/server/operations'
 import { HttpError, prisma } from 'wasp/server'
@@ -378,4 +378,3 @@ export const confirmarPagamentoFisico: ConfirmarPagamentoFisico<UpdatePagamentoF
       throw error
     }
 }
-

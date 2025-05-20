@@ -10,9 +10,9 @@ import PagamentosPendentesCard from '../components/dasboardCards/pagamentosPende
 const DashboardPage = ({ user }: { user: AuthUser }) => {
   return (
     <DefaultLayout user={user}>
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-12">
+      <div className="w-full overflow-x-auto px-6">
         {/* Container dos cards com largura controlada */}
-        <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8 px-6">
+        <div className="flex space-x-6 min-w-max">
           <MembrosCard />
           <MembrosPagantesCard />
           <PagamentosCard />

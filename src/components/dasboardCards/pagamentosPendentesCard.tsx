@@ -1,9 +1,10 @@
 import React from 'react';
-import { useQuery, getPagamentosPendentes } from 'wasp/client/operations';
+import { useQuery, getTotalPagamentosPendentes } from 'wasp/client/operations';
 import { Link } from 'react-router-dom';
+import { FileClock } from 'lucide-react';
 
 const PagamentosPendentesCard: React.FC = () => {
-  const { data, isLoading, error } = useQuery(getPagamentosPendentes, {
+  const { data, isLoading, error } = useQuery(getTotalPagamentosPendentes, {
     page: 1,
     pageSize: 1
   });
@@ -18,27 +19,14 @@ const PagamentosPendentesCard: React.FC = () => {
       {/* Ícone */}
       <div className="flex items-center justify-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 text-white">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-8 h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8c.638 0 1.25.199 1.75.537m-3.5 0A3.001 3.001 0 0112 8m0 0a3.001 3.001 0 013 3v1a3 3 0 01-6 0v-1a3.001 3.001 0 013-3zm0 9h.01"
-            />
-          </svg>
+          <FileClock className="w-8 h-8" />
         </div>
       </div>
 
       {/* Valor central */}
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
-          {data?.data?.length ? data.data.length : 'N/A'}
+          {data}
         </h4>
       </div>
 
