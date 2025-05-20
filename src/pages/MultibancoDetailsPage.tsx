@@ -1,46 +1,56 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getPagamento } from 'wasp/client/operations';
+import { getPagamento, getUtilizadorInfoById } from 'wasp/client/operations';
 import type { Pagamento } from 'wasp/entities';
 
-interface LocationState {
+interface SubscricaoState {
+  tipo: 'subscricao';
   paymentId: number;
   planName: string;
   planDesc: string;
   duracaoNome: string;
   duracaoMeses: number;
-  valorFinal: string;
 }
+
+interface DoacaoState {
+  tipo: 'doacao';
+  paymentId: number;
+  utilizadorId: number;
+  nota: string;
+}
+
+type LocationState = SubscricaoState | DoacaoState;
 
 const MultibancoDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const {
-    paymentId,
-    planName,
-    planDesc,
-    duracaoNome,
-    duracaoMeses,
-  } = state as LocationState;
+  const locationState = state as LocationState;
 
   const [pagamento, setPagamento] = useState<Pagamento | null>(null);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState<string | null>(null);
+  const [doadorNome, setDoadorNome] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
         const all = await getPagamento();
-        const found = all.find(p => p.PagamentoId === paymentId);
-        if (!found) throw new Error('Não encontramos este pagamento.');
+        const found = all.find(p => p.PagamentoId === locationState.paymentId);
+        if (!found) throw new Error('Pagamento não encontrado.');
         setPagamento(found);
+
+        if (locationState.tipo === 'doacao') {
+          const result = await getUtilizadorInfoById({ id: locationState.utilizadorId });
+          const nome = result?.[0]?.utilizador?.Nome;
+          setDoadorNome(nome || 'Doação Anónima');
+        }
       } catch (e: any) {
         setError(e.message);
       } finally {
         setLoading(false);
       }
     })();
-  }, [paymentId]);
+  }, [locationState]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -53,7 +63,6 @@ const MultibancoDetailsPage: React.FC = () => {
     </div>
   );
 
-  // extrai entidade/referência já calculados
   const detalhes = (pagamento!.DadosEspecificos as any) || {};
 
   return (
@@ -61,26 +70,44 @@ const MultibancoDetailsPage: React.FC = () => {
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-lg p-6 space-y-6">
         <h1 className="text-xl font-bold text-center">Detalhes do Pagamento</h1>
 
-        {/* Plano */}
-        <div>
-          <h2 className="text-sm font-medium text-gray-600">Plano</h2>
-          <div className="mt-1 text-gray-800 space-y-1 text-sm">
-            <p><span className="font-semibold">Nome:</span> {planName}</p>
-            <p><span className="font-semibold">Descrição:</span> {planDesc}</p>
-          </div>
-        </div>
+        {/* Subscrição */}
+        {locationState.tipo === 'subscricao' && (
+          <>
+            <div>
+              <h2 className="text-sm font-medium text-gray-600">Plano</h2>
+              <div className="mt-1 text-gray-800 space-y-1 text-sm">
+                <p><span className="font-semibold">Nome:</span> {locationState.planName}</p>
+                <p><span className="font-semibold">Descrição:</span> {locationState.planDesc}</p>
+              </div>
+            </div>
 
-        {/* Duração */}
-        <div>
-          <h2 className="text-sm font-medium text-gray-600">Duração</h2>
-          <div className="mt-1 text-gray-800 space-y-1 text-sm">
-            <p><span className="font-semibold">Tipo:</span> {duracaoNome}</p>
-            <p><span className="font-semibold">Meses:</span> {duracaoMeses}</p>
-          </div>
-        </div>
-        <hr className="border-gray-200"/>
+            <div>
+              <h2 className="text-sm font-medium text-gray-600">Duração</h2>
+              <div className="mt-1 text-gray-800 space-y-1 text-sm">
+                <p><span className="font-semibold">Tipo:</span> {locationState.duracaoNome}</p>
+                <p><span className="font-semibold">Meses:</span> {locationState.duracaoMeses}</p>
+              </div>
+            </div>
 
-        {/* Multibanco */}
+            <hr className="border-gray-200" />
+          </>
+        )}
+
+        {/* Doação */}
+        {locationState.tipo === 'doacao' && (
+          <>
+            <div>
+              <h2 className="text-sm font-medium text-gray-600">Detalhes da Doação</h2>
+              <div className="mt-1 text-gray-800 space-y-1 text-sm">
+                <p><span className="font-semibold">Doador:</span> {doadorNome}</p>
+                <p><span className="font-semibold">Mensagem do Doador:</span> {locationState.nota || 'Sem Mensagem'}</p>
+              </div>
+            </div>
+            <hr className="border-gray-200" />
+          </>
+        )}
+
+        {/* Dados Multibanco */}
         <div>
           <h2 className="text-sm font-medium text-gray-600">Detalhes Multibanco</h2>
           <div className="mt-1 text-gray-800 space-y-1 text-sm">

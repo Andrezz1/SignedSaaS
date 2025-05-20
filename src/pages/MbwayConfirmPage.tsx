@@ -5,21 +5,34 @@ import {
   getMetodoPagamento,
   getDuracaoByTipoSubscricaoId,
   createSubscricaoCompleta,
+  createDoacaoCompleta,
+  getUtilizadorInfoById,
   useAction
 } from 'wasp/client/operations';
 import type { TipoSubscricao, MetodoPagamento } from 'wasp/entities';
 import PhoneInput from 'react-phone-input-2';
 
-const logos: Record<string,string> = {
+const logos: Record<string, string> = {
   mbway: '/images/mbway-logo.png',
 };
 
-interface LocationState {
+interface SubscricaoState {
+  tipo: 'subscricao';
   planId: number;
   metodoId: number;
   userId: number;
   duracaoId: number;
 }
+
+interface DoacaoState {
+  tipo: 'doacao';
+  metodoId: number;
+  utilizadorId: number;
+  valor: number;
+  nota: string;
+}
+
+type LocationState = SubscricaoState | DoacaoState;
 
 interface DuracaoWithExtras {
   DuracaoId: number;
@@ -29,143 +42,205 @@ interface DuracaoWithExtras {
   ValorFinal: number;
 }
 
+
 const MbwayConfirmPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { planId, metodoId, userId, duracaoId } = state as LocationState;
+  const locationState = state as LocationState;
 
-  const [plan, setPlan]       = useState<TipoSubscricao|null>(null);
-  const [metodo, setMetodo]   = useState<MetodoPagamento|null>(null);
-  const [duracao, setDuracao] = useState<DuracaoWithExtras|null>(null);
+  const [plan, setPlan] = useState<TipoSubscricao | null>(null);
+  const [metodo, setMetodo] = useState<MetodoPagamento | null>(null);
+  const [duracao, setDuracao] = useState<DuracaoWithExtras | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState('');
-  const [nifPagamento, setNifPagamento]       = useState('');
-  const [telemovel, setTelemovel]             = useState('');
-  const [telemovelLimpo, setTelemovelLimpo]   = useState('');
-  const [actionError, setActionError]         = useState('');
-  const [nota, setNota]                     = useState('');
+  const [error, setError] = useState('');
+  const [nifPagamento, setNifPagamento] = useState('');
+  const [telemovel, setTelemovel] = useState('');
+  const [telemovelLimpo, setTelemovelLimpo] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [notaPagamento, setNotaPagamento] = useState('');
+  const [notaExtra, setNotaExtra] = useState('');
+  const [doadorNome, setDoadorNome] = useState('');
 
   const createSub = useAction(createSubscricaoCompleta);
+  const createDoacao = useAction(createDoacaoCompleta);
 
   useEffect(() => {
     (async () => {
       try {
-        const [tipos, metodos, duracoes] = await Promise.all([
-          getTipoSubscricao(),
-          getMetodoPagamento(),
-          getDuracaoByTipoSubscricaoId({ TipoSubscricaoID: planId })
-        ]);
-        setPlan(   tipos.find(t => t.TipoSubscricaoID === planId)!);
-        setMetodo( metodos.find(m => m.MetodoPagamentoId === metodoId)!);
-        setDuracao(duracoes.find(d => d.DuracaoId === duracaoId)!);
+        const metodos = await getMetodoPagamento();
+        setMetodo(metodos.find(m => m.MetodoPagamentoId === locationState.metodoId) || null);
+
+        if (locationState.tipo === 'subscricao') {
+          const [tipos, duracoes] = await Promise.all([
+            getTipoSubscricao(),
+            getDuracaoByTipoSubscricaoId({ TipoSubscricaoID: locationState.planId })
+          ]);
+          setPlan(tipos.find(t => t.TipoSubscricaoID === locationState.planId) || null);
+          setDuracao(duracoes.find(d => d.DuracaoId === locationState.duracaoId) || null);
+        }
+
+        if (locationState.tipo === 'doacao') {
+          setNotaExtra(locationState.nota || '');
+        
+          const result = await getUtilizadorInfoById({ id: locationState.utilizadorId });
+          const nome = result?.[0]?.utilizador?.Nome;
+          setDoadorNome(nome || 'Desconhecido');
+        }
       } catch {
         setError('Erro ao carregar dados.');
       } finally {
         setLoading(false);
       }
     })();
-  }, [planId, metodoId, duracaoId]);
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-sm">
-      Carregando…
-    </div>
-  );
-  if (error) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500 text-sm">
-      {error}
-    </div>
-  );
+  }, [locationState]);
 
   const handleContinue = async () => {
     if (!telemovel) {
       setActionError('Insira o número de telemóvel.');
       return;
     }
+
     try {
-      const res = await createSub({
-        UtilizadorId:       userId,
-        TipoSubscricaoId:   planId,
-        DuracaoId:          duracaoId,
-        DetalheSubscricao:  { Quantidade: 1 },
-        Pagamento: {
-          MetodoPagamentoId: metodoId,
-          NIFPagamento:      nifPagamento,
-          DadosEspecificos:  { telemovelMbway: telemovelLimpo },
-          Nota:nota,
-        },
-        PagamentoPagamentoId: 0
-      });
-      navigate('/mbway-details', { state: { paymentId: res.PagamentoPagamentoId } });
+      if (locationState.tipo === 'subscricao') {
+        const res = await createSub({
+          UtilizadorId: locationState.userId,
+          TipoSubscricaoId: locationState.planId,
+          DuracaoId: locationState.duracaoId,
+          DetalheSubscricao: { Quantidade: 1 },
+          Pagamento: {
+            MetodoPagamentoId: locationState.metodoId,
+            NIFPagamento: nifPagamento,
+            DadosEspecificos: { telemovelMbway: telemovelLimpo },
+            Nota: notaExtra
+          },
+          PagamentoPagamentoId: 0
+        });
+
+        navigate('/mbway-details', { state: { paymentId: res.PagamentoPagamentoId } });
+
+      } else if (locationState.tipo === 'doacao') {
+        const res = await createDoacao({
+          UtilizadorId: locationState.utilizadorId,
+          ValorDoacao: locationState.valor,
+          NotaPagamento: notaPagamento,
+          NotaDoacao: notaExtra,
+          MetodoPagamentoId: locationState.metodoId,
+          NIFPagamento: nifPagamento,
+          TelemovelMbway: telemovelLimpo
+        });
+
+        navigate('/mbway-details', { state: { paymentId: res.pagamento.PagamentoId } });
+      }
     } catch {
-      setActionError('Não foi possível criar a subscrição.');
+      setActionError('Não foi possível concluir o pagamento.');
     }
   };
 
-  const goVerPlanos     = () => navigate('/ver-planos',       { state: { userId } });
-  const goDurationPicker = () => navigate('/duration-picker',{ state: { userId, planId, planName: plan!.Nome } });
-  const goPaymentPicker   = () => navigate('/payment-picker',{ state: { userId, planId, duracaoId } });
+  const key = metodo?.Nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
+  const logoSrc = logos[key || ''] || '';
 
-  const key     = metodo!.Nome.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/\s+/g,'');
-  const logoSrc = logos[key];
+  const goVerPlanos = () =>
+    navigate('/ver-planos', { state: { userId: locationState.tipo === 'subscricao' ? locationState.userId : undefined } });
+
+  const goDurationPicker = () =>
+    navigate('/duration-picker', {
+      state: {
+        userId: locationState.tipo === 'subscricao' ? locationState.userId : undefined,
+        planId: locationState.tipo === 'subscricao' ? locationState.planId : undefined,
+        planName: plan?.Nome
+      }
+    });
+
+  const goPaymentPicker = () => {
+    if (locationState.tipo === 'subscricao') {
+      navigate('/payment-picker', {
+        state: {
+          tipo: 'subscricao',
+          planId: locationState.planId,
+          userId: locationState.userId,
+          duracaoId: locationState.duracaoId
+        }
+      });
+    } else if (locationState.tipo === 'doacao') {
+      navigate('/payment-picker', {
+        state: {
+          tipo: 'doacao',
+          utilizadorId: locationState.utilizadorId,
+          valor: locationState.valor,
+          nota: locationState.nota
+        }
+      });
+    }
+  };
+
+  const goEditDoacao = () =>
+    navigate('/create-doacao', {
+      state: {
+        utilizadorId: locationState.tipo === 'doacao' ? locationState.utilizadorId : undefined,
+        valor: locationState.tipo === 'doacao' ? locationState.valor : undefined,
+        nota: locationState.tipo === 'doacao' ? locationState.nota : undefined
+      }
+    });
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-sm">Carregando…</div>;
+  if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500 text-sm">{error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-xl rounded-2xl shadow-lg p-6 space-y-4 text-sm">
         <h1 className="text-lg font-semibold text-center">Confirmar Pagamento</h1>
 
-        {/* Plano Subscrito */}
-        <hr className="border-gray-200"/>
-        <label className="block font-medium mt-2">Plano Subscrito</label>
-        <div
-          onClick={goVerPlanos }
-          className="flex items-center justify-between mt-1 p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-        >
-          <div className="space-y-1">
-            <div><span className="font-semibold">Nome:</span> {plan!.Nome}</div>
-            <div><span className="font-semibold">Descrição:</span> {plan!.Descricao}</div>
-          </div>
-          <button className="text-sm font-medium text-blue-600 hover:underline">
-            Alterar
-          </button>
-        </div>
+        {/* Subscrição */}
+        {locationState.tipo === 'subscricao' && plan && duracao && (
+          <>
+            <hr className="border-gray-200"/>
+            <label className="block font-medium mt-2">Plano Subscrito</label>
+            <div onClick={goVerPlanos} className="p-3 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100 flex justify-between items-center">
+              <div>
+                <div><span className="font-semibold">Nome:</span> {plan.Nome}</div>
+                <div><span className="font-semibold">Descrição:</span> {plan.Descricao}</div>
+              </div>
+              <span className="text-blue-600 font-medium hover:underline text-sm">Alterar</span>
+            </div>
 
-        {/* Duração */}
-        <hr className="border-gray-200"/>
-        <label className="block font-medium mt-2">Duração</label>
-        <div
-          onClick={goDurationPicker}
-          className="flex items-center justify-between mt-1 p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-        >
-          <div className="space-y-1">
-            <div><span className="font-semibold">Tipo:</span> {duracao!.Nome}</div>
-            <div><span className="font-semibold">Meses:</span> {duracao!.Meses}</div>
-          </div>
-          <button className="text-sm font-medium text-blue-600 hover:underline">
-            Alterar
-          </button>
-        </div>
+            <label className="block font-medium mt-2">Duração</label>
+            <div onClick={goDurationPicker} className="p-3 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100 flex justify-between items-center">
+              <div>
+                <div><span className="font-semibold">Tipo:</span> {duracao.Nome}</div>
+                <div><span className="font-semibold">Meses:</span> {duracao.Meses}</div>
+              </div>
+              <span className="text-blue-600 font-medium hover:underline text-sm">Alterar</span>
+            </div>
+          </>
+        )}
+
+        {/* Doação */}
+        {locationState.tipo === 'doacao' && (
+          <>
+            <hr className="border-gray-200"/>
+            <label className="block font-medium mt-2">Detalhes da Doação</label>
+            <div onClick={goEditDoacao} className="p-3 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100 flex justify-between items-center">
+              <div>
+                <div><span className="font-semibold">Doador:</span> {doadorNome}</div>
+                <div><span className="font-semibold">Mensagem do Doador:</span> {locationState.nota || 'Sem Mensagem'}</div>
+              </div>
+              <span className="text-blue-600 font-medium hover:underline text-sm">Alterar</span>
+            </div>
+          </>
+        )}
 
         {/* Método de Pagamento */}
         <hr className="border-gray-200"/>
         <label className="block font-medium mt-2">Método de Pagamento</label>
-        <div
-          onClick={goPaymentPicker}
-          className="flex items-center justify-between mt-1 p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-        >
+        <div onClick={goPaymentPicker} className="flex items-center justify-between p-3 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100">
           <div className="flex items-center space-x-2">
             {logoSrc && <img src={logoSrc} alt="" className="w-8 h-8 object-contain"/>}
-            <span>{metodo!.Nome}</span>
+            <span>{metodo?.Nome}</span>
           </div>
-          <button className="text-sm font-medium text-blue-600 hover:underline">
-            Alterar
-          </button>
+          <span className="text-blue-600 font-medium hover:underline text-sm">Alterar</span>
         </div>
 
         {/* NIF */}
-        <hr className="border-gray-200"/>
         <label htmlFor="nifPagamento" className="block font-medium mt-2">NIF (opcional)</label>
         <input
           id="nifPagamento"
@@ -184,7 +259,7 @@ const MbwayConfirmPage: React.FC = () => {
           onChange={(value, data) => {
             setTelemovel(value);
             const dial = 'dialCode' in data ? data.dialCode : '';
-            setTelemovelLimpo(value.slice(dial.length).replace(/\D/g,''));
+            setTelemovelLimpo(value.slice(dial.length).replace(/\D/g, ''));
           }}
           containerClass="w-full mt-1"
           inputClass="w-full h-[42px] px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
@@ -194,38 +269,36 @@ const MbwayConfirmPage: React.FC = () => {
           buttonStyle={{ height: '42px', borderRadius: '0.5rem 0 0 0.5rem' }}
         />
 
-        {/* campo Nota */}
-        <hr className="border-gray-200"/>
-        <label htmlFor="nota" className="block font-medium mt-2">Nota (opcional)</label>
+           {/* Nota */}
+           <label htmlFor="nota" className="block font-medium mt-2">Nota (opcional)</label>
         <textarea
           id="nota"
-          value={nota}
-          onChange={e => setNota(e.target.value)}
+          value={notaPagamento}
+          onChange={e => setNotaPagamento(e.target.value)}
           placeholder="Deixe aqui uma observação..."
           className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200"
           rows={3}
         />
 
-        {/* Valor total */}
+        {/* Total */}
         <div className="mt-6 text-center">
-          <span className="block text-xl font-medium text-black">
-            Total a pagar
-          </span>
+          <span className="block text-xl font-medium text-black">Total a pagar</span>
           <span className="block text-3xl font-bold text-gray-700">
-            €{duracao!.ValorFinal.toFixed(2)}
+            €
+            {locationState.tipo === 'subscricao'
+              ? duracao?.ValorFinal.toFixed(2)
+              : locationState.valor.toFixed(2)}
           </span>
         </div>
 
-        {/* Botão Continuar */}
+        {/* Botão */}
         <button
           onClick={handleContinue}
           className="w-full mt-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
         >
           Continuar
         </button>
-        {actionError && (
-          <p className="mt-2 text-red-600 text-center text-sm">{actionError}</p>
-        )}
+        {actionError && <p className="mt-2 text-red-600 text-center text-sm">{actionError}</p>}
       </div>
     </div>
   );

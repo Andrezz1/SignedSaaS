@@ -4,28 +4,38 @@ import { getMetodoPagamento } from 'wasp/client/operations';
 import type { MetodoPagamento } from 'wasp/entities';
 
 const logos: Record<string, string> = {
-  mbway:                '/images/mbway-logo.png',
-  multibanco:           '/images/multibanco-logo.png',
-  cartaodecredito:      '/images/cartao-logo.png',
-  dinheiro:             '/images/dinheiro-logo.png',
-  transferenciabancaria:'/images/transferencia-logo.png',
+  mbway: '/images/mbway-logo.png',
+  multibanco: '/images/multibanco-logo.png',
+  cartaodecredito: '/images/cartao-logo.png',
+  dinheiro: '/images/dinheiro-logo.png',
+  transferenciabancaria: '/images/transferencia-logo.png',
 };
 
-interface LocationState {
+interface SubscricaoState {
+  tipo: 'subscricao';
   planId: number;
   userId: number;
   duracaoId: number;
 }
 
+interface DoacaoState {
+  tipo: 'doacao';
+  utilizadorId: number;
+  valor: number;
+  nota: string;
+}
+
+type LocationState = SubscricaoState | DoacaoState;
+
 const PaymentPickerPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { planId, userId, duracaoId } = state as LocationState;
+  const locationState = state as LocationState;
 
-  const [methods, setMethods]       = useState<MetodoPagamento[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState('');
-  const [selectedId, setSelectedId] = useState<number|null>(null);
+  const [methods, setMethods] = useState<MetodoPagamento[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -40,30 +50,57 @@ const PaymentPickerPage: React.FC = () => {
     })();
   }, []);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Carregando métodos...</div>;
-  if (error)   return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Carregando métodos...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+  }
 
   const handleConfirm = () => {
     if (selectedId === null) return;
-    const sel = methods.find(m => m.MetodoPagamentoId === selectedId);
-    if (!sel) return;
 
-    const key = sel.Nome
+    const selectedMethod = methods.find(m => m.MetodoPagamentoId === selectedId);
+    if (!selectedMethod) return;
+
+    const key = selectedMethod.Nome
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, '');
 
-    const routeMap: Record<string,string> = {
-      mbway:                '/mbway-confirm',
-      multibanco:           '/multibanco-confirm',
-      cartaodecredito:      '/cartao-confirm',
-      dinheiro:             '/dinheiro-confirm',
-      transferenciabancaria:'/transferencia-confirm',
+    const routeMap: Record<string, string> = {
+      mbway: '/mbway-confirm',
+      multibanco: '/multibanco-confirm',
+      cartaodecredito: '/cartao-confirm',
+      dinheiro: '/dinheiro-confirm',
+      transferenciabancaria: '/transferencia-confirm',
     };
+
     const to = routeMap[key];
     if (to) {
-      navigate(to, { state: { planId, userId, duracaoId, metodoId: selectedId } });
+      if (locationState.tipo === 'subscricao') {
+        navigate(to, {
+          state: {
+            tipo: 'subscricao',
+            planId: locationState.planId,
+            userId: locationState.userId,
+            duracaoId: locationState.duracaoId,
+            metodoId: selectedId,
+          }
+        });
+      } else if (locationState.tipo === 'doacao') {
+        navigate(to, {
+          state: {
+            tipo: 'doacao',
+            utilizadorId: locationState.utilizadorId,
+            valor: locationState.valor,
+            nota: locationState.nota,
+            metodoId: selectedId,
+          }
+        });
+      }
     }
   };
 

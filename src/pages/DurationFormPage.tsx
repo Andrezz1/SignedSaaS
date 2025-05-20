@@ -4,6 +4,7 @@ import { useQuery, getDuracaoByTipoSubscricaoId } from 'wasp/client/operations';
 import LoadingSpinner from '../layout/LoadingSpinner';
 
 interface DurationFormLocationState {
+  tipo: 'subscricao';
   userId: number;
   planId: number;
   planName: string;
@@ -44,7 +45,7 @@ const DurationFormPage: React.FC = () => {
   const handleNext = () => {
     if (selectedId == null) return;
     navigate('/payment-picker', {
-      state: { userId, planId, duracaoId: selectedId }
+      state: { userId, planId, duracaoId: selectedId, tipo: 'subscricao' }
     });
   };
 
