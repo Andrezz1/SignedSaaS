@@ -1,4 +1,4 @@
-import { Doacao, Utilizador } from 'wasp/entities'
+import { Doacao, Pagamento, Utilizador } from 'wasp/entities'
 import { 
   type GetDoacoes,
   type GetDoacaoInfo,
@@ -83,6 +83,7 @@ export const getDoacaoInfo: GetDoacaoInfo<
             Contacto: true,
           },
         },
+        Pagamento: true
       },
       orderBy: {
         DoacaoId: 'desc',
@@ -136,7 +137,7 @@ type CreateDoacaoCompletaPayload = {
 
 export const createDoacaoCompleta: CreateDoacaoCompleta<
   CreateDoacaoCompletaPayload,
-  Doacao
+  { pagamento: Pagamento, doacao: Doacao }
 > = async (args, context) => {
   // if (!context.user) {
   //   throw new Error("Não tem permissão")
@@ -171,5 +172,5 @@ export const createDoacaoCompleta: CreateDoacaoCompleta<
     }
   })
 
-  return doacao
+  return { pagamento, doacao }
 }

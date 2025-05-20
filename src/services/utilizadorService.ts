@@ -38,7 +38,7 @@ export const getMembrosPagantes: GetMembrosPagantes<void, number
     throw new HttpError(401, 'Não tem permissão')
   }
 
-  const where: any= {
+  const where = {
     NumMembro: { not: null },
     Subscricoes: {
       some: {
