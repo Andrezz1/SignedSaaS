@@ -66,7 +66,12 @@ export const getDoacaoInfo: GetDoacaoInfo<
   const skip = (page - 1) * pageSize
   const take = pageSize
 
-  const where: any = {}
+  const where: any = {
+    Pagamento: {
+      EstadoPagamento: 'concluido'
+    }
+  }
+  
   if (searchTerm) {
     where.OR = [
       { Nota: { contains: searchTerm, mode: 'insensitive' } },
@@ -95,8 +100,7 @@ export const getDoacaoInfo: GetDoacaoInfo<
   const doacoesInfo = doacoes.map(({ Utilizador, ...doacao }) => ({
     doacao,
     utilizador: Utilizador!
-  })
-)
+  }))
 
   const totaldoacoes = await context.entities.Doacao.count({
     where, 
@@ -139,9 +143,9 @@ export const createDoacaoCompleta: CreateDoacaoCompleta<
   CreateDoacaoCompletaPayload,
   { pagamento: Pagamento, doacao: Doacao }
 > = async (args, context) => {
-  // if (!context.user) {
-  //   throw new Error("Não tem permissão")
-  // }
+  if (!context.user) {
+    throw new Error("Não tem permissão")
+  }
 
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.UtilizadorId }
@@ -169,6 +173,9 @@ export const createDoacaoCompleta: CreateDoacaoCompleta<
       Pagamento: {
         connect: { PagamentoId: pagamento.PagamentoId }
       }
+    },
+    include: {
+      Utilizador: true
     }
   })
 
