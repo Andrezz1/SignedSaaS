@@ -132,7 +132,8 @@ export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, '
 
 type CreateDoacaoCompletaPayload = {
   ValorDoacao: number,
-  Nota?: string,
+  NotaPagamento?: string,
+  NotaDoacao?: string,
   UtilizadorId: number,
   MetodoPagamentoId: number,
   NIFPagamento: string,
@@ -160,7 +161,7 @@ export const createDoacaoCompleta: CreateDoacaoCompleta<
     UtilizadorId: args.UtilizadorId,
     MetodoPagamentoId: args.MetodoPagamentoId,
     NIFPagamento: args.NIFPagamento,
-    Nota: args.Nota,
+    Nota: args.NotaPagamento,
     TelemovelMbway: args.TelemovelMbway
   }, context.entities) 
 
@@ -168,15 +169,12 @@ export const createDoacaoCompleta: CreateDoacaoCompleta<
     data: {
       ValorDoacao: args.ValorDoacao,
       DataDoacao: new Date(),
-      Nota: args.Nota || '',
+      Nota: args.NotaDoacao || '',
       UtilizadorId: args.UtilizadorId,
       Pagamento: {
         connect: { PagamentoId: pagamento.PagamentoId }
       }
     },
-    include: {
-      Utilizador: true
-    }
   })
 
   return { pagamento, doacao }
