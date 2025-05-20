@@ -126,7 +126,6 @@ export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utili
     include: {
       TipoSubscricao: true,
       Duracao: true
-
     }
   })
 }

@@ -82,6 +82,9 @@ export const getPagamentosPendentes: GetPagamentosPendentes<
       },
       MetodoPagamento: true,
     },
+    orderBy: {
+      PagamentoId: 'desc'
+    },
     skip,
     take,
   })
