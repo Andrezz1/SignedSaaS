@@ -22,7 +22,6 @@ const CreateDoacaoPage = () => {
     filters: { estadoSubscricao: 'todas' }
   })
 
-  // Fechar dropdown ao clicar fora
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (wrapperRef.current && !(wrapperRef.current as any).contains(event.target)) {
@@ -33,32 +32,28 @@ const CreateDoacaoPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  
     if (!valorDoacao || isNaN(Number(valorDoacao)) || Number(valorDoacao) <= 0) {
-      setError('Por favor, introduza um valor válido para a doação.')
-      return
+      setError('Por favor, introduza um valor válido para a doação.');
+      return;
     }
-
+  
     if (!selectedUser) {
-      setError('Por favor, selecione um utilizador.')
-      return
+      setError('Por favor, selecione um utilizador.');
+      return;
     }
-
-    try {
-      await createDoacaoAction({
-        ValorDoacao: Number(valorDoacao),
-        Nota: nota,
-        UtilizadorId: selectedUser.id,
-        MetodoPagamentoId: 1,
-        NIFPagamento: ''
-      })
-      navigate('/historico-doacoes')
-    } catch (err) {
-      setError('Erro ao criar doação. Por favor, tente novamente.')
-    }
-  }
+  
+    navigate('/payment-picker', {
+      state: {
+        tipo: 'doacao', // útil para distinguir o fluxo se necessário
+        valor: Number(valorDoacao),
+        nota,
+        utilizadorId: selectedUser.id,
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">

@@ -39,6 +39,7 @@ export const getMembrosPagantes: GetMembrosPagantes<void, number
   }
 
   const where = {
+    EstadoUtilizador: true,
     NumMembro: { not: null },
     Subscricoes: {
       some: {

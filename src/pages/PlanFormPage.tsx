@@ -41,6 +41,7 @@ const PlanFormPage: React.FC = () => {
     const planName = tipos.find(t => t.TipoSubscricaoID === selectedId)?.Nome || '';
     navigate('/duration-picker', {
        state: { 
+        tipo: 'subscricao',
         planId: selectedId,
         userId,
         planName
