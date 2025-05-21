@@ -274,8 +274,6 @@ async function CreateSubscricoesAposExpirar() {
 
   for (const utilizador of utilizadores) {
     const ultimaSubscricao = utilizador.Subscricoes[0]
-    // log para testes
-    //console.log(`Utilizador ${utilizador.id} - DataFim: ${ultimaSubscricao?.DataFim}`)
     if (!ultimaSubscricao) {
       continue
     }
@@ -365,7 +363,7 @@ type CreatePagamentoSubscricaoExistentePayload = {
   EstadoPagamento?: string
   NIFPagamento: string
   TelemovelMbway?: string
-  SubscricaoId: number 
+  SubscricaoId: number
 }
 
 export const createPagamentoSubscricaoExistente: CreatePagamentoSubscricaoExistente <CreatePagamentoSubscricaoExistentePayload, Pagamento> = async (args, context) => {
