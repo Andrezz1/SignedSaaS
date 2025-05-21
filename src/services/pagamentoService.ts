@@ -304,7 +304,7 @@ export const confirmarPagamentoFisico: ConfirmarPagamentoFisico<UpdatePagamentoF
     throw new Error("Pagamento não encontrado")
   }
 
-  if (pagamento.MetodoPagamentoId !== 4) {
+  if (pagamento.MetodoPagamentoId !==  4 && pagamento.MetodoPagamentoId !== 5) {  
     throw new Error("O método de pagamento não é físico")
   }
 
