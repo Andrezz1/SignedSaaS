@@ -15,9 +15,10 @@ app SignedProject {
   }
 }
 
-api handleEupagoWebhook {
-  fn: import { handleEupagoWebhook } from "@src/euPagoWebhook",
-  httpRoute: ( POST, "/eupago/webhook")
+api euPagoWebhook {
+  fn: import { euPagoWebhook } from "@src/apis/euPagoWebhook",
+  httpRoute: (GET, "/api/webhook/eupago"),
+  entities: [Pagamento, Comprovativo]
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
