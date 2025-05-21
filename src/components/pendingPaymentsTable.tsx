@@ -31,6 +31,7 @@ const PendingPaymentsTable: React.FC = () => {
 
   type PagamentoComRelacionamentos = Pagamento & {
     Utilizador?: {
+      id: number;
       Nome?: string;
       Contacto: {
         Telemovel?: string;
@@ -46,11 +47,20 @@ const PendingPaymentsTable: React.FC = () => {
 
   const handleConfirmAction = async () => {
     if (!modalInfo) return;
+  
+    const pagamento = rows.find(p => p.PagamentoId === modalInfo.pagamentoId);
+    const utilizadorId = pagamento?.Utilizador?.id;    
+  
+    if (!utilizadorId) {
+      alert('Erro: Pagamento sem utilizador associado.');
+      return;
+    }
+  
     try {
       await executarAcaoPagamento({
         PagamentoId: modalInfo.pagamentoId,
         EstadoPagamento: modalInfo.acao,
-        Utilizador: { id: 0 }
+        Utilizador: { id: utilizadorId }
       });
       setModalInfo(null);
       await refetch();
@@ -58,7 +68,7 @@ const PendingPaymentsTable: React.FC = () => {
       alert(`Erro ao ${modalInfo.acao === 'concluir' ? 'confirmar' : 'cancelar'} pagamento: ${error.message}`);
     }
   };
-
+  
   if (isLoading) return <LoadingSpinner />;
   if (error) return <p className="p-4 text-red-500">Erro: {String(error)}</p>;
 
