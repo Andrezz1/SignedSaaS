@@ -15,6 +15,11 @@ app SignedProject {
   }
 }
 
+api handleEupagoWebhook {
+  fn: import { handleEupagoWebhook } from "@src/euPagoWebhook",
+  httpRoute: ( POST, "/eupago/webhook")
+}
+
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import  LoginPage  from "@src/pages/LoginPage"
