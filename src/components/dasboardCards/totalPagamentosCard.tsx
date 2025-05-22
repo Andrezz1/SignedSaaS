@@ -1,9 +1,49 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { getSubscricoesQuantia } from 'wasp/client/operations';
 
 const PagamentosCard: React.FC = () => {
-  const totalPagamentos = 0;
+  const [totalPagamentos, setTotalPagamentos] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const formatter = new Intl.NumberFormat('pt-PT', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+    useEffect(() => {
+    const fetchTotal = async () => {
+      try {
+        const quantia = await getSubscricoesQuantia();
+        setTotalPagamentos(quantia);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Erro ao carregar');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTotal();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-64 rounded-lg border bg-white p-6 shadow-md text-center">
+        Carregando…
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="w-64 rounded-lg border bg-white p-6 shadow-md text-center text-red-500">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="w-64 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow dark:border-strokedark dark:bg-boxdark">
@@ -19,7 +59,7 @@ const PagamentosCard: React.FC = () => {
 
       <div className="mt-4 text-center">
         <h4 className="text-3xl font-bold text-gray-800 dark:text-white">
-          {totalPagamentos}
+          {totalPagamentos !== null ? formatter.format(totalPagamentos) : 'N/A'}
         </h4>
       </div>
 

@@ -125,7 +125,8 @@ export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utili
     where: {  UtilizadorId: args.id },
     include: {
       TipoSubscricao: true,
-      Duracao: true
+      Duracao: true,
+      Utilizador: true,
     }
   })
 }
