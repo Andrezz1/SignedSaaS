@@ -146,6 +146,12 @@ page PendingPaymentsPage {
   component: import PendingPaymentsPage from "@src/pages/PendingPaymentsPage"
 }
 
+route MySubscriptionsPageRoute { path: "/my-subscriptions", to: MySubscriptionsPage }
+page MySubscriptionsPage {
+  authRequired: true,
+  component: import MySubscriptionsPage from "@src/pages/MySubscriptionsPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",

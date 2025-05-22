@@ -9,7 +9,6 @@ import LoadingSpinner from '../layout/LoadingSpinner';
 import ExpandedUserDetails from './userDetails';
 import EditUserContainer from './editUserContainer';
 import { useNavigate } from 'react-router-dom';
-import SubscriptionModal from '../components/SubscriptionModal';
 
 interface UsersTableProps {
   showFilters: boolean;
@@ -69,8 +68,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   };
 
   const handleSubscription = (user: any) => {
-    setSubscriptionUserId(user.utilizador.id);
-    setIsSubscriptionModalOpen(true);
+    navigate(`/my-subscriptions`,{ state: { userId: user.utilizador.id } });
   };
   
   const toggleDropdown = (userId: number) => {
@@ -162,10 +160,10 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
           <div className="col-span-3 flex items-center">
             <p className="font-medium">Nº Telemóvel</p>
           </div>
-          <div className="col-span-2 flex items-center">
+          <div className="col-span-1 flex items-center">
             <p className="font-medium">NIF</p>
           </div>
-          <div className="col-span-2 flex items-center">
+          <div className="col-span-3 flex items-center justify-center">
             <p className="font-medium">Estado da Subscrição</p>
           </div>
           <div className="col-span-2 flex items-center justify-center">
@@ -179,11 +177,8 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
         filteredUtilizadores.map((user: any) => {
           const { utilizador, subscricoes, contacto } = user;
 
-          let estadoSubscricao = "Sem Subscrição";
-          if (subscricoes.length > 0) {
-            const subscricaoAtiva = subscricoes.find((sub: any) => sub.EstadoSubscricao);
-            estadoSubscricao = subscricaoAtiva ? "Ativa" : "Expirada";
-          }
+          const hasActive = subscricoes.some((s: any) => s.EstadoSubscricao === true);
+          const hasExpired = subscricoes.some((s: any) => s.EstadoSubscricao === false);
 
           const isOpen = selectedUser?.utilizador?.id === utilizador.id;
 
@@ -199,14 +194,51 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                     {contacto?.Telemovel || "Não disponível"}
                   </p>
                 </div>
-                <div className="col-span-2 flex items-center">
+                <div className="col-span-1 flex items-center">
                   <p className="text-sm text-black dark:text-white">{utilizador.NIF}</p>
                 </div>
-                <div className="col-span-2 flex items-center">
-                  <p className="text-sm text-black dark:text-white">{estadoSubscricao}</p>
+                <div className="col-span-3 justify-center flex items-center gap-2">
+                  {hasActive && (
+                    <span title= "Tem pelo menos 1 Subscrição Átiva" className="inline-block">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-6 h-6 text-green-500"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                      <circle cx="12" cy="12" r="10" fill="currentColor" />
+                      <path
+                        d="M16 9l-4.5 4.5L8 12"
+                        stroke="#fff"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  )}
+                  {hasExpired && (
+                    <span title= "Tem pelo menos 1 Subscrição Expirada" className="inline-block">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-6 h-6 text-red-500"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                      <circle cx="12" cy="12" r="10" fill="currentColor" />
+                      <path
+                        d="M15 9l-6 6M9 9l6 6"
+                        stroke="#fff"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  )}
                 </div>
                 {/* Botões de ação */}
-                <div className="col-span-2 flex items-center justify-center gap-2">
+                <div className="col-span-2 flex items-center justify-between">
                   
                   {/* Grupo de botões - Subscrição + Dropdown */}
                   <div className="flex items-center">
@@ -283,7 +315,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                   <button
                     title="Ver Detalhes"
                     onClick={() => setSelectedUser(isOpen ? null : user)}
-                    className="flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-transparent hover:bg-gray-100 text-black"
+                    className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100"
                   >
                     {isOpen ? (
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none"
@@ -308,19 +340,6 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
           })
         }
       </div>
-
-      {/* Subscription Modal */}
-      {subscriptionUserId !== null && (
-        <SubscriptionModal
-          userId={subscriptionUserId}
-          isOpen={isSubscriptionModalOpen}
-          onClose={() => {
-            setIsSubscriptionModalOpen(false);
-            setSubscriptionUserId(null);
-          }}
-        />
-      )}
-
       {/* Paginação */}
       <nav aria-label="Page navigation" className="mt-4 flex justify-center">
         <ul className="inline-flex -space-x-px text-sm">
