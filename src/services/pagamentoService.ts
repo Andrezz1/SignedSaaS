@@ -316,39 +316,39 @@ export const confirmarPagamentoFisico: ConfirmarPagamentoFisico<UpdatePagamentoF
 
   try {
     if (args.EstadoPagamento === 'concluir') {
-  updatedPagamento = await context.entities.Pagamento.update({
-    where: { PagamentoId: args.PagamentoId },
-    data: {
-      EstadoPagamento: 'concluido'
-    }
-  })
-
-  await context.entities.Subscricao.updateMany({
-    where: { PagamentoPagamentoId: args.PagamentoId },
-    data: { EstadoSubscricao: true }
-  })
-
-  const comprovativoData: any = {
-    PagamentoPagamentoId: updatedPagamento.PagamentoId,
-    UtilizadorId: updatedPagamento.UtilizadorId
-  }
-
-  const subscricao = await context.entities.Subscricao.findFirst({
-    where: { PagamentoPagamentoId: updatedPagamento.PagamentoId }
-  })
-
-  if (subscricao) {
-    comprovativoData.SubscricaoSubscricaoId = subscricao.SubscricaoId
-  }
-
-  await context.entities.Comprovativo.create({
-    data: comprovativoData
-  })
-  } else if (args.EstadoPagamento === 'cancelar') {
       updatedPagamento = await context.entities.Pagamento.update({
-        where: { PagamentoId: args.PagamentoId },
-        data: { EstadoPagamento: 'cancelado' }
-      })
+      where: { PagamentoId: args.PagamentoId },
+      data: {
+        EstadoPagamento: 'concluido'
+      }
+    })
+
+    await context.entities.Subscricao.updateMany({
+      where: { PagamentoPagamentoId: args.PagamentoId },
+      data: { EstadoSubscricao: true }
+    })
+
+    const comprovativoData: any = {
+      PagamentoPagamentoId: updatedPagamento.PagamentoId,
+      UtilizadorId: updatedPagamento.UtilizadorId
+    }
+
+    const subscricao = await context.entities.Subscricao.findFirst({
+      where: { PagamentoPagamentoId: updatedPagamento.PagamentoId }
+    })
+
+    if (subscricao) {
+      comprovativoData.SubscricaoSubscricaoId = subscricao.SubscricaoId
+    }
+
+    await context.entities.Comprovativo.create({
+      data: comprovativoData
+    })
+    } else if (args.EstadoPagamento === 'cancelar') {
+        updatedPagamento = await context.entities.Pagamento.update({
+          where: { PagamentoId: args.PagamentoId },
+          data: { EstadoPagamento: 'cancelado' }
+        })
     } else {
       throw new Error("Ação inválida. Deve ser 'concluir' ou 'cancelar'")
     }
