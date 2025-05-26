@@ -108,25 +108,46 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
   return SubscricaoInfo
 }
 
-export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, any[]>
-= async (
+export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, any[]> = async (
   args,
   context
 ) => {
   if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
+    throw new HttpError(401, "Não tem permissão");
   }
 
-  if(!args.id) {
-    throw new Error("UtilizadorId nao foi encontrado")
+  if (!args.id) {
+    throw new Error("UtilizadorId não foi encontrado");
   }
 
-  return context.entities.Subscricao.findMany({
-    where: {  UtilizadorId: args.id },
+  const subscricoes = await context.entities.Subscricao.findMany({
+    where: { UtilizadorId: args.id },
     include: {
       TipoSubscricao: true,
       Duracao: true,
-      Utilizador: true,
+      Pagamento: true,
+      Utilizador: true
+    }
+  })
+
+  return subscricoes.map((sub) => {
+    let estado: string
+
+    if (sub.EstadoSubscricao === true) {
+      estado = "Ativa"
+    } else if (sub.Pagamento?.EstadoPagamento === "concluido") {
+      estado = "Expirada"
+    } else if (!sub.Pagamento || sub.Pagamento.EstadoPagamento === "cancelado") {
+      estado = "Por pagar"
+    } else if (sub.Pagamento.EstadoPagamento === "pendente") {
+      estado = "Pendente"
+    } else {
+      estado = "Desconhecido"
+    }
+
+    return {
+      ...sub,
+      estado
     }
   })
 }
@@ -348,7 +369,7 @@ const updateAllSubscricoesStatus = async () => {
 cron.schedule ('1 0 * * *', async()=> {
   console.log("A criar subscricoes...")
   await CreateSubscricoesAposExpirar()
-}) 
+})
 
 cron.schedule('1 0 * * *', async () => {
   console.log('A procurar subscricoes...')
