@@ -6,6 +6,7 @@ import {
   getDuracaoByTipoSubscricaoId,
   createSubscricaoCompleta,
   createDoacaoCompleta,
+  createPagamentoSubscricaoExistente,
   getUtilizadorInfoById,
   useAction
 } from 'wasp/client/operations';
@@ -31,7 +32,19 @@ interface DoacaoState {
   nota: string;
 }
 
-type LocationState = SubscricaoState | DoacaoState;
+interface SubscricaoExistenteState {
+  tipo: 'subscricao-existente';
+  subscricaoId: number;
+  metodoId: number;
+  userId: number;
+  planName: string;
+  planDesc: string;
+  duracaoNome: string;
+  duracaoMeses: number;
+  valor?: number;
+}
+
+type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
 
 interface DuracaoWithExtras {
   DuracaoId: number;
@@ -59,6 +72,7 @@ const MultibancoConfirmPage: React.FC = () => {
 
   const createSub = useAction(createSubscricaoCompleta);
   const createDoacao = useAction(createDoacaoCompleta);
+  const createExisting = useAction(createPagamentoSubscricaoExistente);
 
   useEffect(() => {
     (async () => {
@@ -136,6 +150,31 @@ const MultibancoConfirmPage: React.FC = () => {
             nota: notaExtra
           }
         });
+      } else if (locationState.tipo === 'subscricao-existente') {
+        const res = await createExisting({
+          SubscricaoId: locationState.subscricaoId,
+          UtilizadorId: locationState.userId,
+          MetodoPagamentoId: locationState.metodoId,
+          NIFPagamento: nifPagamento,
+          Nota: notaPagamento,
+          EstadoPagamento: 'pendente',
+          DadosEspecificos: {},
+          Valor: 0,
+        });
+        const paymentId = 
+          (res as any).PagamentoPagamentoId ?? (res as any).PagamentoId;
+        navigate('/multibanco-details', {
+          state: { 
+            tipo: 'subscricao-existente',
+            paymentId,
+            subscricaoId: locationState.subscricaoId,
+            userId: locationState.userId,
+            planName: locationState.planName,
+            planDesc: locationState.planDesc,
+            duracaoNome: locationState.duracaoNome,
+            duracaoMeses: locationState.duracaoMeses
+          }
+        });
       }
     } catch {
       setActionError('Não foi possível concluir o pagamento.');
@@ -173,6 +212,19 @@ const MultibancoConfirmPage: React.FC = () => {
           nota: locationState.nota
         }
       });
+    }else if (locationState.tipo === 'subscricao-existente') {
+      navigate('/payment-picker', {
+        state: {
+          tipo: 'subscricao-existente',
+          subscricaoId: locationState.subscricaoId,
+          userId: locationState.userId,
+          valor: locationState.valor,
+          planName: locationState.planName,
+          planDesc: locationState.planDesc,
+          duracaoNome: locationState.duracaoNome,
+          duracaoMeses: locationState.duracaoMeses
+        }
+      });
     }
   };
 
@@ -187,9 +239,19 @@ const MultibancoConfirmPage: React.FC = () => {
 
   const key = metodo?.Nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
   const logoSrc = logos[key || ''] || '';
+  
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-sm">Carregando…</div>;
   if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500 text-sm">{error}</div>;
+
+      let total = 0;
+  if (locationState.tipo === 'doacao') {
+    total = locationState.valor;
+  } else if (locationState.tipo === 'subscricao') {
+    total = duracao?.ValorFinal ?? 0;
+  } else {
+    total = locationState.valor ?? 0;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -205,16 +267,31 @@ const MultibancoConfirmPage: React.FC = () => {
                 <div><span className="font-semibold">Nome:</span> {plan.Nome}</div>
                 <div><span className="font-semibold">Descrição:</span> {plan.Descricao}</div>
               </div>
-              <span className="text-blue-600 text-sm font-medium hover:underline">Alterar</span>
+              <span className="text-blue-600 font-medium hover:underline text-sm">Alterar</span>
             </div>
-
             <label className="block font-medium mt-2">Duração</label>
             <div onClick={goEditDuracao} className="p-3 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100 flex justify-between items-center">
               <div>
                 <div><span className="font-semibold">Tipo:</span> {duracao.Nome}</div>
                 <div><span className="font-semibold">Meses:</span> {duracao.Meses}</div>
               </div>
-              <span className="text-blue-600 text-sm font-medium hover:underline">Alterar</span>
+              <span className="text-blue-600 font-medium hover:underline text-sm">Alterar</span>
+            </div>
+          </>
+        )}
+
+        {locationState.tipo === 'subscricao-existente' && (
+          <>
+            <hr className="border-gray-200" />
+            <label className="block font-medium mt-2">Plano Existente</label>
+            <div className="p-3 border rounded-lg bg-gray-50">
+              <p><strong>Nome:</strong> {locationState.planName}</p>
+              <p><strong>Descrição:</strong> {locationState.planDesc}</p>
+            </div>
+            <label className="block font-medium mt-2">Duração</label>
+            <div className="p-3 border rounded-lg bg-gray-50">
+              <p><strong>Tipo:</strong> {locationState.duracaoNome}</p>
+              <p><strong>Meses:</strong> {locationState.duracaoMeses}</p>
             </div>
           </>
         )}
@@ -268,12 +345,11 @@ const MultibancoConfirmPage: React.FC = () => {
 
         {/* Total */}
         <div className="mt-6 text-center">
-          <span className="block text-xl font-medium text-black">Total a pagar</span>
+          <span className="block text-xl font-medium text-black">
+            Total a pagar
+          </span>
           <span className="block text-3xl font-bold text-gray-700">
-            €
-            {locationState.tipo === 'subscricao'
-              ? duracao?.ValorFinal.toFixed(2)
-              : locationState.valor.toFixed(2)}
+            €{total.toFixed(2)}
           </span>
         </div>
 
