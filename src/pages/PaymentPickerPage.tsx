@@ -25,7 +25,18 @@ interface DoacaoState {
   nota: string;
 }
 
-type LocationState = SubscricaoState | DoacaoState;
+interface SubscricaoExistenteState {
+  tipo: 'subscricao-existente';
+  subscricaoId: number;
+  userId: number;
+  valor?: number;
+  planName: string
+  planDesc: string
+  duracaoNome: string
+  duracaoMeses: number
+}
+
+type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
 
 const PaymentPickerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -79,28 +90,44 @@ const PaymentPickerPage: React.FC = () => {
     };
 
     const to = routeMap[key];
-    if (to) {
-      if (locationState.tipo === 'subscricao') {
-        navigate(to, {
-          state: {
-            tipo: 'subscricao',
-            planId: locationState.planId,
-            userId: locationState.userId,
-            duracaoId: locationState.duracaoId,
-            metodoId: selectedId,
-          }
-        });
-      } else if (locationState.tipo === 'doacao') {
-        navigate(to, {
-          state: {
-            tipo: 'doacao',
-            utilizadorId: locationState.utilizadorId,
-            valor: locationState.valor,
-            nota: locationState.nota,
-            metodoId: selectedId,
-          }
-        });
-      }
+    if (!to) return;
+
+    if (locationState.tipo === 'subscricao') {
+      navigate(to, {
+        state: {
+          tipo: 'subscricao',
+          planId: locationState.planId,
+          userId: locationState.userId,
+          duracaoId: locationState.duracaoId,
+          metodoId: selectedId,
+        }
+      });
+    }
+    else if (locationState.tipo === 'doacao') {
+      navigate(to, {
+        state: {
+          tipo: 'doacao',
+          utilizadorId: locationState.utilizadorId,
+          valor: locationState.valor,
+          nota: locationState.nota,
+          metodoId: selectedId,
+        }
+      });
+    }
+    else if (locationState.tipo === 'subscricao-existente') {
+      navigate(to, {
+        state: {
+          tipo: 'subscricao-existente',
+          subscricaoId: locationState.subscricaoId,
+          userId: locationState.userId,
+          metodoId: selectedId,
+          valor: locationState.valor,
+          planName: locationState.planName,
+          planDesc: locationState.planDesc,
+          duracaoNome: locationState.duracaoNome,
+          duracaoMeses: locationState.duracaoMeses,
+        }
+      });
     }
   };
 
