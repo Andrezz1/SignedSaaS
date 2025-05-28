@@ -113,10 +113,6 @@ const MySubscriptionsPage = ({ user }: { user: AuthUser }) => {
                         subscricaoId: s.SubscricaoId,
                         userId: s.UtilizadorId,
                         valor: s.TipoSubscricao.PrecoBaseMensal * (s.Duracao?.Meses ?? 1),
-                        planName: s.TipoSubscricao.Nome,
-                        planDesc: s.TipoSubscricao.Descricao,
-                        duracaoNome: s.Duracao?.Nome,
-                        duracaoMeses: s.Duracao?.Meses
                       }
                     })
                   }

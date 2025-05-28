@@ -28,7 +28,7 @@ page LoginPage {
 
 route CreateAdminRoute { path: "/create-admin", to: CreateAdminPage }
 page CreateAdminPage {
-  authRequired: true,
+  authRequired: false,
   component: import  CreateAdminPage from "@src/pages/CreateAdminPage"
 }
 
