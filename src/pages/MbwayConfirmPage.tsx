@@ -8,6 +8,7 @@ import {
   createDoacaoCompleta,
   getUtilizadorInfoById,
   createPagamentoSubscricaoExistente,
+  getSubscricaoById,
   useAction
 } from 'wasp/client/operations';
 import type { TipoSubscricao, MetodoPagamento } from 'wasp/entities';
@@ -39,10 +40,6 @@ interface SubscricaoExistenteState {
   userId: number;
   metodoId: number;
   valor?: number;
-  planName: string;
-  planDesc: string;
-  duracaoNome: string;
-  duracaoMeses: number;
 }
 
 type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
@@ -77,31 +74,48 @@ const MbwayConfirmPage: React.FC = () => {
   const createDoacao = useAction(createDoacaoCompleta);
   const createExisting = useAction(createPagamentoSubscricaoExistente);
 
-  useEffect(() => {
+useEffect(() => {
     (async () => {
       try {
         const metodos = await getMetodoPagamento();
-        setMetodo(metodos.find(m => m.MetodoPagamentoId === locationState.metodoId) || null);
+        setMetodo(metodos.find(m => m.MetodoPagamentoId === locationState.metodoId)!)
+
         if (locationState.tipo === 'subscricao') {
           const [tipos, duracoes] = await Promise.all([
             getTipoSubscricao(),
             getDuracaoByTipoSubscricaoId({ TipoSubscricaoID: locationState.planId })
           ]);
-          setPlan(tipos.find(t => t.TipoSubscricaoID === locationState.planId) || null);
-          setDuracao(duracoes.find(d => d.DuracaoId === locationState.duracaoId) || null);
+          setPlan(tipos.find(t => t.TipoSubscricaoID === locationState.planId)!)
+          setDuracao(duracoes.find(d => d.DuracaoId === locationState.duracaoId)!)
+
+        } else if (locationState.tipo === 'subscricao-existente') {
+          const [subs] = await getSubscricaoById({
+            SubscricaoId: locationState.subscricaoId
+          });
+
+          setPlan(subs.TipoSubscricao)
+          setDuracao({
+            DuracaoId:  subs.Duracao.DuracaoId,
+            Nome:       subs.Duracao.Nome,
+            Meses:      subs.Duracao.Meses,
+            Desconto:   0,
+            ValorFinal: subs.TipoSubscricao.PrecoBaseMensal * subs.Duracao.Meses
+          })
+
+        } else {
+          setNotaExtra(locationState.nota ?? '')
+          const result = await getUtilizadorInfoById({ id: locationState.utilizadorId })
+          setDoadorNome(result?.[0]?.utilizador?.Nome ?? 'Doação Anônima')
         }
-        if (locationState.tipo === 'doacao') {
-          setNotaExtra(locationState.nota || '');
-          const result = await getUtilizadorInfoById({ id: locationState.utilizadorId });
-          setDoadorNome(result?.[0]?.utilizador?.Nome || 'Desconhecido');
-        }
+
       } catch {
-        setError('Erro ao carregar dados.');
+        setError('Erro ao carregar dados.')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    })();
-  }, [locationState]);
+    })()
+  }, [locationState])
+
 
   const goVerPlanos = () => {
     if (locationState.tipo === 'subscricao') {
@@ -148,10 +162,6 @@ const MbwayConfirmPage: React.FC = () => {
           userId: locationState.userId,
           metodoId: locationState.metodoId,
           valor: locationState.valor,
-          planName: locationState.planName,
-          planDesc: locationState.planDesc,
-          duracaoNome: locationState.duracaoNome,
-          duracaoMeses: locationState.duracaoMeses 
         }
       });
     }
@@ -261,18 +271,18 @@ const MbwayConfirmPage: React.FC = () => {
           </>
         )}
 
-        {locationState.tipo === 'subscricao-existente' && (
+        {locationState.tipo === 'subscricao-existente' && plan && duracao &&  (
           <>
             <hr className="border-gray-200" />
             <label className="block font-medium mt-2">Plano Existente</label>
             <div className="p-3 border rounded-lg bg-gray-50">
-              <p><strong>Nome:</strong> {locationState.planName}</p>
-              <p><strong>Descrição:</strong> {locationState.planDesc}</p>
+              <p><strong>Nome:</strong> {plan?.Nome}</p>
+              <p><strong>Descrição:</strong> {plan?.Descricao}</p>
             </div>
             <label className="block font-medium mt-2">Duração</label>
             <div className="p-3 border rounded-lg bg-gray-50">
-              <p><strong>Tipo:</strong> {locationState.duracaoNome}</p>
-              <p><strong>Meses:</strong> {locationState.duracaoMeses}</p>
+              <p><strong>Tipo:</strong> {duracao?.Nome}</p>
+              <p><strong>Meses:</strong> {duracao?.Meses}</p>
             </div>
           </>
         )}

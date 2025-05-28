@@ -13,11 +13,10 @@ interface FilterDuracoesProps {
 
 const FilterDuracoes = ({ applyFilters }: FilterDuracoesProps) => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isOpen, setIsOpen] = useState(true);
 
-  // Usa useQuery para buscar durações e loading automático
   const { data: duracoes = [], isLoading } = useQuery(getDuracao);
 
-  // dispara o filtro sempre que mudar selectedId
   useEffect(() => {
     applyFilters({ duracaoId: selectedId ?? undefined });
   }, [selectedId, applyFilters]);
@@ -34,17 +33,23 @@ const FilterDuracoes = ({ applyFilters }: FilterDuracoesProps) => {
       <div className="border-t border-gray-200 pt-3 mb-3">
         <div
           className="flex justify-between items-center cursor-pointer mb-1"
-          onClick={() => {/* poderias adicionar toggle de colapso se quiseres */}}
+          onClick={() => setIsOpen((prev) => !prev)}
         >
           <h3 className="text-sm font-medium text-gray-700">Duração</h3>
           <svg
-            className="w-4 h-4"
+            className={`w-4 h-4 transform transition-transform duration-200 ${
+              isOpen ? 'rotate-90' : ''
+            }`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M9 5l7 7-7 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </div>
 
@@ -53,28 +58,30 @@ const FilterDuracoes = ({ applyFilters }: FilterDuracoesProps) => {
             <LoadingSpinner />
           </div>
         ) : (
-          <div className="space-y-2 mt-2">
-            {duracoes.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">Sem durações.</p>
-            ) : (
-              duracoes.map((d) => (
-                <label
-                  key={d.DuracaoId}
-                  htmlFor={`dur-${d.DuracaoId}`}
-                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
-                >
-                  <input
-                    type="checkbox"
-                    id={`dur-${d.DuracaoId}`}
-                    checked={selectedId === d.DuracaoId}
-                    onChange={() => toggleCheckbox(d.DuracaoId)}
-                    className="text-blue-600 rounded focus:ring-0"
-                  />
-                  <span className="text-sm text-gray-700">{d.Nome}</span>
-                </label>
-              ))
-            )}
-          </div>
+          isOpen && (
+            <div className="space-y-2 mt-2">
+              {duracoes.length === 0 ? (
+                <p className="text-sm text-gray-400 italic">Sem durações.</p>
+              ) : (
+                duracoes.map((d) => (
+                  <label
+                    key={d.DuracaoId}
+                    htmlFor={`dur-${d.DuracaoId}`}
+                    className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
+                  >
+                    <input
+                      type="checkbox"
+                      id={`dur-${d.DuracaoId}`}
+                      checked={selectedId === d.DuracaoId}
+                      onChange={() => toggleCheckbox(d.DuracaoId)}
+                      className="text-blue-600 rounded focus:ring-0"
+                    />
+                    <span className="text-sm text-gray-700">{d.Nome}</span>
+                  </label>
+                ))
+              )}
+            </div>
+          )
         )}
       </div>
 

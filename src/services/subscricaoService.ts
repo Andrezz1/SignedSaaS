@@ -24,11 +24,11 @@ export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, co
   })
 }
 
-export const getSubscricaoById: GetSubscricaoById<Pick<Subscricao, 'SubscricaoId'>, Subscricao[]
+export const getSubscricaoById: GetSubscricaoById<Pick<Subscricao, 'SubscricaoId'>, any[]
 > = async (args, context) => {
-  // if (!context.user) {
-  //   throw new HttpError(401, "Não tem permissão")
-  // }
+  if (!context.user) {
+    throw new HttpError(401, "Não tem permissão")
+  }
 
   if (!args.SubscricaoId) {
     throw new Error("Subscricao nao encontrada")
