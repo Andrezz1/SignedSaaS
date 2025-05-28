@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AccessToken {
+  TokenId           Int      @id @default(autoincrement())
+  Token        String   @unique
+  Utilizador   Utilizador @relation(fields: [UtilizadorId], references: [id])
+  UtilizadorId Int
+  ExpiresAt    DateTime
+}
+
 model AuditPagamento {
   AuditPagamentoId        Int       @id @default(autoincrement())
   DadosAntes              Json?
