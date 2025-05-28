@@ -30,10 +30,6 @@ interface SubscricaoExistenteState {
   subscricaoId: number;
   userId: number;
   valor?: number;
-  planName: string
-  planDesc: string
-  duracaoNome: string
-  duracaoMeses: number
 }
 
 type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
@@ -122,10 +118,6 @@ const PaymentPickerPage: React.FC = () => {
           userId: locationState.userId,
           metodoId: selectedId,
           valor: locationState.valor,
-          planName: locationState.planName,
-          planDesc: locationState.planDesc,
-          duracaoNome: locationState.duracaoNome,
-          duracaoMeses: locationState.duracaoMeses,
         }
       });
     }

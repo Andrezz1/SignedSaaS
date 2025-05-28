@@ -1,4 +1,3 @@
-// src/pages/DinheiroConfirmPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -32,6 +31,13 @@ interface DoacaoState {
   utilizadorId: number;
   valor: number;
   nota: string;
+}
+
+interface SubscricaoExistenteState {
+  tipo: 'subscricao-existente';
+  subscricaoId: number;
+  userId: number;
+  valor?: number;
 }
 
 type LocationState = SubscricaoState | DoacaoState;
