@@ -6,7 +6,8 @@ import {
   type CreateSubscricaoCompleta,
   type GetDataSubscricao,
   type CreatePagamentoSubscricaoExistente,
-  type GetSubscricoesQuantia
+  type GetSubscricoesQuantia,
+  type GetSubscricaoById
 } from 'wasp/server/operations'
 import { PrismaClient } from '@prisma/client'
 import cron from 'node-cron'
@@ -21,6 +22,31 @@ export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, co
   return context.entities.Subscricao.findMany({
     orderBy: { SubscricaoId: 'asc' },
   })
+}
+
+export const getSubscricaoById: GetSubscricaoById<Pick<Subscricao, 'SubscricaoId'>, Subscricao[]
+> = async (args, context) => {
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
+
+  if (!args.SubscricaoId) {
+    throw new Error("Subscricao nao encontrada")
+  }
+
+  const subscricao = await context.entities.Subscricao.findFirst({
+    where: {SubscricaoId: args.SubscricaoId},
+    include: {
+      Duracao: true,
+      TipoSubscricao: true
+    }
+  })
+
+  if(!subscricao) {
+    throw new Error ("Subscricao nao encontrada")
+  }
+
+  return [subscricao]
 }
 
 export const getSubscricoesQuantia: GetSubscricoesQuantia<void, number> = async (_args, context) => {

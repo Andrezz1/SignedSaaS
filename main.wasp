@@ -286,6 +286,11 @@ query getMetodoPagamento {
 
 // As queries abaixo são queries com filtros
 
+query getSubscricaoById {
+  fn: import { getSubscricaoById } from "@src/services/subscricaoService",
+  entities: [Subscricao]
+}
+
 query getUtilizadorByNIF {
   fn: import { getUtilizadorByNIF } from "@src/services/utilizadorService",
   entities: [Utilizador]
@@ -342,6 +347,11 @@ query getComprovativoPagamentoId {
 }
 
 // As actions abaixo servem para adicionar novos dados a base de dados
+
+action createAccessToken{
+  fn: import { createAccessToken } from "@src/services/tokenService",
+  entities: [AccessToken, Utilizador]
+}
 
 action createUtilizador {
   fn: import { createUtilizador } from "@src/services/utilizadorService",
