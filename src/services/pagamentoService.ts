@@ -28,17 +28,14 @@ export const getTotalPagamentosPendentes: GetTotalPagamentosPendentes<void,numbe
     throw new HttpError(401, 'Não tem permissão')
   }
 
-  const where = {
-    EstadoPagamento: 'pendente'
-  }
-
   const totalPendentes = await context.entities.Pagamento.count({
-    where
+    where: {
+      EstadoPagamento: 'pendente'
+    }
   })
 
   return totalPendentes
 } 
-
 
 export const getPagamentosPendentes: GetPagamentosPendentes<
   {
