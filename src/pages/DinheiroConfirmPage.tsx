@@ -8,6 +8,8 @@ import {
   confirmarPagamentoFisico,
   useAction,
   getUtilizadorInfoById,
+  getSubscricaoById,
+  createPagamentoSubscricaoExistente,
   createDoacaoCompleta
 } from 'wasp/client/operations';
 import type { TipoSubscricao, MetodoPagamento } from 'wasp/entities';
@@ -36,11 +38,12 @@ interface DoacaoState {
 interface SubscricaoExistenteState {
   tipo: 'subscricao-existente';
   subscricaoId: number;
+  metodoId: number;
   userId: number;
   valor?: number;
 }
 
-type LocationState = SubscricaoState | DoacaoState;
+type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
 
 interface DuracaoWithExtras {
   DuracaoId: number;
@@ -72,31 +75,53 @@ const DinheiroConfirmPage: React.FC = () => {
   const confirmPhysicalPay = useAction(confirmarPagamentoFisico);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const metodos = await getMetodoPagamento();
-        setMetodo(metodos.find(m => m.MetodoPagamentoId === locationState.metodoId) || null);
+  (async () => {
+    try {
+      const metodos = await getMetodoPagamento();
+      setMetodo(
+        metodos.find(m => m.MetodoPagamentoId === locationState.metodoId)!
+      );
 
-        if (locationState.tipo === 'subscricao') {
-          const [tipos, duracoes] = await Promise.all([
-            getTipoSubscricao(),
-            getDuracaoByTipoSubscricaoId({ TipoSubscricaoID: locationState.planId })
-          ]);
-          setPlan(tipos.find(t => t.TipoSubscricaoID === locationState.planId) || null);
-          setDuracao(duracoes.find(d => d.DuracaoId === locationState.duracaoId) || null);
-        } else if (locationState.tipo === 'doacao') {
-          setNotaExtra(locationState.nota || '');
-          const result = await getUtilizadorInfoById({ id: locationState.utilizadorId });
-          const nome = result?.[0]?.utilizador?.Nome;
-          setDoadorNome(nome || 'Doação Anónima');
-        }
-      } catch {
-        setError('Erro ao carregar os dados.');
-      } finally {
-        setLoading(false);
+      if (locationState.tipo === 'subscricao') {
+        const [tipos, duracoes] = await Promise.all([
+          getTipoSubscricao(),
+          getDuracaoByTipoSubscricaoId({
+            TipoSubscricaoID: locationState.planId
+          })
+        ]);
+        setPlan(
+          tipos.find(t => t.TipoSubscricaoID === locationState.planId)!
+        );
+        setDuracao(
+          duracoes.find(d => d.DuracaoId === locationState.duracaoId)!
+        );
+
+      } else if (locationState.tipo === 'subscricao-existente') {
+          const [subs] = await getSubscricaoById({
+            SubscricaoId: locationState.subscricaoId
+          });
+          setPlan(subs.TipoSubscricao);
+          setDuracao({
+            DuracaoId:  subs.Duracao.DuracaoId,
+            Nome:       subs.Duracao.Nome,
+            Meses:      subs.Duracao.Meses,
+            ValorFinal: subs.TipoSubscricao.PrecoBaseMensal * subs.Duracao.Meses
+          });
+        } else {
+        setNotaExtra(locationState.nota ?? '');
+        const res = await getUtilizadorInfoById({
+          id: locationState.utilizadorId
+        });
+        setDoadorNome(res?.[0]?.utilizador?.Nome ?? 'Doação Anônima');
       }
-    })();
-  }, [locationState]);
+
+    } catch {
+      setError('Erro ao carregar os dados.');
+    } finally {
+      setLoading(false);
+    }
+  })();
+}, [locationState]);
 
   const handleContinue = async () => {
     try {
@@ -126,10 +151,24 @@ const DinheiroConfirmPage: React.FC = () => {
           NIFPagamento: nifPagamento
         });
         pagamentoId = res.pagamento.PagamentoId;
+      } else { // subscrição existente
+        const res = await createPagamentoSubscricaoExistente({
+          SubscricaoId: locationState.subscricaoId!,
+          UtilizadorId: locationState.userId,
+          MetodoPagamentoId: locationState.metodoId,
+          NIFPagamento: nifPagamento,
+          Nota: notaPagamento,
+          EstadoPagamento: 'pendente',
+          DadosEspecificos: {},
+          Valor: 0,
+        });
+        pagamentoId = (res as any).PagamentoPagamentoId ?? 0;
       }
 
+    
       setCreatedPaymentId(pagamentoId);
       setModalOpen(true);
+
     } catch {
       setActionError('Não foi possível concluir o pagamento.');
     }
@@ -137,15 +176,23 @@ const DinheiroConfirmPage: React.FC = () => {
 
   const onModalConfirm = async () => {
     if (!createdPaymentId) return;
+
+    let idUtilizador: number;
+    switch (locationState.tipo) {
+      case 'doacao':
+        idUtilizador = locationState.utilizadorId;
+        break;
+      case 'subscricao':
+      case 'subscricao-existente':
+        idUtilizador = locationState.userId;
+        break;
+    }
+
     try {
       await confirmPhysicalPay({
-        PagamentoId: createdPaymentId,
+        PagamentoId:     createdPaymentId,
         EstadoPagamento: 'concluir',
-        Utilizador: {
-          id: locationState.tipo === 'subscricao'
-            ? locationState.userId
-            : locationState.utilizadorId
-        }
+        Utilizador:      { id: idUtilizador }
       });
       navigate('/dashboard');
     } catch (e: any) {
@@ -155,21 +202,32 @@ const DinheiroConfirmPage: React.FC = () => {
 
   const onModalCancel = async () => {
     if (!createdPaymentId) return;
+
     try {
+      let idUtilizador: number;
+      switch (locationState.tipo) {
+        case 'doacao':
+          idUtilizador = locationState.utilizadorId;
+          break;
+        case 'subscricao':
+        case 'subscricao-existente':
+          idUtilizador = locationState.userId;
+          break;
+      }
+
       await confirmPhysicalPay({
         PagamentoId: createdPaymentId,
         EstadoPagamento: 'cancelar',
-        Utilizador: {
-          id: locationState.tipo === 'subscricao'
-            ? locationState.userId
-            : locationState.utilizadorId
-        }
+        Utilizador: { id: idUtilizador }
       });
+
       navigate('/dashboard');
     } catch (e: any) {
       setActionError(e.message);
     }
   };
+
+
 
   const goPlan = () => {
     if (locationState.tipo === 'subscricao') {
@@ -200,14 +258,26 @@ const DinheiroConfirmPage: React.FC = () => {
         }
       });
     } else {
-      navigate('/payment-picker', {
-        state: {
-          tipo: 'doacao',
-          utilizadorId: locationState.utilizadorId,
-          valor: locationState.valor,
-          nota: locationState.nota
-        }
-      });
+      if (locationState.tipo === 'doacao') {
+        navigate('/payment-picker', {
+          state: {
+            tipo: 'doacao',
+            utilizadorId: locationState.utilizadorId,
+            valor: locationState.valor,
+            nota: locationState.nota
+          }
+        });
+      } else if (locationState.tipo === 'subscricao-existente') {
+        navigate('/payment-picker', {
+          state: {
+            tipo: 'subscricao-existente',
+            subscricaoId: locationState.subscricaoId,
+            metodoId: locationState.metodoId,
+            userId: locationState.userId,
+            valor: locationState.valor
+          }
+        });
+      }
     }
   };
 
@@ -228,7 +298,7 @@ const DinheiroConfirmPage: React.FC = () => {
 
   const total = locationState.tipo === 'subscricao'
     ? duracao?.ValorFinal.toFixed(2)
-    : locationState.valor.toFixed(2);
+    : locationState.valor?.toFixed(2);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -254,6 +324,22 @@ const DinheiroConfirmPage: React.FC = () => {
                 <div><span className="font-semibold">Meses:</span> {duracao?.Meses}</div>
               </div>
               <span className="text-blue-600 text-sm font-medium hover:underline">Alterar</span>
+            </div>
+          </>
+        )}
+
+        {locationState.tipo === 'subscricao-existente' && plan && duracao && (
+          <>
+            <hr className="border-gray-200" />
+            <label className="block font-medium mt-2">Plano Existente</label>
+            <div className="p-3 border border-gray-300 rounded-lg bg-gray-50">
+              <p><strong>Nome:</strong> {plan.Nome}</p>
+              <p><strong>Descrição:</strong> {plan.Descricao}</p>
+            </div>
+            <label className="block font-medium mt-2">Duração</label>
+            <div className="p-3 border border-gray-300 rounded-lg bg-gray-50">
+              <p><strong>Tipo:</strong> {duracao.Nome}</p>
+              <p><strong>Meses:</strong> {duracao.Meses}</p>
             </div>
           </>
         )}

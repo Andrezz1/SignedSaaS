@@ -40,12 +40,10 @@ const PlanosTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Sempre que o filtro mudar, volta para a página 1
   useEffect(() => {
     setCurrentPage(1);
   }, [appliedFilters]);
 
-  // Fetch usando useQuery do Wasp
   const { data: resp, isLoading: loading } = useQuery(getTipoSubscricaoInfo, {
     page: currentPage,
     pageSize,
@@ -55,46 +53,49 @@ const PlanosTable = ({
   const rawEntries = resp?.data ?? [];
   const totalPages = resp?.totalPages ?? 1;
 
-  // Agrupa os resultados por plano assim que a resposta chegar
   useEffect(() => {
-    if (!resp) return;
-    const agrupados: Plano[] = [];
-    rawEntries.forEach((entry) => {
-      const idx = agrupados.findIndex(
-        (p) => p.TipoSubscricaoID === entry.tipoSubscricao.TipoSubscricaoID
-      );
-      const obj: TipoSubscricaoDuracao = {
-        Duracao: {
-          DuracaoID: entry.duracao.DuracaoId,
-          Nome: entry.duracao.Nome,
-        },
-        Desconto: entry.tipoSubscricaoduracao.Desconto ?? undefined,
-        ValorFinal: entry.tipoSubscricaoduracao.ValorFinal,
-      };
-      if (idx >= 0) {
-        agrupados[idx].Duracoes.push(obj);
-      } else {
-        agrupados.push({
-          TipoSubscricaoID: entry.tipoSubscricao.TipoSubscricaoID,
-          Nome: entry.tipoSubscricao.Nome,
-          Descricao: entry.tipoSubscricao.Descricao,
-          PrecoBaseMensal: entry.tipoSubscricao.PrecoBaseMensal,
-          Duracoes: [obj],
-        });
-      }
-    });
+  if (!resp) return;
+  const agrupados: Plano[] = [];
+  rawEntries.forEach((entry) => {
+    const idx = agrupados.findIndex(
+      (p) => p.TipoSubscricaoID === entry.tipoSubscricao.TipoSubscricaoID
+    );
+    const obj: TipoSubscricaoDuracao = {
+      Duracao: {
+        DuracaoID: entry.duracao.DuracaoId,
+        Nome: entry.duracao.Nome,
+      },
+      Desconto: entry.tipoSubscricaoduracao.Desconto ?? undefined,
+      ValorFinal: entry.tipoSubscricaoduracao.ValorFinal,
+    };
+    if (idx >= 0) {
+      agrupados[idx].Duracoes.push(obj);
+    } else {
+      agrupados.push({
+        TipoSubscricaoID: entry.tipoSubscricao.TipoSubscricaoID,
+        Nome: entry.tipoSubscricao.Nome,
+        Descricao: entry.tipoSubscricao.Descricao,
+        PrecoBaseMensal: entry.tipoSubscricao.PrecoBaseMensal,
+        Duracoes: [obj],
+      });
+    }
+  });
 
-       let planosFiltrados = agrupados;
-       if (appliedFilters.duracaoId) {
-         planosFiltrados = agrupados.filter(plano =>
-           plano.Duracoes.some(
-             d => d.Duracao.DuracaoID === appliedFilters.duracaoId
-           )
-         );
-       }
-       setPlanos(planosFiltrados);
+  agrupados.forEach(plano => {
+    plano.Duracoes.sort((a, b) => a.Duracao.DuracaoID - b.Duracao.DuracaoID);
+  });
 
-    }, [resp, appliedFilters.duracaoId]);
+  let planosFiltrados = agrupados;
+  if (appliedFilters.duracaoId) {
+    planosFiltrados = agrupados.filter(plano =>
+      plano.Duracoes.some(
+        d => d.Duracao.DuracaoID === appliedFilters.duracaoId
+      )
+    );
+  }
+  setPlanos(planosFiltrados);
+}, [resp, appliedFilters.duracaoId]);
+
 
   return (
     <div className="w-full transition-all duration-300">
