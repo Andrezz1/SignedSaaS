@@ -6,6 +6,8 @@ import {
   getDuracaoByTipoSubscricaoId,
   createSubscricaoCompleta,
   createDoacaoCompleta,
+  createPagamentoSubscricaoExistente,
+  getSubscricaoById,
   getUtilizadorInfoById,
   useAction
 } from 'wasp/client/operations';
@@ -31,7 +33,15 @@ interface DoacaoState {
   nota: string;
 }
 
-type LocationState = SubscricaoState | DoacaoState;
+interface SubscricaoExistenteState {
+  tipo: 'subscricao-existente';
+  subscricaoId: number;
+  userId: number;
+  metodoId: number;
+  valor?: number;
+}
+
+type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
 
 interface DuracaoWithExtras {
   DuracaoId: number;
@@ -72,14 +82,23 @@ const TransferenciaConfirmPage: React.FC = () => {
           ]);
           setPlan(tipos.find(t => t.TipoSubscricaoID === locationState.planId) || null);
           setDuracao(duracoes.find(d => d.DuracaoId === locationState.duracaoId) || null);
-        }
 
-        if (locationState.tipo === 'doacao') {
+        } else if (locationState.tipo === 'subscricao-existente') {
+          const [subs] = await getSubscricaoById({ SubscricaoId: locationState.subscricaoId });
+          setPlan(subs.TipoSubscricao);
+          setDuracao({
+            DuracaoId:   subs.Duracao.DuracaoId,
+            Nome:        subs.Duracao.Nome,
+            Meses:       subs.Duracao.Meses,
+            ValorFinal:  subs.TipoSubscricao.PrecoBaseMensal * subs.Duracao.Meses
+          });
+
+        } else {
           setNotaExtra(locationState.nota || '');
           const result = await getUtilizadorInfoById({ id: locationState.utilizadorId });
-          const nome = result?.[0]?.utilizador?.Nome;
-          setDoadorNome(nome || 'Doação Anónima');
+          setDoadorNome(result?.[0]?.utilizador?.Nome || 'Doação Anônima');
         }
+
       } catch {
         setError('Erro ao carregar os dados.');
       } finally {
@@ -103,14 +122,27 @@ const TransferenciaConfirmPage: React.FC = () => {
           },
           PagamentoPagamentoId: 0
         });
-      } else if (locationState.tipo === 'doacao') {
+
+      } else if (locationState.tipo === 'subscricao-existente') {
+        await createPagamentoSubscricaoExistente({
+          SubscricaoId:        locationState.subscricaoId,
+          UtilizadorId:        locationState.userId,
+          MetodoPagamentoId:   locationState.metodoId,
+          NIFPagamento:        nifPagamento,
+          Nota:                notaPagamento,
+          EstadoPagamento:     'pendente',
+          DadosEspecificos:    {},
+          Valor:               locationState.valor ?? 0
+        });
+
+      } else {
         await createDoacao({
-          UtilizadorId:     locationState.utilizadorId,
-          ValorDoacao:      locationState.valor,
-          NotaPagamento:    notaPagamento,
-          NotaDoacao:       notaExtra,
-          MetodoPagamentoId: locationState.metodoId,
-          NIFPagamento:     nifPagamento
+          UtilizadorId:       locationState.utilizadorId,
+          ValorDoacao:        locationState.valor,
+          NotaPagamento:      notaPagamento,
+          NotaDoacao:         notaExtra,
+          MetodoPagamentoId:  locationState.metodoId,
+          NIFPagamento:       nifPagamento
         });
       }
 
@@ -119,6 +151,7 @@ const TransferenciaConfirmPage: React.FC = () => {
       setActionError('Não foi possível criar o pagamento.');
     }
   };
+
 
   const goPlan = () => {
     if (locationState.tipo === 'subscricao') {
@@ -148,13 +181,22 @@ const TransferenciaConfirmPage: React.FC = () => {
           duracaoId: locationState.duracaoId
         }
       });
-    } else {
+    } else if (locationState.tipo === 'doacao') {
       navigate('/payment-picker', {
         state: {
           tipo: 'doacao',
           utilizadorId: locationState.utilizadorId,
           valor: locationState.valor,
           nota: locationState.nota
+        }
+      });
+    } else if (locationState.tipo === 'subscricao-existente') {
+      navigate('/payment-picker', {
+        state: {
+          tipo: 'subscricao-existente',
+          subscricaoId: locationState.subscricaoId,
+          userId: locationState.userId,
+          valor: locationState.valor
         }
       });
     }
@@ -178,6 +220,15 @@ const TransferenciaConfirmPage: React.FC = () => {
       {error}
     </div>
   );
+
+      let total = 0;
+  if (locationState.tipo === 'doacao') {
+    total = locationState.valor;
+  } else if (locationState.tipo === 'subscricao') {
+    total = duracao?.ValorFinal ?? 0;
+  } else {
+    total = locationState.valor ?? 0;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -203,6 +254,23 @@ const TransferenciaConfirmPage: React.FC = () => {
                 <div><span className="font-semibold">Meses:</span> {duracao.Meses}</div>
               </div>
               <span className="text-blue-600 text-sm font-medium hover:underline">Alterar</span>
+            </div>
+          </>
+        )}
+
+        {/* subscrição existente */}
+        {locationState.tipo === 'subscricao-existente' && plan && duracao && (
+          <>
+            <hr className="border-gray-200" />
+            <label className="block font-medium mt-2">Plano Existente</label>
+            <div className="p-3 border rounded-lg bg-gray-50">
+              <p><strong>Nome:</strong> {plan.Nome}</p>
+              <p><strong>Descrição:</strong> {plan.Descricao}</p>
+            </div>
+            <label className="block font-medium mt-2">Duração</label>
+            <div className="p-3 border rounded-lg bg-gray-50">
+              <p><strong>Tipo:</strong> {duracao.Nome}</p>
+              <p><strong>Meses:</strong> {duracao.Meses}</p>
             </div>
           </>
         )}
@@ -258,12 +326,11 @@ const TransferenciaConfirmPage: React.FC = () => {
 
         {/* Total */}
         <div className="mt-6 text-center">
-          <span className="block text-xl font-medium text-black">Total a pagar</span>
+          <span className="block text-xl font-medium text-black">
+            Total a pagar
+          </span>
           <span className="block text-3xl font-bold text-gray-700">
-            €
-            {locationState.tipo === 'subscricao'
-              ? duracao?.ValorFinal.toFixed(2)
-              : locationState.valor.toFixed(2)}
+            €{total.toFixed(2)}
           </span>
         </div>
 
