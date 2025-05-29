@@ -72,4 +72,3 @@ export const validarToken: ValidarToken<Pick<AccessToken, 'Token'>, ValidarToken
 
   return { message: 'Token válido', id: token.UtilizadorId }
 }
-

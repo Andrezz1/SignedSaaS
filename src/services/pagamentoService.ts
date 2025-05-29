@@ -213,22 +213,77 @@ export const getPagamentoInfo: GetPagamentoInfo<void, Array<{
   return PagamentoInfo
 }
 
-export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<Pick<Utilizador, 'id'>, Pagamento[]>
-= async (
-  args,
-  context
-) => {
+export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<
+  {
+    utilizadorId: number
+    page: number
+    pageSize: number
+    searchTerm?: string
+  },
+  {
+    data: {
+      pagamento: Pagamento
+      utilizador: Utilizador
+    }[]
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
+  }
+> = async ({ utilizadorId, page, pageSize, searchTerm }, context) => {
   if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
+    throw new HttpError(401, 'Não tem permissão')
   }
 
-  if(!args.id) {
-    throw new Error("UtilizadorId nao foi encontrado")
+  const skip = (page - 1) * pageSize
+  const take = pageSize
+
+  const where: any = {
+    UtilizadorId: utilizadorId,
   }
 
-  return context.entities.Pagamento.findMany({
-    where: {  UtilizadorId: args.id },
+  if (searchTerm) {
+    where.OR = [
+      { Utilizador: { Nome: { contains: searchTerm, mode: 'insensitive' } } },
+      { Utilizador: { NIF: { contains: searchTerm, mode: 'insensitive' } } },
+    ]
+  }
+
+  const pagamentos = await context.entities.Pagamento.findMany({
+    where,
+    include: {
+      Utilizador: {
+        include: {
+          Contacto: true,
+        },
+      },
+      Subscricoes: true,
+      Doacao: true,
+      MetodoPagamento: true,
+    },
+    orderBy: {
+      PagamentoId: 'desc',
+    },
+    skip,
+    take,
   })
+
+  const pagamentosInfo = pagamentos.map(({ Utilizador, ...pagamento }) => ({
+    pagamento,
+    utilizador: Utilizador!
+  }))
+
+  const totalPagamentos = await context.entities.Pagamento.count({
+    where,
+  })
+
+  return {
+    data: pagamentosInfo,
+    total: totalPagamentos,
+    page,
+    pageSize,
+    totalPages: Math.ceil(totalPagamentos / pageSize),
+  }
 }
 
 type CreatePagamentoPayload = {
@@ -276,7 +331,7 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
           valor: input.Valor.toFixed(2),
           id: `user_${input.UtilizadorId}_${Date.now()}`,
           descricao: 'Pagamento de Subscrição',
-          nif: input.NIFPagamento
+          nif: input.NIFPagamento,
         }
 
         let endpoint = ''
@@ -290,7 +345,7 @@ export async function createPagamento(input: CreatePagamentoPayload, prisma: any
         } else if (input.MetodoPagamentoId === 2) {
           endpoint = 'https://sandbox.eupago.pt/clientes/rest_api/multibanco/create'
         } else if (input.MetodoPagamentoId === 3) {
-          endpoint = 'https://sandbox.eupago.pt/api/rest_api/creditcard/create'
+          endpoint = 'https://sandbox.eupago.pt/api/v1.02/creditcard/create'
         }
 
         const response = await axios.post(
