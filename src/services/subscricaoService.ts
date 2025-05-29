@@ -193,9 +193,9 @@ export async function createSubscricao(
   input: CreateSubscricaoPayload,
   context: any
 ) {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
 
   const tipoSubscricaoDuracao = await context.entities.TipoSubscricaoDuracao.findFirst({
     where: { 
@@ -274,9 +274,9 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
   args,
   context
 ) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  // if (!context.user) {
+  //   throw new HttpError(401, "Não tem permissão")
+  // }
   
   const { subscricao, valorFinal } = await createSubscricao(args, context)
 
@@ -288,7 +288,7 @@ export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricao
     EstadoPagamento: args.Pagamento.EstadoPagamento,
     NIFPagamento: args.Pagamento.NIFPagamento!,
     TelemovelMbway: args.Pagamento?.DadosEspecificos?.telemovelMbway,
-    Nota: args.Pagamento.Nota
+    Nota: args.Pagamento.Nota,
   }, prisma)
 
   const subscricaoFinal = await connectPagamentoASubscricao(
