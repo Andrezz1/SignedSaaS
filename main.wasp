@@ -104,6 +104,12 @@ page HistoricoDoacoesPage {
   component: import HistoricoDoacoesPage from "@src/pages/HistoricoDoacoesPage"
 }
 
+route HistoricoSubscricoesRoute { path: "/historico-subscricoes", to: HistoricoSubscricoesPage  }
+page HistoricoSubscricoesPage  {
+  authRequired: true,
+  component: import HistoricoSubscricoesPage  from "@src/pages/HistoricoSubscricoesPage "
+}
+
 route CreateDoacaoRoute { path: "/create-doacao", to: CreateDoacaoPage }
 page CreateDoacaoPage {
   authRequired: true,
