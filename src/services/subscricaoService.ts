@@ -1,7 +1,7 @@
 import { Subscricao, Utilizador, Pagamento, TipoSubscricao } from 'wasp/entities'
 import { 
-  type GetSubscricao, 
-  type GetSubscricaoInfo, 
+  type GetSubscricao,
+  type GetSubscricaoInfo,
   type GetSubscricaoByUtilizadorId,
   type CreateSubscricaoCompleta,
   type GetDataSubscricao,
