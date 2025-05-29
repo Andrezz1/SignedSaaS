@@ -7,7 +7,8 @@ import {
   type GetMetodoPagamento,
   type ConfirmarPagamentoFisico,
   type GetTotalPagamentosPendentes,
-  type GetPagamentosPendentes
+  type GetPagamentosPendentes,
+  type GetPagamentosConcluidos
 } from 'wasp/server/operations'
 import { HttpError, prisma } from 'wasp/server'
 import { registarAuditLog } from './auditService'
@@ -35,7 +36,7 @@ export const getTotalPagamentosPendentes: GetTotalPagamentosPendentes<void,numbe
   })
 
   return totalPendentes
-} 
+}
 
 export const getPagamentosPendentes: GetPagamentosPendentes<
   {
@@ -99,7 +100,6 @@ export const getPagamentosPendentes: GetPagamentosPendentes<
   }
 }
 
-
 export const getMetodoPagamento: GetMetodoPagamento <void, MetodoPagamento[]> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, "Não tem permissão")
@@ -109,6 +109,81 @@ export const getMetodoPagamento: GetMetodoPagamento <void, MetodoPagamento[]> = 
     orderBy: { MetodoPagamentoId: 'asc' },
   })
 }
+
+export const getPagamentosConcluidos: GetPagamentosConcluidos<
+  {
+    page: number
+    pageSize: number
+    searchTerm?: string
+  },
+  {
+    data: {
+      pagamento: Pagamento
+      utilizador: Utilizador
+    }[]
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
+  }
+> = async ({ page, pageSize, searchTerm }, context) => {
+  if (!context.user) {
+    throw new HttpError(401, 'Não tem permissão')
+  }
+
+  const skip = (page - 1) * pageSize
+  const take = pageSize
+
+  const where: any = {
+    EstadoPagamento: 'concluido',
+    Subscricoes: {
+      some: {} 
+    }
+  }
+
+  if (searchTerm) {
+    where.OR = [
+      { Utilizador: { Nome: { contains: searchTerm, mode: 'insensitive' } } },
+      { Utilizador: { NIF: { contains: searchTerm, mode: 'insensitive' } } },
+    ]
+  }
+
+  const pagamentos = await context.entities.Pagamento.findMany({
+    where,
+    include: {
+      Utilizador: {
+        include: {
+          Contacto: true,
+        },
+      },
+      Subscricoes: true,
+      MetodoPagamento: true
+    },
+    orderBy: {
+      PagamentoId: 'desc',
+    },
+    skip,
+    take,
+  })
+
+  const pagamentosInfo = pagamentos.map(({ Utilizador, ...pagamento }) => ({
+    pagamento,
+    utilizador: Utilizador!
+  }))
+
+  const totalPagamentos = await context.entities.Pagamento.count({
+    where,
+  })
+
+  return {
+    data: pagamentosInfo,
+    total: totalPagamentos,
+    page,
+    pageSize,
+    totalPages: Math.ceil(totalPagamentos / pageSize),
+  }
+}
+
 
 export const getPagamentoInfo: GetPagamentoInfo<void, Array<{ 
   pagamento: Pagamento, 

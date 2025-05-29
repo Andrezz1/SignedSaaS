@@ -286,6 +286,11 @@ query getMetodoPagamento {
 
 // As queries abaixo são queries com filtros
 
+query getPagamentosConcluidos {
+  fn: import { getPagamentosConcluidos } from "@src/services/pagamentoService",
+  entities: [Pagamento, Subscricao]
+}
+
 query getSubscricaoById {
   fn: import { getSubscricaoById } from "@src/services/subscricaoService",
   entities: [Subscricao]
@@ -344,6 +349,11 @@ query getPagamentosPendentes {
 query getComprovativoPagamentoId {
   fn: import { getComprovativoPagamentoId } from "@src/services/comprovativoService",
   entities: [Comprovativo, Pagamento, Doacao]
+}
+
+query validarToken {
+  fn: import { validarToken } from "@src/services/tokenService",
+  entities: [AccessToken]
 }
 
 // As actions abaixo servem para adicionar novos dados a base de dados
