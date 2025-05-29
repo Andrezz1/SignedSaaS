@@ -65,7 +65,7 @@ const PagamentosCard: React.FC = () => {
 
       <div className="mt-6 text-center">
         <Link 
-          to="/pagamentos" 
+          to="/historico-subscricoes" 
           className="inline-flex items-center text-gray-500 hover:text-gray-400 text-sm font-medium"
         >
           Ver lista de pagamentos

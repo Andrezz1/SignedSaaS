@@ -156,7 +156,13 @@ export const getPagamentosConcluidos: GetPagamentosConcluidos<
           Contacto: true,
         },
       },
-      Subscricoes: true,
+      Subscricoes: {
+        include: {
+          TipoSubscricao: true,
+          Detalhes: true,
+          Duracao: true,
+        }
+      },
       MetodoPagamento: true
     },
     orderBy: {
