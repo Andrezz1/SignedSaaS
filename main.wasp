@@ -158,6 +158,30 @@ page MySubscriptionsPage {
   component: import MySubscriptionsPage from "@src/pages/MySubscriptionsPage"
 }
 
+route ValidateTokenPageRoute { path: "/validate-token", to: ValidateTokenPage }
+page ValidateTokenPage {
+  authRequired: false,
+  component: import ValidateTokenPage from "@src/pages/ValidateTokenPage"
+}
+
+route ClientViewPageRoute { path: "/client-view", to: ClientViewPage }
+page ClientViewPage {
+  authRequired: true,
+  component: import ClientViewPage from "@src/pages/ClientViewPage"
+}
+
+route TestPageRoute { path: "/test", to: TestPage }
+page TestPage {
+  authRequired: false,
+  component: import TestPage from "@src/pages/TestPage"
+}
+
+route ClientEditProfileRoute { path: "/client-edit-profile", to: ClientEditProfile }
+page ClientEditProfile {
+  authRequired: true,
+  component: import ClientEditProfile from "@src/pages/ClientEditProfilePage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",

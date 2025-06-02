@@ -6,7 +6,6 @@ import {
   getUtilizadorInfoById,
   updateUtilizador
 } from 'wasp/client/operations';
-import DefaultLayout from '../layout/DefaultLayout';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import ProfilePhotoInput from '../components/profilePhotoInput';
