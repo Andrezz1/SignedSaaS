@@ -43,7 +43,7 @@ export const createAccessToken: CreateAccessToken<CreateAccessTokenPayload, Acce
   const email = utilizador.Contacto?.Email
   const subject = `Acesso aplicação`
   const url = process.env.APP_URL
-  const body = `Abra este link para aceder a página: ${url}/dashboard?token:${token}`
+  const body = `Abra este link para aceder a página: ${url}/validate-token?token=${token}`
 
   if(email) {
     await enviarEmail({
