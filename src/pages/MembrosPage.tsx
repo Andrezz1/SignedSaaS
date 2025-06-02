@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const MembrosPage = ({ user }: { user: AuthUser }) => {
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [appliedFilters, setAppliedFilters] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
