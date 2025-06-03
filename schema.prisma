@@ -26,10 +26,8 @@ model AuditPagamento {
   Resultado                String
 
   IdUtilizadorResponsavel  Int
-  EntidadeId               Int
 
   UtilizadorResponsavel    Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
-  Entidade                 Entidade   @relation(fields: [EntidadeId], references: [EntidadeId])
 }
 
 
@@ -44,10 +42,8 @@ model AuditTipoSubscricao {
   Resultado                String
 
   IdUtilizadorResponsavel  Int
-  EntidadeId               Int
 
   UtilizadorResponsavel    Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
-  Entidade                 Entidade   @relation(fields: [EntidadeId], references: [EntidadeId])
 }
 
 
@@ -62,10 +58,8 @@ model AuditUtilizador {
   Resultado                String
 
   IdUtilizadorResponsavel  Int
-  EntidadeId               Int
 
   UtilizadorResponsavel    Utilizador? @relation(fields: [IdUtilizadorResponsavel], references: [id])
-  Entidade                 Entidade    @relation(fields: [EntidadeId], references: [EntidadeId])
 }
 
 
@@ -117,9 +111,7 @@ model Doacao {
   
   Utilizador    Utilizador @relation(fields: [UtilizadorId], references: [id])
   Pagamento     Pagamento?
-  Entidade    Entidade @relation(fields: [EntidadeId], references: [EntidadeId])
 
-  EntidadeId  Int
   UtilizadorId  Int
 }
 
@@ -132,22 +124,6 @@ model Duracao {
   Subscricoes             Subscricao[]
   TipoSubscricaoDuracoes  TipoSubscricaoDuracao[]
 }
-
-model Entidade {
-  EntidadeId    Int                    @id @default(autoincrement())
-  Nome          String                 @unique
-
-  Utilizadores  Utilizador[]
-  Pagamentos    Pagamento[]
-  Subscricoes   Subscricao[]
-  Doacoes       Doacao[]
-  TipoSubscricoes TipoSubscricao[]
-
-  AuditUtilizador       AuditUtilizador[]
-  AuditPagamento        AuditPagamento[]
-  AuditTipoSubscricao   AuditTipoSubscricao[]
-}
-
 
 model MetodoPagamento {
   MetodoPagamentoId Int    @id @default(autoincrement())
@@ -181,9 +157,7 @@ model Pagamento {
   Utilizador        Utilizador      @relation(fields: [UtilizadorId], references: [id])
   Comprovativos     Comprovativo[]
   Subscricoes       Subscricao[]
-  Entidade          Entidade        @relation(fields: [EntidadeId], references: [EntidadeId])
 
-  EntidadeId  Int
   DoacaoId          Int?            @unique
   MetodoPagamentoId Int             @default(1)
   UtilizadorId      Int
@@ -199,11 +173,9 @@ model Subscricao {
   Pagamento                       Pagamento?      @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
   TipoSubscricao                  TipoSubscricao  @relation(fields: [TipoSubscricaoTipoSubscricaoID], references: [TipoSubscricaoID])
   Utilizador                      Utilizador      @relation(fields: [UtilizadorId], references: [id])
-  Entidade                        Entidade        @relation(fields: [EntidadeId], references: [EntidadeId])
   Comprovativos                   Comprovativo[]
   Detalhes                        DetalheSubscricao[]
   
-  EntidadeId  Int
   DuracaoId                       Int?
   PagamentoPagamentoId            Int?
   TipoSubscricaoTipoSubscricaoID  Int
@@ -218,9 +190,6 @@ model TipoSubscricao {
   Detalhes          DetalheSubscricao[]
   Duracoes          TipoSubscricaoDuracao[]
   Subscricoes       Subscricao[]
-  Entidade          Entidade        @relation(fields: [EntidadeId], references: [EntidadeId])
-
-  EntidadeId  Int
 }
 
 model TipoSubscricaoDuracao {
@@ -254,7 +223,6 @@ model Utilizador {
   
   Morada                          Morada?         @relation(fields: [MoradaMoradaId], references: [MoradaId])
   Contacto                        Contacto?       @relation(fields: [ContactoContactoId], references: [ContactoId])
-  Entidade                        Entidade        @relation(fields: [EntidadeId], references: [EntidadeId])
   TipoUtilizador                  TipoUtilizador? @relation(fields: [TipoUtilizadorTipoUtilizadorId], references: [TipoUtilizadorId])
   Pagamentos                      Pagamento[]
   Subscricoes                     Subscricao[]
@@ -268,7 +236,6 @@ model Utilizador {
   
   ContactoContactoId              Int?
   MoradaMoradaId                  Int?
-  EntidadeId                      Int
   TipoUtilizadorTipoUtilizadorId  Int             @default(1)
 }
 

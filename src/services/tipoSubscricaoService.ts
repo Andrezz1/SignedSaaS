@@ -1,4 +1,4 @@
-import { TipoSubscricao, Duracao, TipoSubscricaoDuracao, Entidade } from 'wasp/entities'
+import { TipoSubscricao, Duracao, TipoSubscricaoDuracao } from 'wasp/entities'
 import { 
   type GetTipoSubscricao, 
   type GetTipoSubscricaoInfo,
@@ -40,7 +40,6 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
     tipoSubscricao: TipoSubscricao
     duracao: Duracao
     tipoSubscricaoduracao: TipoSubscricaoDuracao
-    entidade: Entidade
   }[]
   total: number
   page: number
@@ -74,8 +73,7 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
         include: {
           Duracao: true,
         }
-      },
-      Entidade: true
+      }
     },
     skip,
     take,
@@ -91,7 +89,6 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
         TipoSubscricaoID: tipo.TipoSubscricaoID,
         Nome: tipo.Nome,
         Descricao: tipo.Descricao,
-        EntidadeId: tipo.EntidadeId
       },
       duracao: duracaoRel.Duracao,
       tipoSubscricaoduracao: {
@@ -100,7 +97,6 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
         DuracaoId: duracaoRel.DuracaoId,
         Valor: duracaoRel.Valor,
       },
-      entidade: tipo.Entidade
     })))
 
   return {
@@ -115,7 +111,6 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
 type CreateTipoSubscricaoPayload = {
   Nome: string
   Descricao: string
-  EntidadeId : number
   Duracoes: { DuracaoId: number; Valor: number }[]
 }
 
@@ -155,7 +150,6 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayl
             Valor
           }))
         },
-        EntidadeId: args.EntidadeId
       },
       include: {
         Duracoes: true

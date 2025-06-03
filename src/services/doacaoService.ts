@@ -138,7 +138,6 @@ type CreateDoacaoCompletaPayload = {
   MetodoPagamentoId: number,
   NIFPagamento: string,
   TelemovelMbway?: string
-  EntidadeId: number
 }
 
 export const createDoacaoCompleta: CreateDoacaoCompleta<
@@ -172,7 +171,6 @@ export const createDoacaoCompleta: CreateDoacaoCompleta<
       DataDoacao: new Date(),
       Nota: args.NotaDoacao || '',
       UtilizadorId: args.UtilizadorId,
-      EntidadeId: args.EntidadeId,
       Pagamento: {
         connect: { PagamentoId: pagamento.PagamentoId }
       }
