@@ -37,7 +37,6 @@ export const getDuracaoByTipoSubscricaoId: GetDuracaoByTipoSubscricaoId<Pick<Tip
 
   return tipoSubscricaoDuracoes.map((tsd) => ({
     ...tsd.Duracao,
-    Desconto: tsd.Desconto,
-    ValorFinal: tsd.ValorFinal,
+    Valor: tsd.Valor,
   }))
 }

@@ -16,49 +16,58 @@ model AccessToken {
 }
 
 model AuditPagamento {
-  AuditPagamentoId        Int       @id @default(autoincrement())
-  DadosAntes              Json?
-  DadosDepois             Json?
-  DataHora                DateTime  @default(now())
-  Entidade                String
-  IdUtilizadorResponsavel Int
-  MensagemErro            String?
-  Operacao                String
-  ParametrosRecebidos     Json
-  Resultado               String
+  AuditPagamentoId         Int        @id @default(autoincrement())
+  DadosAntes               Json?
+  DadosDepois              Json?
+  DataHora                 DateTime   @default(now())
+  MensagemErro             String?
+  Operacao                 String
+  ParametrosRecebidos      Json
+  Resultado                String
 
-  UtilizadorResponsavel   Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
+  IdUtilizadorResponsavel  Int
+  EntidadeId               Int
+
+  UtilizadorResponsavel    Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
+  Entidade                 Entidade   @relation(fields: [EntidadeId], references: [EntidadeId])
 }
+
 
 model AuditTipoSubscricao {
-  AuditTipoSubscricaoId   Int       @id @default(autoincrement())
-  DadosAntes              Json?
-  DadosDepois             Json?
-  DataHora                DateTime  @default(now())
-  Entidade                String
-  IdUtilizadorResponsavel Int
-  MensagemErro            String?
-  Operacao                String
-  ParametrosRecebidos     Json
-  Resultado               String
+  AuditTipoSubscricaoId    Int        @id @default(autoincrement())
+  DadosAntes               Json?
+  DadosDepois              Json?
+  DataHora                 DateTime   @default(now())
+  MensagemErro             String?
+  Operacao                 String
+  ParametrosRecebidos      Json
+  Resultado                String
 
-  UtilizadorResponsavel   Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
+  IdUtilizadorResponsavel  Int
+  EntidadeId               Int
+
+  UtilizadorResponsavel    Utilizador @relation(fields: [IdUtilizadorResponsavel], references: [id])
+  Entidade                 Entidade   @relation(fields: [EntidadeId], references: [EntidadeId])
 }
+
 
 model AuditUtilizador {
-  AuditUtilizadorId       Int       @id @default(autoincrement())
-  DadosAntes              Json?
-  DadosDepois             Json?
-  DataHora                DateTime  @default(now())
-  Entidade                String
-  IdUtilizadorResponsavel Int
-  MensagemErro            String?
-  Operacao                String
-  ParametrosRecebidos     Json
-  Resultado               String
+  AuditUtilizadorId        Int         @id @default(autoincrement())
+  DadosAntes               Json?
+  DadosDepois              Json?
+  DataHora                 DateTime    @default(now())
+  MensagemErro             String?
+  Operacao                 String
+  ParametrosRecebidos      Json
+  Resultado                String
 
-  UtilizadorResponsavel   Utilizador? @relation(fields: [IdUtilizadorResponsavel], references: [id])
+  IdUtilizadorResponsavel  Int
+  EntidadeId               Int
+
+  UtilizadorResponsavel    Utilizador? @relation(fields: [IdUtilizadorResponsavel], references: [id])
+  Entidade                 Entidade    @relation(fields: [EntidadeId], references: [EntidadeId])
 }
+
 
 model CodigoPostal {
   CodigoPostalId Int    @id @default(autoincrement())
@@ -108,7 +117,9 @@ model Doacao {
   
   Utilizador    Utilizador @relation(fields: [UtilizadorId], references: [id])
   Pagamento     Pagamento?
+  Entidade    Entidade @relation(fields: [EntidadeId], references: [EntidadeId])
 
+  EntidadeId  Int
   UtilizadorId  Int
 }
 
@@ -121,6 +132,22 @@ model Duracao {
   Subscricoes             Subscricao[]
   TipoSubscricaoDuracoes  TipoSubscricaoDuracao[]
 }
+
+model Entidade {
+  EntidadeId    Int                    @id @default(autoincrement())
+  Nome          String                 @unique
+
+  Utilizadores  Utilizador[]
+  Pagamentos    Pagamento[]
+  Subscricoes   Subscricao[]
+  Doacoes       Doacao[]
+  TipoSubscricoes TipoSubscricao[]
+
+  AuditUtilizador       AuditUtilizador[]
+  AuditPagamento        AuditPagamento[]
+  AuditTipoSubscricao   AuditTipoSubscricao[]
+}
+
 
 model MetodoPagamento {
   MetodoPagamentoId Int    @id @default(autoincrement())
@@ -154,7 +181,9 @@ model Pagamento {
   Utilizador        Utilizador      @relation(fields: [UtilizadorId], references: [id])
   Comprovativos     Comprovativo[]
   Subscricoes       Subscricao[]
+  Entidade          Entidade        @relation(fields: [EntidadeId], references: [EntidadeId])
 
+  EntidadeId  Int
   DoacaoId          Int?            @unique
   MetodoPagamentoId Int             @default(1)
   UtilizadorId      Int
@@ -170,9 +199,11 @@ model Subscricao {
   Pagamento                       Pagamento?      @relation(fields: [PagamentoPagamentoId], references: [PagamentoId])
   TipoSubscricao                  TipoSubscricao  @relation(fields: [TipoSubscricaoTipoSubscricaoID], references: [TipoSubscricaoID])
   Utilizador                      Utilizador      @relation(fields: [UtilizadorId], references: [id])
+  Entidade                        Entidade        @relation(fields: [EntidadeId], references: [EntidadeId])
   Comprovativos                   Comprovativo[]
   Detalhes                        DetalheSubscricao[]
   
+  EntidadeId  Int
   DuracaoId                       Int?
   PagamentoPagamentoId            Int?
   TipoSubscricaoTipoSubscricaoID  Int
@@ -182,18 +213,19 @@ model Subscricao {
 model TipoSubscricao {
   TipoSubscricaoID  Int    @id @default(autoincrement())
   Descricao         String @default("")
-  PrecoBaseMensal   Int    @default(0)  
   Nome              String @default("")
 
   Detalhes          DetalheSubscricao[]
   Duracoes          TipoSubscricaoDuracao[]
   Subscricoes       Subscricao[]
+  Entidade          Entidade        @relation(fields: [EntidadeId], references: [EntidadeId])
+
+  EntidadeId  Int
 }
 
 model TipoSubscricaoDuracao {
   TipoSubscricaoDuracaoId Int            @id @default(autoincrement())
-  Desconto                Float? 
-  ValorFinal              Float          @default(0)
+  Valor                   Float          @default(0)
   
   Duracao                 Duracao        @relation(fields: [DuracaoId], references: [DuracaoId])
   TipoSubscricao          TipoSubscricao @relation(fields: [TipoSubscricaoID], references: [TipoSubscricaoID])
@@ -222,6 +254,7 @@ model Utilizador {
   
   Morada                          Morada?         @relation(fields: [MoradaMoradaId], references: [MoradaId])
   Contacto                        Contacto?       @relation(fields: [ContactoContactoId], references: [ContactoId])
+  Entidade                        Entidade        @relation(fields: [EntidadeId], references: [EntidadeId])
   TipoUtilizador                  TipoUtilizador? @relation(fields: [TipoUtilizadorTipoUtilizadorId], references: [TipoUtilizadorId])
   Pagamentos                      Pagamento[]
   Subscricoes                     Subscricao[]
@@ -232,8 +265,10 @@ model Utilizador {
   AuditTipoSubscricao             AuditTipoSubscricao[]
   AuditPagamento                  AuditPagamento[]
   
+  
   ContactoContactoId              Int?
   MoradaMoradaId                  Int?
+  EntidadeId                      Int
   TipoUtilizadorTipoUtilizadorId  Int             @default(1)
 }
 

@@ -319,6 +319,7 @@ type CreateUtilizadorPayload = {
   NIF: string
   Imagem: string
   TipoUtilizadorId: number
+  EntidadeId: number
   Morada: {
     Concelho: string
     Distrito: string
@@ -406,6 +407,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
         MoradaMoradaId: morada.MoradaId,
         ContactoContactoId: contacto.ContactoId,
         TipoUtilizadorTipoUtilizadorId: args.TipoUtilizadorId,
+        EntidadeId: args.EntidadeId
       },
     })
 

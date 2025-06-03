@@ -79,18 +79,18 @@ type SendEmailParams = {
 
 // a chamada desta função está no utils.ts
 export async function enviarNotificacao() {
-  const inicioMesFim = new Date()
-  inicioMesFim.setMonth(inicioMesFim.getMonth() + 1)
-  inicioMesFim.setHours(0, 0, 0, 0)
+  const inicioSemana = new Date()
+  inicioSemana.setMonth(inicioSemana.getDay() + 7)
+  inicioSemana.setHours(0, 0, 0, 0)
 
-  const fimMesFim = new Date(inicioMesFim)
-  fimMesFim.setHours(23, 59, 59, 999)
+  const semanaFim = new Date(inicioSemana)
+  semanaFim.setHours(23, 59, 59, 999)
 
   const expiraSubscricao = await prisma.subscricao.findMany({
     where: {
       DataFim: {
-        gte: inicioMesFim,
-        lte: fimMesFim,
+        gte: inicioSemana,
+        lte: semanaFim,
       },
     },
     include: {

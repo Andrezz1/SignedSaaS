@@ -183,9 +183,9 @@ type CreateSubscricaoPayload = {
   UtilizadorId: number
   TipoSubscricaoId: number
   DuracaoId: number
+  EntidadeId: number
   DetalheSubscricao: {
     Quantidade: number
-    Desconto?: number
   }
 }
 
@@ -222,10 +222,7 @@ export async function createSubscricao(
   const dataFim = new Date(dataInicio)
   dataFim.setMonth(dataFim.getMonth() + duracao.Meses)
 
-  const valorBase = tipoSubscricaoDuracao.ValorFinal * input.DetalheSubscricao.Quantidade
-  const valorFinal = input.DetalheSubscricao.Desconto 
-    ? valorBase * (1 - input.DetalheSubscricao.Desconto)
-    : valorBase
+  const valorFinal = tipoSubscricaoDuracao.Valor * input.DetalheSubscricao.Quantidade
 
   const subscricao = await context.entities.Subscricao.create({
     data: {
@@ -234,14 +231,14 @@ export async function createSubscricao(
       EstadoSubscricao: false,
       Utilizador: { connect: { id: input.UtilizadorId } },
       TipoSubscricao: { connect: { TipoSubscricaoID: input.TipoSubscricaoId } },
-      Duracao: { connect: { DuracaoId: input.DuracaoId } }
+      Duracao: { connect: { DuracaoId: input.DuracaoId } },
+      EntidadeId: input.EntidadeId
     }
   })
 
   await context.entities.DetalheSubscricao.create({
     data: {
       Quantidade: input.DetalheSubscricao.Quantidade,
-      Desconto: input.DetalheSubscricao.Desconto,
       ValorFinal: valorFinal,
       SubscricaoSubscricaoId: subscricao.SubscricaoId,
       TipoSubscricaoTipoSubscricaoID: input.TipoSubscricaoId
@@ -268,6 +265,7 @@ type CreateSubscricaoCompletaPayload = {
     Nota?: string
   }
   PagamentoPagamentoId: number
+  EntidadeId: number
 }
 
 export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricaoCompletaPayload, Subscricao> = async (
@@ -356,17 +354,18 @@ async function CreateSubscricoesAposExpirar() {
     novaDataFim.setMonth(novaDataFim.getMonth() + duracao.Meses)
 
     await prisma.subscricao.create({
-      data: {
-        DataInicio: novaDataInicio,
-        DataFim: novaDataFim,
-        EstadoSubscricao: false,
-        Utilizador: { connect: { id: utilizador.id } },
-        TipoSubscricao: {
-          connect: { TipoSubscricaoID: ultimaSubscricao.TipoSubscricaoTipoSubscricaoID }
-        },
-        Duracao: { connect: { DuracaoId: ultimaSubscricao.DuracaoId } }
-      }
-    })
+    data: {
+      DataInicio: novaDataInicio,
+      DataFim: novaDataFim,
+      EstadoSubscricao: false,
+      Utilizador: { connect: { id: utilizador.id } },
+      TipoSubscricao: {
+        connect: { TipoSubscricaoID: ultimaSubscricao.TipoSubscricaoTipoSubscricaoID }
+      },
+      Duracao: { connect: { DuracaoId: ultimaSubscricao.DuracaoId } },
+      Entidade: { connect: { EntidadeId: ultimaSubscricao.EntidadeId } } // Adicione esta linha
+    }
+  })
 
     console.log(`Nova subscrição criada para utilizador #${utilizador.id}`)
   }
