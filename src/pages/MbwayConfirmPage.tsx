@@ -191,6 +191,7 @@ useEffect(() => {
           TipoSubscricaoId: locationState.planId,
           DuracaoId: locationState.duracaoId,
           DetalheSubscricao: { Quantidade: 1 },
+          EntidadeId: 1, // ALTERAR ISTO
           Pagamento: {
             MetodoPagamentoId: locationState.metodoId,
             NIFPagamento: nifPagamento,
@@ -208,7 +209,8 @@ useEffect(() => {
           NotaDoacao: notaExtra,
           MetodoPagamentoId: locationState.metodoId,
           NIFPagamento: nifPagamento,
-          TelemovelMbway: telemovelLimpo
+          TelemovelMbway: telemovelLimpo,
+          EntidadeId: 1, // ALTERAR ISTO
         });
         navigate('/mbway-details', { state: { paymentId: res.pagamento.PagamentoId } });
       } else if (locationState.tipo === 'subscricao-existente') {

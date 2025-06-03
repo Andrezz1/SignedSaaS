@@ -126,40 +126,36 @@ const PaymentPickerPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
       <h2 className="text-2xl font-bold mb-8">Selecione o método de pagamento</h2>
-      <div
-        className="grid gap-6 w-full max-w-5xl"
-        style={{ gridTemplateColumns: `repeat(${methods.length}, minmax(200px, 1fr))` }}
-      >
-        {methods.map(m => {
-          const key = m.Nome
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/\s+/g, '');
-          const logoSrc = logos[key];
-          const isTransfer = key === 'transferenciabancaria';
-          const imgSize = isTransfer ? 'w-32 h-32' : 'w-20 h-20';
+        <div className="flex justify-center gap-6 flex-wrap max-w-6xl w-full">
+          {methods.map(m => {
+            const key = m.Nome
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/\s+/g, '');
+            const logoSrc = logos[key];
 
-          return (
-            <div
-              key={m.MetodoPagamentoId}
-              onClick={() => setSelectedId(m.MetodoPagamentoId)}
-              className={`
-                cursor-pointer bg-white p-6 rounded-2xl shadow-md
-                flex flex-col items-center transition-all max-w-xs
-                ${selectedId === m.MetodoPagamentoId
-                  ? 'ring-4 ring-blue-500'
-                  : 'hover:ring-2 hover:ring-blue-200'}
-              `}
-            >
-              <div className="h-32 mb-4 flex items-center justify-center">
-                {logoSrc && <img src={logoSrc} alt={m.Nome} className={`${imgSize} object-contain`} />}
+            return (
+              <div
+                key={m.MetodoPagamentoId}
+                onClick={() => setSelectedId(m.MetodoPagamentoId)}
+                className={`
+                  cursor-pointer bg-white p-6 rounded-2xl shadow-md
+                  flex flex-col items-center transition-all
+                  w-48 h-64
+                  ${selectedId === m.MetodoPagamentoId
+                    ? 'ring-4 ring-blue-500'
+                    : 'hover:ring-2 hover:ring-blue-200'}
+                `}
+              >
+                <div className="flex-grow flex items-center justify-center mb-4">
+                  {logoSrc && <img src={logoSrc} alt={m.Nome} className="w-20 h-20 object-contain" />}
+                </div>
+                <span className="text-lg font-medium capitalize text-center break-words">{m.Nome}</span>
               </div>
-              <span className="text-lg font-medium capitalize text-center break-words">{m.Nome}</span>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
       <div className="mt-10 flex gap-4">
         <button
           onClick={() => navigate(-1)}

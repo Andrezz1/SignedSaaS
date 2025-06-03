@@ -12,10 +12,9 @@ const CreatePlanoPage = () => {
   const navigate = useNavigate();
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [precoBaseMensal, setPrecoBaseMensal] = useState<number | ''>('');
   const [duracoes, setDuracoes] = useState<Duracao[]>([]);
   const [selectedDuracoes, setSelectedDuracoes] = useState<
-    { DuracaoId: number; Desconto?: number }[]
+    { DuracaoId: number; Valor?: number }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
@@ -46,35 +45,39 @@ const CreatePlanoPage = () => {
     });
   };
 
-  const handleDescontoChange = (duracaoId: number, desconto: number) => {
-    setSelectedDuracoes((prev) =>
-      prev.map((d) =>
-        d.DuracaoId === duracaoId ? { ...d, Desconto: desconto } : d
-      )
-    );
-  };
+ const handleValorChange = (duracaoId: number, valor: number) => {
+  setSelectedDuracoes((prev) =>
+    prev.map((d) =>
+      d.DuracaoId === duracaoId ? { ...d, Valor: valor } : d
+    )
+  );
+};
+
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const duracoesParaEnviar = selectedDuracoes.map(d => ({
+  const duracoesParaEnviar = selectedDuracoes
+    .filter((d) => d.Valor !== undefined)
+    .map((d) => ({
       DuracaoId: d.DuracaoId,
-      Desconto: d.Desconto !== undefined ? d.Desconto / 100 : undefined,
+      Valor: d.Valor!,
     }));
 
-    try {
-      await createTipoSubscricao({
-        Nome: nome,
-        Descricao: descricao,
-        PrecoBaseMensal: Number(precoBaseMensal),
-        Duracoes: duracoesParaEnviar,
-      });
+  try {
+    await createTipoSubscricao({
+      Nome: nome,
+      Descricao: descricao,
+      Duracoes: duracoesParaEnviar,
+      EntidadeId: 1, // <-- ALTERAR ISTO
+    });
 
-      navigate('/planos');
-    } catch (err: any) {
-      setErro('Erro ao criar plano: ' + (err.message || ''));
-    }
-  };
+    navigate('/planos');
+  } catch (err: any) {
+    setErro('Erro ao criar plano: ' + (err.message || ''));
+  }
+};
+
 
   if (loading) {
     return (
@@ -127,10 +130,9 @@ const CreatePlanoPage = () => {
                 const isSelected = selectedDuracoes.some(
                   (d) => d.DuracaoId === duracao.DuracaoId
                 );
-                const currentDesconto =
+                const currentValor =
                   selectedDuracoes.find((d) => d.DuracaoId === duracao.DuracaoId)
-                    ?.Desconto ?? '';
-
+                    ?.Valor ?? '';
                 return (
                   <div
                     key={duracao.DuracaoId}
@@ -157,28 +159,21 @@ const CreatePlanoPage = () => {
                     {isSelected && (
                       <div className="mt-2">
                         <label className="block text-xs text-gray-600 mb-1">
-                          Desconto (%)
+                          Valor (€)
                         </label>
                         <div className="relative">
                           <input
                             type="number"
                             min="0"
-                            max="100"
-                            value={currentDesconto}
+                            value={currentValor}
                             onChange={(e) =>
-                              handleDescontoChange(
-                                duracao.DuracaoId,
-                                Number(e.target.value)
-                              )
+                              handleValorChange(duracao.DuracaoId, Number(e.target.value))
                             }
                             onClick={(e) => e.stopPropagation()}
                             className="w-full p-2 pr-8 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 no-spinner"
-                            style={{
-                              MozAppearance: 'textfield',
-                            }}
                           />
                           <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 pointer-events-none">
-                            %
+                            €
                           </span>
                         </div>
                       </div>
@@ -188,22 +183,6 @@ const CreatePlanoPage = () => {
               })}
             </div>
           </div>
-
-          <div className="col-span-2">
-            <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
-              Preço Base Mensal (€)
-            </label>
-            <input
-              type="text"
-              value={precoBaseMensal}
-              onChange={(e) => setPrecoBaseMensal(Number(e.target.value))}
-              inputMode="numeric"
-              pattern="[0-9]*"
-              className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
-              required
-            />
-          </div>
-
           <div className="col-span-2 mt-8 flex justify-end gap-4">
             <button
               type="button"
