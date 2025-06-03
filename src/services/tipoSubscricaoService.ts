@@ -1,4 +1,4 @@
-import { TipoSubscricao, Duracao, TipoSubscricaoDuracao } from 'wasp/entities'
+import { TipoSubscricao, Duracao, TipoSubscricaoDuracao, Entidade } from 'wasp/entities'
 import { 
   type GetTipoSubscricao, 
   type GetTipoSubscricaoInfo,
@@ -40,16 +40,13 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
     tipoSubscricao: TipoSubscricao
     duracao: Duracao
     tipoSubscricaoduracao: TipoSubscricaoDuracao
+    entidade: Entidade
   }[]
   total: number
   page: number
   pageSize: number
   totalPages: number
 }> = async ({ page, pageSize, searchTerm, filters }, context) => {
-  // if (!context.user) {
-  //   throw new HttpError(401, "Não tem permissão")
-  // }
-
   const skip = (page - 1) * pageSize
   const take = pageSize
 
@@ -77,7 +74,8 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
         include: {
           Duracao: true,
         }
-      }
+      },
+      Entidade: true
     },
     skip,
     take,
@@ -93,16 +91,16 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
         TipoSubscricaoID: tipo.TipoSubscricaoID,
         Nome: tipo.Nome,
         Descricao: tipo.Descricao,
-        PrecoBaseMensal: tipo.PrecoBaseMensal,
+        EntidadeId: tipo.EntidadeId
       },
       duracao: duracaoRel.Duracao,
       tipoSubscricaoduracao: {
         TipoSubscricaoDuracaoId: duracaoRel.TipoSubscricaoDuracaoId,
         TipoSubscricaoID: duracaoRel.TipoSubscricaoID,
         DuracaoId: duracaoRel.DuracaoId,
-        Desconto: duracaoRel.Desconto,
-        ValorFinal: duracaoRel.ValorFinal,
-      }
+        Valor: duracaoRel.Valor,
+      },
+      entidade: tipo.Entidade
     })))
 
   return {
@@ -116,9 +114,9 @@ export const getTipoSubscricaoInfo: GetTipoSubscricaoInfo<{
 
 type CreateTipoSubscricaoPayload = {
   Nome: string
-  PrecoBaseMensal: number
   Descricao: string
-  Duracoes: { DuracaoId: number; Desconto?: number }[]
+  EntidadeId : number
+  Duracoes: { DuracaoId: number; Valor: number }[]
 }
 
 export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayload, TipoSubscricao> = async (
@@ -129,14 +127,21 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayl
     throw new HttpError(401, "Não tem permissão")
   }
 
-  const { Nome, PrecoBaseMensal, Descricao, Duracoes } = args
+  const { Nome, Descricao, Duracoes } = args
   const parametrosRecebidos = args
   const idUtilizadorResponsavel = context.user.id
 
   try {
-    const duracoes = await context.entities.Duracao.findMany({
+    const duracoesExistentes = await context.entities.Duracao.findMany({
       where: {
         DuracaoId: { in: Duracoes.map(d => d.DuracaoId) }
+      }
+    })
+
+    Duracoes.forEach(({ DuracaoId }) => {
+      const encontrada = duracoesExistentes.find(d => d.DuracaoId === DuracaoId)
+      if (!encontrada) {
+        throw new Error(`Duração com ID ${DuracaoId} não encontrada`)
       }
     })
 
@@ -144,24 +149,13 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayl
       data: {
         Nome: capitalize(Nome),
         Descricao,
-        PrecoBaseMensal,
         Duracoes: {
-          create: Duracoes.map(({ DuracaoId, Desconto }) => {
-            const duracao = duracoes.find(d => d.DuracaoId === DuracaoId)
-            if (!duracao) throw new Error(`Duração com ID ${DuracaoId} não encontrada`)
-
-            const meses = duracao.Meses
-            const desconto = Desconto ?? 0
-            const valorBase = PrecoBaseMensal * meses
-            const valorFinal = valorBase * (1 - desconto)
-
-            return {
-              Duracao: { connect: { DuracaoId } },
-              Desconto: desconto,
-              ValorFinal: valorFinal
-            }
-          })
-        }
+          create: Duracoes.map(({ DuracaoId, Valor }) => ({
+            Duracao: { connect: { DuracaoId } },
+            Valor
+          }))
+        },
+        EntidadeId: args.EntidadeId
       },
       include: {
         Duracoes: true
@@ -197,7 +191,9 @@ export const createTipoSubscricao: CreateTipoSubscricao<CreateTipoSubscricaoPayl
   }
 }
 
-type UpdateTipoSubscricaoPayLoad = Pick<TipoSubscricao, 'TipoSubscricaoID' | 'Descricao' | 'PrecoBaseMensal'>
+// Nao funciona ainda, apenas corrigi os erros apos mudança do schema, refazer funcao depois
+
+type UpdateTipoSubscricaoPayLoad = Pick<TipoSubscricao, 'TipoSubscricaoID' | 'Descricao'>
 
 export const updateTipoSubscricao: UpdateTipoSubscricao<UpdateTipoSubscricaoPayLoad, TipoSubscricao> = async (
   args,
@@ -215,7 +211,6 @@ export const updateTipoSubscricao: UpdateTipoSubscricao<UpdateTipoSubscricaoPayL
     where: { TipoSubscricaoID: args.TipoSubscricaoID },
     data: {
       Descricao: capitalize(args.Descricao),
-      PrecoBaseMensal: args.PrecoBaseMensal,
     }
   })
 

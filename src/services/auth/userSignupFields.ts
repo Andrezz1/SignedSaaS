@@ -10,5 +10,14 @@ export const getUserFields = defineUserSignupFields({
     return {
       connect: { TipoUtilizadorId: tipoUtilizadorId }
     }
+  },
+  Entidade: async(data) => {
+    if(!data.EntidadeId) {
+      throw new Error('Entidade é obrigatoria')
+    }
+    const entidadeId = Number(data.EntidadeId)
+    return {
+      connect: { EntidadeId: entidadeId }
+    }
   }
 })
