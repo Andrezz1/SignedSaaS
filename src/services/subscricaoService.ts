@@ -183,7 +183,6 @@ type CreateSubscricaoPayload = {
   UtilizadorId: number
   TipoSubscricaoId: number
   DuracaoId: number
-  EntidadeId: number
   DetalheSubscricao: {
     Quantidade: number
   }
@@ -232,7 +231,6 @@ export async function createSubscricao(
       Utilizador: { connect: { id: input.UtilizadorId } },
       TipoSubscricao: { connect: { TipoSubscricaoID: input.TipoSubscricaoId } },
       Duracao: { connect: { DuracaoId: input.DuracaoId } },
-      EntidadeId: input.EntidadeId
     }
   })
 
@@ -265,7 +263,6 @@ type CreateSubscricaoCompletaPayload = {
     Nota?: string
   }
   PagamentoPagamentoId: number
-  EntidadeId: number
 }
 
 export const createSubscricaoCompleta: CreateSubscricaoCompleta<CreateSubscricaoCompletaPayload, Subscricao> = async (
@@ -363,7 +360,6 @@ async function CreateSubscricoesAposExpirar() {
         connect: { TipoSubscricaoID: ultimaSubscricao.TipoSubscricaoTipoSubscricaoID }
       },
       Duracao: { connect: { DuracaoId: ultimaSubscricao.DuracaoId } },
-      Entidade: { connect: { EntidadeId: ultimaSubscricao.EntidadeId } } // Adicione esta linha
     }
   })
 
