@@ -130,6 +130,7 @@ const MultibancoConfirmPage: React.FC = () => {
           TipoSubscricaoId: locationState.planId,
           DuracaoId: locationState.duracaoId,
           DetalheSubscricao: { Quantidade: 1 },
+          EntidadeId: 1, // ALTERAR ISTO
           Pagamento: {
             MetodoPagamentoId: locationState.metodoId,
             NIFPagamento: nifPagamento,
@@ -156,7 +157,8 @@ const MultibancoConfirmPage: React.FC = () => {
           NotaPagamento: notaPagamento,
           NotaDoacao: notaExtra,
           MetodoPagamentoId: locationState.metodoId,
-          NIFPagamento: nifPagamento
+          NIFPagamento: nifPagamento,
+          EntidadeId: 1, // ALTERAR ISTO
         });
 
         navigate('/multibanco-details', {

@@ -10,14 +10,13 @@ type Duracao = {
 type TipoSubscricaoDuracao = {
   Duracao: Duracao;
   Desconto?: number;
-  ValorFinal: number;
+  Valor: number;
 };
 
 type Plano = {
   TipoSubscricaoID: number;
   Nome: string;
   Descricao: string;
-  PrecoBaseMensal: number;
   Duracoes: TipoSubscricaoDuracao[];
 };
 
@@ -65,8 +64,7 @@ const PlanosTable = ({
         DuracaoID: entry.duracao.DuracaoId,
         Nome: entry.duracao.Nome,
       },
-      Desconto: entry.tipoSubscricaoduracao.Desconto ?? undefined,
-      ValorFinal: entry.tipoSubscricaoduracao.ValorFinal,
+      Valor: entry.tipoSubscricaoduracao.Valor,
     };
     if (idx >= 0) {
       agrupados[idx].Duracoes.push(obj);
@@ -75,7 +73,6 @@ const PlanosTable = ({
         TipoSubscricaoID: entry.tipoSubscricao.TipoSubscricaoID,
         Nome: entry.tipoSubscricao.Nome,
         Descricao: entry.tipoSubscricao.Descricao,
-        PrecoBaseMensal: entry.tipoSubscricao.PrecoBaseMensal,
         Duracoes: [obj],
       });
     }
@@ -210,7 +207,7 @@ const PlanosTable = ({
                       </div>
                       <div className="w-1/3">
                         <span className="text-gray-500 text-xs uppercase block">Preço</span>
-                        <span className="font-medium">{d.ValorFinal.toFixed(2)} €</span>
+                        <span className="font-medium">{d.Valor.toFixed(2)} €</span>
                       </div>
                     </div>
                   ))

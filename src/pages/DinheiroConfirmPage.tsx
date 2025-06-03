@@ -133,6 +133,7 @@ const DinheiroConfirmPage: React.FC = () => {
           TipoSubscricaoId: locationState.planId,
           DuracaoId: locationState.duracaoId,
           DetalheSubscricao: { Quantidade: 1 },
+          EntidadeId: 1, // ALTERAR ISTO
           Pagamento: {
             MetodoPagamentoId: locationState.metodoId,
             NIFPagamento: nifPagamento,
@@ -148,7 +149,8 @@ const DinheiroConfirmPage: React.FC = () => {
           NotaPagamento: notaPagamento,
           NotaDoacao: notaExtra,
           MetodoPagamentoId: locationState.metodoId,
-          NIFPagamento: nifPagamento
+          NIFPagamento: nifPagamento,
+          EntidadeId: 1, // ALTERAR ISTO
         });
         pagamentoId = res.pagamento.PagamentoId;
       } else { // subscrição existente

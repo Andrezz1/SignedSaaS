@@ -51,6 +51,7 @@ const CreateMembroPage = () => {
     const formattedTelemovel = `${countryCode} ${phoneNumber}`
     const payload = {
       Nome: nome,
+      EntidadeId: 1, // ALTERAR ISTO
       DataNascimento: new Date(dataNascimento),
       NIF: nif,
       Imagem: imagem,
