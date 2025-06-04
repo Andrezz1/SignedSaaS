@@ -166,7 +166,7 @@ page ValidateTokenPage {
 
 route ClientViewPageRoute { path: "/client-view", to: ClientViewPage }
 page ClientViewPage {
-  authRequired: true,
+  authRequired: false,
   component: import ClientViewPage from "@src/pages/ClientViewPage"
 }
 
@@ -178,7 +178,7 @@ page TestPage {
 
 route ClientEditProfileRoute { path: "/client-edit-profile", to: ClientEditProfile }
 page ClientEditProfile {
-  authRequired: true,
+  authRequired: false,
   component: import ClientEditProfile from "@src/pages/ClientEditProfilePage"
 }
 
