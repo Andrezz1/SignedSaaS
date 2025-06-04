@@ -3,6 +3,57 @@ import { useQuery } from 'wasp/client/operations';
 import { getDoacaoInfo } from 'wasp/client/operations';
 import LoadingSpinner from '../layout/LoadingSpinner';
 
+type MetodoPagamento = {
+  MetodoPagamentoId: number;
+  Nome: string;
+};
+
+type Pagamento = {
+  PagamentoId: number;
+  DadosEspecificos: any;
+  DataPagamento: string;
+  EstadoPagamento: string;
+  NIFPagamento: string;
+  Nota: string | null;
+  Valor: number;
+  DoacaoId: number | null;
+  MetodoPagamentoId: number;
+  UtilizadorId: number;
+  MetodoPagamento: MetodoPagamento;
+};
+
+type Utilizador = {
+  id: number;
+  Nome: string;
+  NIF: string;
+  Contacto: {
+    Email: string;
+    Telemovel: string;
+  };
+};
+
+type Doacao = {
+  DoacaoId: number;
+  DataDoacao: string;
+  Nota: string;
+  ValorDoacao: number;
+  UtilizadorId: number;
+};
+
+type DoacaoInfo = {
+  doacao: Doacao;
+  utilizador: Utilizador;
+  pagamento: Pagamento;
+};
+
+type DoacaoQueryResponse = {
+  data: DoacaoInfo[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
 const DoacoesTable = () => {
   const [tempSearch, setTempSearch] = useState('');
   const [searchFilter, setSearchFilter] = useState<string | undefined>(undefined);
@@ -13,7 +64,7 @@ const DoacoesTable = () => {
     page: currentPage,
     pageSize,
     searchTerm: searchFilter,
-  });
+  }) as { data: DoacaoQueryResponse | undefined; isLoading: boolean };
 
   const doacoes = response?.data || [];
   const totalPages = response?.totalPages || 1;
@@ -117,7 +168,7 @@ const DoacoesTable = () => {
                 {formatCurrency(doacao.ValorDoacao)}
               </div>
                <div className="col-span-3 text-sm text-black dark:text-white">
-                {pagamento.MetodoPagamento.Nome && pagamento.MetodoPagamento.Nome.trim() !== ''}
+                {pagamento?.MetodoPagamento?.Nome?.trim() || '–'}
               </div>
               <div className="col-span-2 text-sm text-black dark:text-white">
                 {doacao?.Nota && doacao.Nota.trim() !== '' ? doacao.Nota : '–'}
