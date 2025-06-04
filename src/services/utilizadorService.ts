@@ -15,15 +15,15 @@ import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
 import { registarAuditLog } from './auditService'
 
-export async function verifyAuthentication(context: any, id?: number) {
+export async function verifyAuthentication(context: any, token: string, id?: number) {
   if (context.user) {
     return true
   }
 
-  if (context.token) {
+  if (token) {
     const accessToken = await context.entities.AccessToken.findFirst({
       where: {
-        Token: context.token,
+        Token: token,
         ExpiresAt: { gt: new Date() },
         ...(id ? { UtilizadorId: id } : {})
       }
@@ -148,14 +148,14 @@ export const getUtilizadorDesabilitado: GetUtilizadorDesabilitado<
   }
 }
 
-export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<{
+export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number, token?: string }, Array<{
   utilizador: Utilizador,
   tipoUtilizador: TipoUtilizador | null,
   morada: Morada | null,
   contacto: Contacto | null,
   subscricoes: Subscricao[]
-}>> = async (args, context) => {
-  await verifyAuthentication(context, args.id)
+}>> = async (args, context) => {  
+  await verifyAuthentication(context, args.token || '', args.id)
 
   if(!args.id) {
     throw new Error("ID do utilizador é obrigatório")
