@@ -176,16 +176,22 @@ page TestPage {
   component: import TestPage from "@src/pages/TestPage"
 }
 
-route ClientEditProfileRoute { path: "/client-edit-profile", to: ClientEditProfile }
-page ClientEditProfile {
+route ClientEditProfilePageRoute { path: "/client-edit-profile", to: ClientEditProfilePage }
+page ClientEditProfilePage {
   authRequired: false,
-  component: import ClientEditProfile from "@src/pages/ClientEditProfilePage"
+  component: import ClientEditProfilePage from "@src/pages/ClientEditProfilePage"
 }
 
-route ClientSubscriptionsRoute { path: "/client-subscriptions", to: ClientSubscriptionsPage }
+route ClientSubscriptionsPageRoute { path: "/client-subscriptions", to: ClientSubscriptionsPage }
 page ClientSubscriptionsPage {
   authRequired: false,
   component: import ClientSubscriptionsPage from "@src/pages/ClientSubscriptionsPage"
+}
+
+route ClientDonationsPagePageRoute { path: "/client-donations", to: ClientDonationsPage }
+page ClientDonationsPage {
+  authRequired: false,
+  component: import ClientDonationsPage from "@src/pages/ClientDonationsPage"
 }
 
 // As queries abaixo apenas obtêm os dados de cada tabela
