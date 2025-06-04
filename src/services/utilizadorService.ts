@@ -15,6 +15,28 @@ import { capitalize, saveImageLocally } from './utils'
 import { HttpError } from 'wasp/server'
 import { registarAuditLog } from './auditService'
 
+export async function verifyAuthentication(context: any, id?: number) {
+  if (context.user) {
+    return true
+  }
+
+  if (context.token) {
+    const accessToken = await context.entities.AccessToken.findFirst({
+      where: {
+        Token: context.token,
+        ExpiresAt: { gt: new Date() },
+        ...(id ? { UtilizadorId: id } : {})
+      }
+    })
+
+    if (accessToken) {
+      return true
+    }
+  }
+
+  throw new HttpError(401, "Não tem permissão")
+}
+
 export const getMembros: GetMembros<void, number> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401, 'Não tem permissão')
@@ -133,9 +155,7 @@ export const getUtilizadorInfoById: GetUtilizadorInfoById<{ id: number }, Array<
   contacto: Contacto | null,
   subscricoes: Subscricao[]
 }>> = async (args, context) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  await verifyAuthentication(context, args.id)
 
   if(!args.id) {
     throw new Error("ID do utilizador é obrigatório")
