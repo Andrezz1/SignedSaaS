@@ -358,7 +358,7 @@ query getSubscricaoByUtilizadorId {
 
 query getUtilizadorInfoById {
   fn: import { getUtilizadorInfoById } from "@src/services/utilizadorService",
-  entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao]
+  entities: [Utilizador, TipoUtilizador, Morada, Contacto, Subscricao, AccessToken]
 }
 
 query getDuracaoByTipoSubscricaoId {
