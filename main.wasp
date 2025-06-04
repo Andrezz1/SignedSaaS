@@ -182,6 +182,12 @@ page ClientEditProfile {
   component: import ClientEditProfile from "@src/pages/ClientEditProfilePage"
 }
 
+route ClientSubscriptionsRoute { path: "/client-subscriptions", to: ClientSubscriptionsPage }
+page ClientSubscriptionsPage {
+  authRequired: false,
+  component: import ClientSubscriptionsPage from "@src/pages/ClientSubscriptionsPage"
+}
+
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
