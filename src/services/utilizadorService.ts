@@ -460,6 +460,7 @@ export const createUtilizador: CreateUtilizador<CreateUtilizadorPayload, Utiliza
 
 type UpdateUtilizadorPayload = {
   id: number
+  token?: string
   NumMembro: number
   Nome?: string
   DataNascimento?: Date
@@ -483,9 +484,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   args,
   context
 ) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  await verifyAuthentication(context, args.token || '', args.id)
 
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.id },
@@ -496,7 +495,7 @@ export const updateUtilizador: UpdateUtilizador<UpdateUtilizadorPayload, Utiliza
   })
 
   const parametrosRecebidos = args
-  const idUtilizadorResponsavel = context.user.id
+  const idUtilizadorResponsavel = context.user?.id || args.id
 
   if (!utilizador) {
     throw new Error("Utilizador não encontrado")
