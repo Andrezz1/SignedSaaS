@@ -353,7 +353,7 @@ query getPagamentoByUtilizadorId {
 
 query getSubscricaoByUtilizadorId {
   fn: import { getSubscricaoByUtilizadorId } from "@src/services/subscricaoService",
-  entities: [Subscricao, Utilizador]
+  entities: [Subscricao, Utilizador, AccessToken]
 }
 
 query getUtilizadorInfoById {

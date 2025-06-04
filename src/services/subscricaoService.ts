@@ -13,6 +13,7 @@ import { PrismaClient } from '@prisma/client'
 import cron from 'node-cron'
 import { HttpError } from 'wasp/server'
 import { createPagamento, connectPagamentoASubscricao } from './pagamentoService'
+import { verifyAuthentication } from './utilizadorService'
 
 export const getSubscricao: GetSubscricao<void, Subscricao[]> = async (_args, context) => {
   if (!context.user) {
@@ -134,13 +135,11 @@ export const getSubscricaoInfo: GetSubscricaoInfo<void, Array<{
   return SubscricaoInfo
 }
 
-export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<Pick<Utilizador, 'id'>, any[]> = async (
-  args,
-  context
-) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão");
-  }
+export const getSubscricaoByUtilizadorId: GetSubscricaoByUtilizadorId<
+  Pick<Utilizador, 'id'> & { token?: string },
+  any[]
+> = async (args, context) => {
+  await verifyAuthentication(context, args.token || '', args.id)
 
   if (!args.id) {
     throw new Error("UtilizadorId não foi encontrado");
