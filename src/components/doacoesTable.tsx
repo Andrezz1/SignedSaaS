@@ -105,7 +105,7 @@ const DoacoesTable = () => {
         {isLoading ? (
           <LoadingSpinner />
         ) : (
-          doacoes.map(({ doacao, utilizador }, i) => (
+          doacoes.map(({ doacao, utilizador, pagamento }, i) => (
             <div
               key={i}
               className="grid grid-cols-12 border-t border-stroke py-4.5 px-4 dark:border-strokedark md:px-6 items-center"
@@ -117,7 +117,7 @@ const DoacoesTable = () => {
                 {formatCurrency(doacao.ValorDoacao)}
               </div>
                <div className="col-span-3 text-sm text-black dark:text-white">
-                {doacao.MetodoPagamento?.Nome && doacao.MetodoPagamento.Nome.trim() !== ''}
+                {pagamento.MetodoPagamento.Nome && pagamento.MetodoPagamento.Nome.trim() !== ''}
               </div>
               <div className="col-span-2 text-sm text-black dark:text-white">
                 {doacao?.Nota && doacao.Nota.trim() !== '' ? doacao.Nota : '–'}
