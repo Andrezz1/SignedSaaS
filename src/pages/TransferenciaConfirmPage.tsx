@@ -47,7 +47,7 @@ interface DuracaoWithExtras {
   DuracaoId: number;
   Nome: string;
   Meses: number;
-  ValorFinal: number;
+  Valor: number;
 }
 
 const TransferenciaConfirmPage: React.FC = () => {
@@ -90,7 +90,7 @@ const TransferenciaConfirmPage: React.FC = () => {
             DuracaoId:   subs.Duracao.DuracaoId,
             Nome:        subs.Duracao.Nome,
             Meses:       subs.Duracao.Meses,
-            ValorFinal:  subs.TipoSubscricao.PrecoBaseMensal * subs.Duracao.Meses
+            Valor:       subs.Duracao.Valor
           });
 
         } else {
@@ -115,7 +115,6 @@ const TransferenciaConfirmPage: React.FC = () => {
           TipoSubscricaoId:   locationState.planId,
           DuracaoId:          locationState.duracaoId,
           DetalheSubscricao:  { Quantidade: 1 },
-          EntidadeId: 1, // ALTERAR ISTO
           Pagamento: {
             MetodoPagamentoId: locationState.metodoId,
             NIFPagamento:      nifPagamento,
@@ -144,7 +143,6 @@ const TransferenciaConfirmPage: React.FC = () => {
           NotaDoacao:         notaExtra,
           MetodoPagamentoId:  locationState.metodoId,
           NIFPagamento:       nifPagamento,
-          EntidadeId: 1, // ALTERAR ISTO
         });
       }
 
@@ -227,7 +225,7 @@ const TransferenciaConfirmPage: React.FC = () => {
   if (locationState.tipo === 'doacao') {
     total = locationState.valor;
   } else if (locationState.tipo === 'subscricao') {
-    total = duracao?.ValorFinal ?? 0;
+    total = duracao?.Valor ?? 0;
   } else {
     total = locationState.valor ?? 0;
   }

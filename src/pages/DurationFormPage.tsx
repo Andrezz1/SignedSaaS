@@ -14,8 +14,7 @@ interface DuracaoWithExtras {
   DuracaoId: number;
   Nome: string;
   Meses: number;
-  Desconto: number;
-  ValorFinal: number;
+  Valor: number;
   TipoSubscricaoDuracaoId: number;
 }
 
@@ -91,8 +90,7 @@ const DurationFormPage: React.FC = () => {
             {/* Detalhes */}
             <div className="space-y-2 text-sm text-gray-600">
               <div><span className="font-semibold">Meses:</span> {dur.Meses}</div>
-              <div><span className="font-semibold">Desconto:</span> {(dur.Desconto * 100).toFixed(0)}%</div>
-              <div><span className="font-semibold">Valor final:</span> €{dur.ValorFinal.toFixed(2)}</div>
+              <div><span className="font-semibold">Preço:</span> €{dur.Valor.toFixed(2)}</div>
             </div>
           </div>
         ))}

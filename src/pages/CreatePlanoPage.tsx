@@ -69,7 +69,6 @@ const CreatePlanoPage = () => {
       Nome: nome,
       Descricao: descricao,
       Duracoes: duracoesParaEnviar,
-      EntidadeId: 1, // <-- ALTERAR ISTO
     });
 
     navigate('/planos');

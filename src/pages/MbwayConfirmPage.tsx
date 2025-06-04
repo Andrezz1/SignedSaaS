@@ -49,7 +49,7 @@ interface DuracaoWithExtras {
   Nome: string;
   Meses: number;
   Desconto: number;
-  ValorFinal: number;
+  Valor: number;
 }
 
 const MbwayConfirmPage: React.FC = () => {
@@ -99,7 +99,7 @@ useEffect(() => {
             Nome:       subs.Duracao.Nome,
             Meses:      subs.Duracao.Meses,
             Desconto:   0,
-            ValorFinal: subs.TipoSubscricao.PrecoBaseMensal * subs.Duracao.Meses
+            Valor:      subs.Duracao.Valor
           })
 
         } else {
@@ -191,7 +191,6 @@ useEffect(() => {
           TipoSubscricaoId: locationState.planId,
           DuracaoId: locationState.duracaoId,
           DetalheSubscricao: { Quantidade: 1 },
-          EntidadeId: 1, // ALTERAR ISTO
           Pagamento: {
             MetodoPagamentoId: locationState.metodoId,
             NIFPagamento: nifPagamento,
@@ -210,7 +209,6 @@ useEffect(() => {
           MetodoPagamentoId: locationState.metodoId,
           NIFPagamento: nifPagamento,
           TelemovelMbway: telemovelLimpo,
-          EntidadeId: 1, // ALTERAR ISTO
         });
         navigate('/mbway-details', { state: { paymentId: res.pagamento.PagamentoId } });
       } else if (locationState.tipo === 'subscricao-existente') {
@@ -241,7 +239,7 @@ useEffect(() => {
   if (locationState.tipo === 'doacao') {
     total = locationState.valor;
   } else if (locationState.tipo === 'subscricao') {
-    total = duracao?.ValorFinal ?? 0;
+    total = duracao?.Valor ?? 0;
   } else {
     total = locationState.valor ?? 0;
   }

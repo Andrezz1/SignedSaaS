@@ -95,9 +95,10 @@ const DoacoesTable = () => {
         {/* Cabeçalho da tabela - novo estilo */}
         <div className="grid grid-cols-12 border-t-4 border-stroke py-4.5 px-4 dark:border-strokedark md:px-6">
           <div className="col-span-3 font-medium">Nome do Doador </div>
-          <div className="col-span-3 font-medium">Valor Doado</div>
-          <div className="col-span-3 font-medium">Nota</div>
-          <div className="col-span-3 font-medium">Data da Doação</div>
+          <div className="col-span-2 font-medium">Valor Doado</div>
+          <div className="col-span-3 font-medium">Método de Pagamento</div>
+          <div className="col-span-2 font-medium">Nota</div>
+          <div className="col-span-2 font-medium">Data da Doação</div>
         </div>
 
         {/* Conteúdo da tabela */}
@@ -112,13 +113,16 @@ const DoacoesTable = () => {
               <div className="col-span-3 text-sm text-black dark:text-white">
                 {utilizador?.Nome && utilizador.Nome.trim() !== '' ? utilizador.Nome : '–'}
               </div>
-              <div className="col-span-3 text-sm text-black dark:text-white">
+              <div className="col-span-2 text-sm text-black dark:text-white">
                 {formatCurrency(doacao.ValorDoacao)}
               </div>
-              <div className="col-span-3 text-sm text-black dark:text-white">
+               <div className="col-span-3 text-sm text-black dark:text-white">
+                {doacao.MetodoPagamento?.Nome && doacao.MetodoPagamento.Nome.trim() !== ''}
+              </div>
+              <div className="col-span-2 text-sm text-black dark:text-white">
                 {doacao?.Nota && doacao.Nota.trim() !== '' ? doacao.Nota : '–'}
               </div>
-              <div className="col-span-3 text-sm text-black dark:text-white">
+              <div className="col-span-2 text-sm text-black dark:text-white">
                 {new Date(doacao.DataDoacao).toLocaleDateString()}
               </div>
             </div>

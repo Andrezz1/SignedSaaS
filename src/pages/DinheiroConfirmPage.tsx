@@ -49,7 +49,7 @@ interface DuracaoWithExtras {
   DuracaoId: number;
   Nome: string;
   Meses: number;
-  ValorFinal: number;
+  Valor: number;
 }
 
 const DinheiroConfirmPage: React.FC = () => {
@@ -105,7 +105,7 @@ const DinheiroConfirmPage: React.FC = () => {
             DuracaoId:  subs.Duracao.DuracaoId,
             Nome:       subs.Duracao.Nome,
             Meses:      subs.Duracao.Meses,
-            ValorFinal: subs.TipoSubscricao.PrecoBaseMensal * subs.Duracao.Meses
+            Valor:      subs.Duracao.Valor,
           });
         } else {
         setNotaExtra(locationState.nota ?? '');
@@ -133,7 +133,6 @@ const DinheiroConfirmPage: React.FC = () => {
           TipoSubscricaoId: locationState.planId,
           DuracaoId: locationState.duracaoId,
           DetalheSubscricao: { Quantidade: 1 },
-          EntidadeId: 1, // ALTERAR ISTO
           Pagamento: {
             MetodoPagamentoId: locationState.metodoId,
             NIFPagamento: nifPagamento,
@@ -150,7 +149,6 @@ const DinheiroConfirmPage: React.FC = () => {
           NotaDoacao: notaExtra,
           MetodoPagamentoId: locationState.metodoId,
           NIFPagamento: nifPagamento,
-          EntidadeId: 1, // ALTERAR ISTO
         });
         pagamentoId = res.pagamento.PagamentoId;
       } else { // subscrição existente
@@ -299,7 +297,7 @@ const DinheiroConfirmPage: React.FC = () => {
   }
 
   const total = locationState.tipo === 'subscricao'
-    ? duracao?.ValorFinal.toFixed(2)
+    ? duracao?.Valor.toFixed(2)
     : locationState.valor?.toFixed(2);
 
   return (
