@@ -173,8 +173,8 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
         {/* Loading ou lista de utilizadores */}
         {isLoading && <LoadingSpinner />}
         {!isLoading && (
-          <div className="w-full overflow-x-auto">
-            <div className="min-w-[1024px]">
+          <div className="w-full overflow-x-visible relative">
+            <div className="min-w-[1024px] relative">
               {filteredUtilizadores.map((user: any) => {
                 const { utilizador, subscricoes, contacto } = user;
 
