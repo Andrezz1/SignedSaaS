@@ -8,8 +8,8 @@ interface Props {
 
 const ClientLayout: FC<Props> = ({ children }) => {
   const navItems = [
-    { name: 'Dashboard', path: '/client-dashboard' },
     { name: 'Minhas Subscrições', path: '/client-subscriptions' },
+    { name: 'Minhas Doações', path: '/client-donations' },
     { name: 'Conta', path: '/client-edit-profile' },
   ];
 
@@ -17,7 +17,7 @@ const ClientLayout: FC<Props> = ({ children }) => {
     <ClientUserProvider>
       <div className="bg-white text-gray-900 min-h-screen flex flex-col">
         <ClientHeader navItems={navItems} />
-        <main className="flex-1 px-4 py-6 max-w-5xl mx-auto">
+        <main className="flex-1 px-4 py-6 w-full">
           {children}
         </main>
       </div>
