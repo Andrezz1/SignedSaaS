@@ -20,6 +20,7 @@ model AuditPagamento {
   DadosAntes               Json?
   DadosDepois              Json?
   DataHora                 DateTime   @default(now())
+  Entidade                 String
   MensagemErro             String?
   Operacao                 String
   ParametrosRecebidos      Json
@@ -36,6 +37,7 @@ model AuditTipoSubscricao {
   DadosAntes               Json?
   DadosDepois              Json?
   DataHora                 DateTime   @default(now())
+  Entidade                 String
   MensagemErro             String?
   Operacao                 String
   ParametrosRecebidos      Json
@@ -52,6 +54,7 @@ model AuditUtilizador {
   DadosAntes               Json?
   DadosDepois              Json?
   DataHora                 DateTime    @default(now())
+  Entidade                 String?
   MensagemErro             String?
   Operacao                 String
   ParametrosRecebidos      Json
