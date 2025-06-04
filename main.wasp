@@ -281,7 +281,7 @@ query getDetalheSubscricaoInfo {
 
 query getDoacaoInfo {
   fn: import { getDoacaoInfo } from "@src/services/doacaoService",
-  entities: [Doacao, Utilizador, MetodoPagamento]
+  entities: [Doacao, Utilizador, Pagamento]
 }
 
 query getMoradaInfo {

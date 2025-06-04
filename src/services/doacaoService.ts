@@ -52,6 +52,7 @@ export const getDoacaoInfo: GetDoacaoInfo<
     data: {
       doacao: Doacao
       utilizador: Utilizador
+      pagamento: Pagamento
     }[]
     total: number
     page: number
@@ -88,7 +89,11 @@ export const getDoacaoInfo: GetDoacaoInfo<
             Contacto: true,
           },
         },
-        Pagamento: true,
+        Pagamento: {
+          include: {
+            MetodoPagamento: true,
+          }
+        }
       },
       orderBy: {
         DoacaoId: 'desc',
@@ -97,9 +102,10 @@ export const getDoacaoInfo: GetDoacaoInfo<
       take,
     })
 
-  const doacoesInfo = doacoes.map(({ Utilizador, ...doacao }) => ({
+  const doacoesInfo = doacoes.map(({ Utilizador, Pagamento, ...doacao }) => ({
     doacao,
-    utilizador: Utilizador!
+    utilizador: Utilizador!,
+    pagamento: Pagamento!
   }))
 
   const totaldoacoes = await context.entities.Doacao.count({
