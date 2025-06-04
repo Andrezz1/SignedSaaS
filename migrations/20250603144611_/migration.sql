@@ -16,17 +16,26 @@ CREATE TABLE "Utilizador" (
 );
 
 -- CreateTable
+CREATE TABLE "AccessToken" (
+    "TokenId" SERIAL NOT NULL,
+    "Token" TEXT NOT NULL,
+    "UtilizadorId" INTEGER NOT NULL,
+    "ExpiresAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AccessToken_pkey" PRIMARY KEY ("TokenId")
+);
+
+-- CreateTable
 CREATE TABLE "AuditPagamento" (
     "AuditPagamentoId" SERIAL NOT NULL,
     "DadosAntes" JSONB,
     "DadosDepois" JSONB,
     "DataHora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "Entidade" TEXT NOT NULL,
-    "IdUtilizadorResponsavel" INTEGER NOT NULL,
     "MensagemErro" TEXT,
     "Operacao" TEXT NOT NULL,
     "ParametrosRecebidos" JSONB NOT NULL,
     "Resultado" TEXT NOT NULL,
+    "IdUtilizadorResponsavel" INTEGER NOT NULL,
 
     CONSTRAINT "AuditPagamento_pkey" PRIMARY KEY ("AuditPagamentoId")
 );
@@ -37,12 +46,11 @@ CREATE TABLE "AuditTipoSubscricao" (
     "DadosAntes" JSONB,
     "DadosDepois" JSONB,
     "DataHora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "Entidade" TEXT NOT NULL,
-    "IdUtilizadorResponsavel" INTEGER NOT NULL,
     "MensagemErro" TEXT,
     "Operacao" TEXT NOT NULL,
     "ParametrosRecebidos" JSONB NOT NULL,
     "Resultado" TEXT NOT NULL,
+    "IdUtilizadorResponsavel" INTEGER NOT NULL,
 
     CONSTRAINT "AuditTipoSubscricao_pkey" PRIMARY KEY ("AuditTipoSubscricaoId")
 );
@@ -53,12 +61,11 @@ CREATE TABLE "AuditUtilizador" (
     "DadosAntes" JSONB,
     "DadosDepois" JSONB,
     "DataHora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "Entidade" TEXT NOT NULL,
-    "IdUtilizadorResponsavel" INTEGER NOT NULL,
     "MensagemErro" TEXT,
     "Operacao" TEXT NOT NULL,
     "ParametrosRecebidos" JSONB NOT NULL,
     "Resultado" TEXT NOT NULL,
+    "IdUtilizadorResponsavel" INTEGER NOT NULL,
 
     CONSTRAINT "AuditUtilizador_pkey" PRIMARY KEY ("AuditUtilizadorId")
 );
@@ -174,7 +181,6 @@ CREATE TABLE "Subscricao" (
 CREATE TABLE "TipoSubscricao" (
     "TipoSubscricaoID" SERIAL NOT NULL,
     "Descricao" TEXT NOT NULL DEFAULT '',
-    "PrecoBaseMensal" INTEGER NOT NULL DEFAULT 0,
     "Nome" TEXT NOT NULL DEFAULT '',
 
     CONSTRAINT "TipoSubscricao_pkey" PRIMARY KEY ("TipoSubscricaoID")
@@ -183,8 +189,7 @@ CREATE TABLE "TipoSubscricao" (
 -- CreateTable
 CREATE TABLE "TipoSubscricaoDuracao" (
     "TipoSubscricaoDuracaoId" SERIAL NOT NULL,
-    "Desconto" DOUBLE PRECISION,
-    "ValorFinal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "Valor" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "TipoSubscricaoID" INTEGER NOT NULL,
     "DuracaoId" INTEGER NOT NULL,
 
@@ -246,6 +251,9 @@ CREATE UNIQUE INDEX "Utilizador_NumMembro_key" ON "Utilizador"("NumMembro");
 CREATE UNIQUE INDEX "Utilizador_Username_key" ON "Utilizador"("Username");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "AccessToken_Token_key" ON "AccessToken"("Token");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "MetodoPagamento_Nome_key" ON "MetodoPagamento"("Nome");
 
 -- CreateIndex
@@ -271,6 +279,9 @@ ALTER TABLE "Utilizador" ADD CONSTRAINT "Utilizador_ContactoContactoId_fkey" FOR
 
 -- AddForeignKey
 ALTER TABLE "Utilizador" ADD CONSTRAINT "Utilizador_TipoUtilizadorTipoUtilizadorId_fkey" FOREIGN KEY ("TipoUtilizadorTipoUtilizadorId") REFERENCES "TipoUtilizador"("TipoUtilizadorId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AccessToken" ADD CONSTRAINT "AccessToken_UtilizadorId_fkey" FOREIGN KEY ("UtilizadorId") REFERENCES "Utilizador"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AuditPagamento" ADD CONSTRAINT "AuditPagamento_IdUtilizadorResponsavel_fkey" FOREIGN KEY ("IdUtilizadorResponsavel") REFERENCES "Utilizador"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

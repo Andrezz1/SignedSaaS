@@ -200,12 +200,6 @@ const PlanosTable = ({
                         <span className="font-medium">{d.Duracao?.Nome || '-'}</span>
                       </div>
                       <div className="w-1/3">
-                        <span className="text-gray-500 text-xs uppercase block">Desconto</span>
-                        <span className="font-medium">
-                          {d.Desconto !== undefined ? `${(d.Desconto * 100).toFixed(0)}%` : '0%'}
-                        </span>
-                      </div>
-                      <div className="w-1/3">
                         <span className="text-gray-500 text-xs uppercase block">Preço</span>
                         <span className="font-medium">{d.Valor.toFixed(2)} €</span>
                       </div>

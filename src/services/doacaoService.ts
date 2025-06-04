@@ -59,9 +59,9 @@ export const getDoacaoInfo: GetDoacaoInfo<
     totalPages: number
   }
 > = async ({ page, pageSize, searchTerm }, context) => {
-  if (!context.user) {
-    throw new HttpError(401, 'Não tem permissão')
-  }
+  // if (!context.user) {
+  //   throw new HttpError(401, 'Não tem permissão')
+  // }
 
   const skip = (page - 1) * pageSize
   const take = pageSize
@@ -88,7 +88,7 @@ export const getDoacaoInfo: GetDoacaoInfo<
             Contacto: true,
           },
         },
-        Pagamento: true
+        Pagamento: true,
       },
       orderBy: {
         DoacaoId: 'desc',

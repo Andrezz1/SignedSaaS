@@ -12,7 +12,7 @@ type Filters = {
 
 const GerirPlanosPage = ({ user }: { user: AuthUser }) => {
   const navigate = useNavigate();
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [appliedFilters, setAppliedFilters] = useState<Filters>({});
 
   const handleAddPlan = () => navigate('/create-plano');
