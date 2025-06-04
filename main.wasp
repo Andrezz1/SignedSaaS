@@ -338,7 +338,7 @@ query getComprovativoByUtilizadorId {
 
 query getDoacaoByUtilizadorId {
   fn: import { getDoacaoByUtilizadorId } from "@src/services/doacaoService",
-  entities: [Doacao, Utilizador]
+  entities: [Doacao, Utilizador, AccessToken]
 }
 
 query getUtilizadorDesabilitado {

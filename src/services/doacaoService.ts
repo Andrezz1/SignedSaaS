@@ -8,6 +8,7 @@ import {
 } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
 import { createPagamento } from './pagamentoService'
+import { verifyAuthentication } from './utilizadorService'
 
 export const getDoacoes: GetDoacoes<void, number> = async (_args, context) => {
   if (!context.user) {
@@ -121,11 +122,9 @@ export const getDoacaoInfo: GetDoacaoInfo<
   }
 }
 
-export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, 'id'>, Doacao[]>
+export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, 'id'> & { token?: string }, Doacao[]>
 = async (args, context) => {
-  if (!context.user) {
-    throw new HttpError(401, "Não tem permissão")
-  }
+  await verifyAuthentication(context, args.token || '', args.id)
 
   if(!args.id) {
     throw new Error("UtilizadorId nao foi encontrado")
