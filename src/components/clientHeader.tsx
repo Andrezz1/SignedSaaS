@@ -9,13 +9,18 @@ interface HeaderProps {
 
 const ClientHeader: React.FC<HeaderProps> = ({ navItems }) => {
   const location = useLocation();
-  const { userId } = useClientUser();
+  const { userId, token, loading: userContextLoading } = useClientUser();
 
-  const { data: profileData } = useQuery(
-    getUtilizadorInfoById,
-    { id: Number(userId) },
-    { enabled: !!userId }
-  );
+  const isQueryReady = !userContextLoading && userId !== null && token !== null;
+  const queryArgs = { id: Number(userId), token: String(token) };
+
+  const {
+    data: profileData,
+    isLoading,
+    error,
+  } = useQuery(getUtilizadorInfoById, queryArgs, {
+    enabled: isQueryReady,
+  });
 
   const profileImageName =
     profileData && profileData.length > 0
@@ -30,6 +35,23 @@ const ClientHeader: React.FC<HeaderProps> = ({ navItems }) => {
     profileData && profileData.length > 0
       ? profileData[0].utilizador.Nome
       : 'Cliente';
+
+  if (userContextLoading || isLoading) {
+    return (
+      <header className="bg-white border-b shadow-sm px-4 py-4 flex justify-between items-center">
+        <span className="text-gray-500">A carregar utilizador...</span>
+      </header>
+    );
+  }
+
+  if (error) {
+    console.error('[ClientHeader] Erro na query:', error);
+    return (
+      <header className="bg-white border-b shadow-sm px-4 py-4 flex justify-between items-center">
+        <span className="text-red-500">Erro ao carregar utilizador.</span>
+      </header>
+    );
+  }
 
   return (
     <header className="bg-white border-b shadow-sm px-4 py-4 flex justify-between items-center">

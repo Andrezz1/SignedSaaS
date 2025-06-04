@@ -13,15 +13,20 @@ import { useClientUser } from '../components/clientUserContext';
 
 const ClientEditProfile: React.FC = () => {
   const { userId } = useClientUser();
+  const {token} = useClientUser();
   const navigate = useNavigate();
 
-  const { data, isLoading, error, refetch } = useQuery(
+const isQueryReady = userId !== null && token !== null;
+
+const { data, isLoading, error, refetch } = useQuery(
   getUtilizadorInfoById,
-  { id: Number(userId) },
+  isQueryReady ? { id: Number(userId), token } : undefined,
   {
-    enabled: userId !== null,
+    enabled: isQueryReady,
   }
 );
+
+
   const updateUserAction = useAction(updateUtilizador);
 
   const [nome, setNome] = useState('');
@@ -283,9 +288,6 @@ const ClientEditProfile: React.FC = () => {
                 className="block w-full p-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
             </div>
-
-            {/* Upload de foto */}
-            <ProfilePhotoInput onFileSelect={(b64) => setNewProfileImage(b64)} />
 
             {/* Botões */}
             <div className="md:col-span-2 flex justify-end space-x-4 mt-4">

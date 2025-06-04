@@ -58,7 +58,7 @@ export const createAccessToken: CreateAccessToken<CreateAccessTokenPayload, Acce
   return accessToken
 }
 
-type ValidarTokenPayload = { message: string, id: number }
+type ValidarTokenPayload = { message: string, id: number, token?: string }
 
 export const validarToken: ValidarToken<Pick<AccessToken, 'Token'>, ValidarTokenPayload
 > = async(args, context) => {
@@ -70,5 +70,5 @@ export const validarToken: ValidarToken<Pick<AccessToken, 'Token'>, ValidarToken
     throw new Error("Token inválido")
   }
 
-  return { message: 'Token válido', id: token.UtilizadorId }
+  return { message: 'Token válido', id: token.UtilizadorId, token: token.Token }
 }
