@@ -432,7 +432,7 @@ action confirmarPagamentoFisico {
 
 action updateUtilizador {
   fn: import { updateUtilizador } from "@src/services/utilizadorService",
-  entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal]
+  entities: [Utilizador, Morada, TipoUtilizador, Contacto, CodigoPostal, AccessToken]
 }
 
 action updateTipoSubscricao {
