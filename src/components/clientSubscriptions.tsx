@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClientUser } from '../components/clientUserContext';
 import { useQuery, getSubscricaoByUtilizadorId } from 'wasp/client/operations';
-import { ArrowRightIcon, ArrowLeftIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, PlusIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../layout/LoadingSpinner';
 
 const ClientSubscriptions: React.FC = () => {
@@ -24,13 +24,6 @@ const ClientSubscriptions: React.FC = () => {
     <div className="w-full px-4 md:px-8">
       {/* Navegação */}
       <div className="flex justify-end mb-4 gap-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition"
-        >
-          <ArrowLeftIcon className="w-5 h-5 mr-2" />
-          Voltar
-        </button>
         <button
           onClick={() => navigate('/ver-planos', { state: { userId } })}
           className="flex items-center px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
@@ -121,7 +114,7 @@ const ClientSubscriptions: React.FC = () => {
         </ul>
       ) : (
         <p className="text-center text-gray-500">
-          Ainda não tens nenhuma subscrição ativa.
+          Ainda não tens nenhuma subscrição.
         </p>
       )}
     </div>

@@ -28,10 +28,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
-  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const navigate = useNavigate();
-  const [subscriptionUserId, setSubscriptionUserId] = useState<number | null>(null);
-  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
 
   const { data: utilizadoresInfoResponse, isLoading } = useQuery(getUtilizadoresInfoByTipo, {
     page: currentPage,
@@ -68,6 +65,10 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
 
   const handleSubscription = (user: any) => {
     navigate(`/my-subscriptions`, { state: { userId: user.utilizador.id } });
+  };
+
+    const handleHistory = (user: any) => {
+    navigate(`/history`, { state: { userId: user.utilizador.id } });
   };
 
   const toggleDropdown = (userId: number) => {
@@ -271,7 +272,7 @@ const UsersTable = ({ showFilters, setShowFilters, appliedFilters }: UsersTableP
                                 <div className="py-1">
                                   <button
                                     onClick={() => {
-                                      setIsHistoryModalOpen(true);
+                                      handleHistory(user);
                                       setDropdownOpen(null);
                                     }}
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"

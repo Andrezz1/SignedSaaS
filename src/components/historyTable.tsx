@@ -1,0 +1,241 @@
+import { useState } from 'react';
+import { useQuery } from 'wasp/client/operations';
+import { getPagamentoByUtilizadorId } from 'wasp/client/operations';
+import LoadingSpinner from '../layout/LoadingSpinner';
+
+interface PagamentosTableProps {
+  utilizadorId: number;
+}
+
+type MetodoPagamento = {
+  MetodoPagamentoId: number;
+  Nome: string;
+};
+
+type Subscricao = {
+  SubscricaoId: number;
+  DataInicio: Date;
+  DataFim: Date;
+  EstadoSubscricao: boolean;
+};
+
+type Doacao = {
+  DoacaoId: number;
+  ValorDoacao: number;
+  Nota: string | null;
+  DataDoacao: Date;
+};
+
+type Pagamento = {
+  PagamentoId: number;
+  DadosEspecificos: any;
+  DataPagamento: Date;
+  EstadoPagamento: string;
+  NIFPagamento: string;
+  Nota: string | null;
+  Valor: number;
+  DoacaoId: number | null;
+  MetodoPagamentoId: number;
+  UtilizadorId: number;
+  MetodoPagamento: MetodoPagamento;
+  Subscricoes: Subscricao[];
+  Doacao: Doacao | null;
+};
+
+type Utilizador = {
+  id: number;
+  Nome: string;
+  NIF: string;
+  Contacto: {
+    Email: string;
+    Telemovel: string;
+  };
+};
+
+type PagamentoInfo = {
+  pagamento: Pagamento;
+  utilizador: Utilizador;
+};
+
+const HistoryTable = ({ utilizadorId }: PagamentosTableProps) => {
+  const [tempSearch, setTempSearch] = useState('');
+  const [searchFilter, setSearchFilter] = useState<string | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const { data: response, isLoading } = useQuery(getPagamentoByUtilizadorId, {
+    utilizadorId,
+    page: currentPage,
+    pageSize,
+    searchTerm: searchFilter,
+  }) as {
+    data?: {
+      data: PagamentoInfo[];
+      totalPages: number;
+      total: number;
+      page: number;
+      pageSize: number;
+    };
+    isLoading: boolean;
+  };
+
+  const pagamentos = response?.data || [];
+  const totalPages = response?.totalPages || 1;
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('pt-PT', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value) + ' €';
+
+  const formatDate = (date: Date) => date.toLocaleDateString();
+
+  const getTipoPagamento = (pagamento: Pagamento): string => {
+    if (pagamento.Subscricoes?.length > 0) return 'Subscrição';
+    if (pagamento.Doacao) return 'Doação';
+    return 'Outro';
+  };
+
+  return (
+    <div className="w-full transition-all duration-300">
+      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        {/* Topbar */}
+        <div className="flex items-center justify-between p-6 gap-3 w-full bg-gray-100/40 dark:bg-gray-700/50">
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-bold text-black dark:text-white">Por página:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+            >
+              {[5, 10, 15, 20].map(size => (
+                <option key={size} value={size}>{size}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Campo de pesquisa */}
+          <form
+            className="relative w-64"
+            onSubmit={e => {
+              e.preventDefault();
+              setSearchFilter(tempSearch || undefined);
+              setCurrentPage(1);
+            }}
+          >
+            <div className="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                   viewBox="0 0 20 20">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              </svg>
+            </div>
+            <input
+              type="search"
+              placeholder="Pesquisar..."
+              value={tempSearch}
+              onChange={e => setTempSearch(e.target.value)}
+              className="block w-full p-2 ps-10 text-sm border border-gray-300 rounded-lg bg-gray-50"
+            />
+            {tempSearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTempSearch('');
+                  setSearchFilter(undefined);
+                  setCurrentPage(1);
+                }}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-500" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            )}
+          </form>
+        </div>
+
+        {/* Cabeçalho da tabela */}
+        <div className="grid grid-cols-12 border-t-4 border-stroke py-4.5 px-4 md:px-6">
+          <div className="col-span-3 font-medium">Tipo</div>
+          <div className="col-span-2 font-medium">Valor</div>
+          <div className="col-span-3 font-medium">Método</div>
+          <div className="col-span-2 font-medium">Estado</div>
+          <div className="col-span-2 font-medium">Data do Pagamento</div>
+        </div>
+
+        {/* Corpo da tabela */}
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          pagamentos.map(({ pagamento, utilizador }, i) => (
+            <div
+              key={i}
+              className="grid grid-cols-12 border-t border-stroke py-4.5 px-4 md:px-6 items-center"
+            >
+              <div className="col-span-3 text-sm text-black dark:text-white">
+                {getTipoPagamento(pagamento)}
+              </div>
+              <div className="col-span-2 text-sm text-black dark:text-white">
+                {formatCurrency(pagamento.Valor)}
+              </div>
+              <div className="col-span-3 text-sm text-black dark:text-white">
+                {pagamento.MetodoPagamento?.Nome || '–'}
+              </div>
+              <div className="col-span-2 text-sm text-black dark:text-white">
+                {pagamento.EstadoPagamento}
+              </div>
+              <div className="col-span-2 text-sm text-black dark:text-white">
+                {formatDate(pagamento.DataPagamento)}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Paginação */}
+      <nav className="mt-4 flex justify-center">
+        <ul className="inline-flex -space-x-px text-sm">
+          <li>
+            <button
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+              className="flex items-center justify-center px-3 h-8 text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100"
+            >
+              Anterior
+            </button>
+          </li>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <li key={i}>
+              <button
+                onClick={() => setCurrentPage(i + 1)}
+                className={`flex items-center justify-center px-3 h-8 ${
+                  currentPage === i + 1
+                    ? 'text-blue-600 bg-blue-50 border border-gray-300'
+                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100'
+                }`}
+              >
+                {i + 1}
+              </button>
+            </li>
+          ))}
+          <li>
+            <button
+              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+              className="flex items-center justify-center px-3 h-8 text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100"
+            >
+              Seguinte
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  );
+};
+
+export default HistoryTable;

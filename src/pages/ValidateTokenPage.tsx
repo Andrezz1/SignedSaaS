@@ -13,14 +13,14 @@ const ValidateTokenPage = () => {
     (async () => {
       const token = new URLSearchParams(search).get('token')
       if (!token) {
-        navigate('/teste', { replace: true })
+        navigate('/client-view', { replace: true })
         return
       }
 
       try {
         const { id } = await validarToken({ Token: token })
         setUserData(id, token) 
-        navigate('/test', { replace: true })
+        navigate('/client-subscriptions', { replace: true })
       } catch {
         alert('Token inválido ou expirado.')
         navigate('/client-view', { replace: true })
