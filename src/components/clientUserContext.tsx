@@ -24,22 +24,26 @@ export const ClientUserProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedId = localStorage.getItem('userId');
-    const storedToken = localStorage.getItem('authToken');
+  const storedId = localStorage.getItem('userId');
+  const storedToken = localStorage.getItem('authToken');
 
-    if (storedId) setUserId(Number(storedId));
-    if (storedToken) setToken(storedToken);
+  if (userId === null && storedId) setUserId(Number(storedId));
+  if (token === null && storedToken) setToken(storedToken);
 
-    setLoading(false);
+  setLoading(false);
   }, []);
 
+
   const setUserData = (id: number, token: string) => {
-    setUserId(id);
-    setToken(token);
-    localStorage.setItem('userId', String(id));
-    localStorage.setItem('authToken', token);
+  console.log('[setUserData] Atualizando ID e token', id, token);
+
+  localStorage.setItem('userId', String(id));
+  localStorage.setItem('authToken', token);
+
+  setUserId(id);
+  setToken(token);
   };
-  
+
 
   const clearUserData = () => {
     setUserId(null);

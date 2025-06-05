@@ -1,34 +1,39 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { validarToken } from 'wasp/client/operations'
-import { useClientUser } from '../components/clientUserContext'
 
 const ValidateTokenPage = () => {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const { search } = useLocation()
-  const { setUserData } = useClientUser()
 
   useEffect(() => {
     (async () => {
       const token = new URLSearchParams(search).get('token')
       if (!token) {
+        console.warn('[ValidateTokenPage] Nenhum token encontrado na URL.')
         navigate('/client-view', { replace: true })
         return
       }
 
       try {
         const { id } = await validarToken({ Token: token })
-        setUserData(id, token) 
-        navigate('/client-subscriptions', { replace: true })
-      } catch {
+        console.log('[ValidateTokenPage] Token válido. ID:', id)
+        
+        localStorage.setItem('userId', String(id))
+        localStorage.setItem('authToken', token)
+        console.log('[ValidateTokenPage] Token e ID gravados no localStorage:', token)
+
+        window.location.href = '/client-subscriptions'
+      } catch (err) {
+        console.error('[ValidateTokenPage] Token inválido ou expirado.', err)
         alert('Token inválido ou expirado.')
         navigate('/client-view', { replace: true })
       } finally {
         setLoading(false)
       }
     })()
-  }, [search, navigate, setUserData])
+  }, [search, navigate])
 
   if (loading) return <div>Validando token…</div>
   return null
