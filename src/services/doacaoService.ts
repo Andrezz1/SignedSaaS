@@ -136,6 +136,7 @@ export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, '
 }
 
 type CreateDoacaoCompletaPayload = {
+  token: string
   ValorDoacao: number,
   NotaPagamento?: string,
   NotaDoacao?: string,
@@ -149,9 +150,7 @@ export const createDoacaoCompleta: CreateDoacaoCompleta<
   CreateDoacaoCompletaPayload,
   { pagamento: Pagamento, doacao: Doacao }
 > = async (args, context) => {
-  if (!context.user) {
-    throw new Error("Não tem permissão")
-  }
+  await verifyAuthentication(context, args.token || '', args.UtilizadorId)
 
   const utilizador = await context.entities.Utilizador.findUnique({
     where: { id: args.UtilizadorId }
