@@ -5,6 +5,11 @@ import LoadingSpinner from '../layout/LoadingSpinner';
 
 interface PagamentosTableProps {
   utilizadorId: number;
+  filters?: {
+    tipoPagamento?: 'Subscricao' | 'Doacao';
+  };
+  showFilters: boolean;
+  setShowFilters: (value: boolean) => void;
 }
 
 type MetodoPagamento = {
@@ -57,9 +62,7 @@ type PagamentoInfo = {
   utilizador: Utilizador;
 };
 
-const HistoryTable = ({ utilizadorId }: PagamentosTableProps) => {
-  const [tempSearch, setTempSearch] = useState('');
-  const [searchFilter, setSearchFilter] = useState<string | undefined>(undefined);
+const HistoryTable = ({ utilizadorId, filters, showFilters,setShowFilters }: PagamentosTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -67,7 +70,9 @@ const HistoryTable = ({ utilizadorId }: PagamentosTableProps) => {
     utilizadorId,
     page: currentPage,
     pageSize,
-    searchTerm: searchFilter,
+    filters: filters?.tipoPagamento
+      ? { tipoPagamento: filters.tipoPagamento }
+      : undefined,
   }) as {
     data?: {
       data: PagamentoInfo[];
@@ -103,6 +108,16 @@ const HistoryTable = ({ utilizadorId }: PagamentosTableProps) => {
         {/* Topbar */}
         <div className="flex items-center justify-between p-6 gap-3 w-full bg-gray-100/40 dark:bg-gray-700/50">
           <div className="flex items-center gap-4">
+            <span
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 text-sm font-bold text-black cursor-pointer hover:text-gray-700"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5.586L3.293 6.707A1 1 0 013 6V4z" />
+                </svg>
+                {showFilters ? 'Esconder Filtros' : 'Mostrar Filtros'}
+            </span>
             <span className="text-sm font-bold text-black dark:text-white">Por página:</span>
             <select
               value={pageSize}
@@ -117,48 +132,6 @@ const HistoryTable = ({ utilizadorId }: PagamentosTableProps) => {
               ))}
             </select>
           </div>
-
-          {/* Campo de pesquisa */}
-          <form
-            className="relative w-64"
-            onSubmit={e => {
-              e.preventDefault();
-              setSearchFilter(tempSearch || undefined);
-              setCurrentPage(1);
-            }}
-          >
-            <div className="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-                   viewBox="0 0 20 20">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-              </svg>
-            </div>
-            <input
-              type="search"
-              placeholder="Pesquisar..."
-              value={tempSearch}
-              onChange={e => setTempSearch(e.target.value)}
-              className="block w-full p-2 ps-10 text-sm border border-gray-300 rounded-lg bg-gray-50"
-            />
-            {tempSearch && (
-              <button
-                type="button"
-                onClick={() => {
-                  setTempSearch('');
-                  setSearchFilter(undefined);
-                  setCurrentPage(1);
-                }}
-                className="absolute inset-y-0 right-0 flex items-center pr-3"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-500" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            )}
-          </form>
         </div>
 
         {/* Cabeçalho da tabela */}
