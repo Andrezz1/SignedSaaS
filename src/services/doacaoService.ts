@@ -132,6 +132,13 @@ export const getDoacaoByUtilizadorId: GetDoacaoByUtilizadorId<Pick<Utilizador, '
 
   return context.entities.Doacao.findMany({
     where: { UtilizadorId: args.id },
+    include: {
+      Pagamento: {
+        include: {
+          MetodoPagamento: true
+        }
+      }
+    }
   })
 }
 
