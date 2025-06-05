@@ -326,6 +326,11 @@ query getMetodoPagamento {
   entities: [MetodoPagamento]
 }
 
+query getMetodoPagamentoCliente {
+  fn: import { getMetodoPagamentoCliente } from "@src/services/pagamentoService",
+  entities: [MetodoPagamento]
+}
+
 // As queries abaixo são queries com filtros
 
 query getPagamentosConcluidos {

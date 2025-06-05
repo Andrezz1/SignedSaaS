@@ -8,7 +8,8 @@ import {
   type ConfirmarPagamentoFisico,
   type GetTotalPagamentosPendentes,
   type GetPagamentosPendentes,
-  type GetPagamentosConcluidos
+  type GetPagamentosConcluidos,
+  type GetMetodoPagamentoCliente
 } from 'wasp/server/operations'
 import { HttpError, prisma } from 'wasp/server'
 import { registarAuditLog } from './auditService'
@@ -107,6 +108,15 @@ export const getMetodoPagamento: GetMetodoPagamento <void, MetodoPagamento[]> = 
 
   return context.entities.MetodoPagamento.findMany({
     orderBy: { MetodoPagamentoId: 'asc' },
+  })
+}
+
+export const getMetodoPagamentoCliente: GetMetodoPagamentoCliente <void, MetodoPagamento[]> = async (_args, context) => {
+  return context.entities.MetodoPagamento.findMany({
+    orderBy: { MetodoPagamentoId: 'asc' },
+    where: {
+      MetodoPagamentoId: { not: 4 }
+    }
   })
 }
 
