@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getMetodoPagamento } from 'wasp/client/operations';
+import { getMetodoPagamentoCliente } from 'wasp/client/operations';
 import type { MetodoPagamento } from 'wasp/entities';
 
 const logos: Record<string, string> = {
@@ -47,7 +47,7 @@ const ClientPaymentPickerPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const data = await getMetodoPagamento();
+        const data = await getMetodoPagamentoCliente();
         setMethods(data);
       } catch {
         setError('Erro ao carregar métodos de pagamento.');
