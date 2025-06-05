@@ -218,7 +218,9 @@ export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<
     utilizadorId: number
     page: number
     pageSize: number
-    searchTerm?: string
+    filters?: {
+      tipoPagamento: 'Subscricao' | 'Doacao'
+    }
   },
   {
     data: {
@@ -230,10 +232,10 @@ export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<
     pageSize: number
     totalPages: number
   }
-> = async ({ utilizadorId, page, pageSize, searchTerm }, context) => {
-  if (!context.user) {
-    throw new HttpError(401, 'Não tem permissão')
-  }
+> = async ({ utilizadorId, page, pageSize, filters }, context) => {
+  // if (!context.user) {
+  //   throw new HttpError(401, 'Não tem permissão')
+  // }
 
   const skip = (page - 1) * pageSize
   const take = pageSize
@@ -242,11 +244,16 @@ export const getPagamentoByUtilizadorId: GetPagamentoByUtilizadorId<
     UtilizadorId: utilizadorId,
   }
 
-  if (searchTerm) {
-    where.OR = [
-      { Utilizador: { Nome: { contains: searchTerm, mode: 'insensitive' } } },
-      { Utilizador: { NIF: { contains: searchTerm, mode: 'insensitive' } } },
-    ]
+  if (filters?.tipoPagamento === 'Subscricao') {
+    where.Subscricoes = {
+      some: {}, 
+    }
+  }
+
+  if (filters?.tipoPagamento === 'Doacao') {
+    where.DoacaoId = {
+      not: null, 
+    }
   }
 
   const pagamentos = await context.entities.Pagamento.findMany({
