@@ -63,7 +63,7 @@ const ClientHeader: React.FC<HeaderProps> = ({ navItems }) => {
             to={item.path}
             className={`text-base md:text-lg font-semibold ${
               location.pathname === item.path
-                ? 'text-orange-600 underline'
+                ? 'text-orange-600 '
                 : 'text-gray-700 hover:text-orange-600'
             }`}
           >
