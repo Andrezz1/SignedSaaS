@@ -194,6 +194,17 @@ page ClientDonationsPage {
   component: import ClientDonationsPage from "@src/pages/ClientDonationsPage"
 }
 
+route ClientCreateDonationPageRoute { path: "/client-create-donation", to: ClientCreateDonationPage }
+page ClientCreateDonationPage {
+  authRequired: false,
+  component: import ClientCreateDonationPage from "@src/pages/ClientCreateDonationPage"
+}
+
+route ClientPaymentPickerPageRoute { path: "/client-payment-picker", to: ClientPaymentPickerPage }
+page ClientPaymentPickerPage {
+  authRequired: false,
+  component: import ClientPaymentPickerPage from "@src/pages/ClientPaymentPickerPage"
+}
 // As queries abaixo apenas obtêm os dados de cada tabela
 query getCodigoPostal {
   fn: import { getCodigoPostal } from "@src/services/codigoPostalService",
