@@ -23,6 +23,7 @@ interface SubscricaoState {
   metodoId: number;
   userId: number;
   duracaoId: number;
+  origin?: 'admin' | 'cliente';
 }
 
 interface DoacaoState {
@@ -31,6 +32,8 @@ interface DoacaoState {
   utilizadorId: number;
   valor: number;
   nota: string;
+  token: string;
+  origin?: 'admin' | 'cliente';
 }
 
 interface SubscricaoExistenteState {
@@ -39,6 +42,7 @@ interface SubscricaoExistenteState {
   userId: number;
   metodoId: number;
   valor?: number;
+  origin?: 'admin' | 'cliente';
 }
 
 type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
@@ -143,15 +147,17 @@ const TransferenciaConfirmPage: React.FC = () => {
           NotaDoacao:         notaExtra,
           MetodoPagamentoId:  locationState.metodoId,
           NIFPagamento:       nifPagamento,
+          token:              locationState.token,
         });
       }
 
-      navigate('/dashboard');
+      const isAdmin = locationState.origin === 'admin';
+      navigate(isAdmin ? '/dashboard' : '/client-donations');
+
     } catch {
       setActionError('Não foi possível criar o pagamento.');
     }
   };
-
 
   const goPlan = () => {
     if (locationState.tipo === 'subscricao') {

@@ -32,6 +32,7 @@ const ClientCreateDonationPage = () => {
         nota,
         utilizadorId: userId,
         token: token,
+        origin: 'cliente'
       }
     })
   }

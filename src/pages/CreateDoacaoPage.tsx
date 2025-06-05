@@ -50,7 +50,8 @@ const CreateDoacaoPage = () => {
         tipo: 'doacao',
         valor: Number(valorDoacao),
         nota,
-        utilizadorId: selectedUser.id
+        utilizadorId: selectedUser.id,
+        origin : 'admin'
       }
     })
   }
