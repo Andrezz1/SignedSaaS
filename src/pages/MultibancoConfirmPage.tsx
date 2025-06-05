@@ -23,6 +23,7 @@ interface SubscricaoState {
   metodoId: number;
   userId: number;
   duracaoId: number;
+  origin?: 'admin' | 'cliente';
 }
 
 interface DoacaoState {
@@ -31,6 +32,8 @@ interface DoacaoState {
   utilizadorId: number;
   valor: number;
   nota: string;
+  token: string;
+  origin?: 'admin' | 'cliente';
 }
 
 interface SubscricaoExistenteState {
@@ -39,6 +42,7 @@ interface SubscricaoExistenteState {
   metodoId: number;
   userId: number;
   valor?: number;
+  origin?: 'admin' | 'cliente';
 }
 
 type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
@@ -157,6 +161,7 @@ const MultibancoConfirmPage: React.FC = () => {
           NotaDoacao: notaExtra,
           MetodoPagamentoId: locationState.metodoId,
           NIFPagamento: nifPagamento,
+          token: locationState.token,
         });
 
         navigate('/multibanco-details', {
@@ -164,7 +169,8 @@ const MultibancoConfirmPage: React.FC = () => {
             tipo: 'doacao',
             paymentId: res.pagamento.PagamentoId,
             utilizadorId: locationState.utilizadorId,
-            nota: notaExtra
+            nota: notaExtra,
+            origin: locationState.origin
           }
         });
       } else if (locationState.tipo === 'subscricao-existente') {

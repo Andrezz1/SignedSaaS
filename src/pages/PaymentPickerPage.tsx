@@ -23,6 +23,7 @@ interface DoacaoState {
   utilizadorId: number;
   valor: number;
   nota: string;
+  origin?: 'admin';
 }
 
 interface SubscricaoExistenteState {
@@ -96,6 +97,7 @@ const PaymentPickerPage: React.FC = () => {
           userId: locationState.userId,
           duracaoId: locationState.duracaoId,
           metodoId: selectedId,
+          origin: 'admin'
         }
       });
     }
@@ -107,6 +109,7 @@ const PaymentPickerPage: React.FC = () => {
           valor: locationState.valor,
           nota: locationState.nota,
           metodoId: selectedId,
+          origin: 'admin'
         }
       });
     }
@@ -118,6 +121,7 @@ const PaymentPickerPage: React.FC = () => {
           userId: locationState.userId,
           metodoId: selectedId,
           valor: locationState.valor,
+          origin: 'admin'
         }
       });
     }

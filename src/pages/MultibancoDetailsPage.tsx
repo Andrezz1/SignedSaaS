@@ -10,6 +10,7 @@ interface SubscricaoState {
   planDesc: string;
   duracaoNome: string;
   duracaoMeses: number;
+  origin?: 'admin' | 'cliente';
 }
 
 interface DoacaoState {
@@ -17,6 +18,7 @@ interface DoacaoState {
   paymentId: number;
   utilizadorId: number;
   nota: string;
+  origin?: 'admin' | 'cliente';
 }
 
 interface SubscricaoExistenteDetailsState {
@@ -27,6 +29,7 @@ interface SubscricaoExistenteDetailsState {
   planDesc: string;
   duracaoNome: string;
   duracaoMeses: number;
+  origin?: 'admin' | 'cliente';
 }
 
 type LocationState =
@@ -43,6 +46,14 @@ const MultibancoDetailsPage: React.FC = () => {
   const [doadorNome, setDoadorNome] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const redirectToOriginDashboard = () => {
+  const isAdmin =
+    (locationState.tipo === 'doacao' || locationState.tipo === 'subscricao-existente') &&
+    locationState.origin === 'admin';
+
+  return isAdmin ? '/dashboard' : '/client-donations';
+  };
 
   useEffect(() => {
     (async () => {
@@ -175,7 +186,7 @@ const MultibancoDetailsPage: React.FC = () => {
         </div>
 
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate(redirectToOriginDashboard())}
           className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
         >
           Voltar ao Início

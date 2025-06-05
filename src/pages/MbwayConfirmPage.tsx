@@ -32,6 +32,8 @@ interface DoacaoState {
   utilizadorId: number;
   valor: number;
   nota: string;
+  token: string;
+  origin?: 'admin' | 'cliente';
 }
 
 interface SubscricaoExistenteState {
@@ -40,6 +42,7 @@ interface SubscricaoExistenteState {
   userId: number;
   metodoId: number;
   valor?: number;
+  origin?: 'admin' | 'cliente';
 }
 
 type LocationState = SubscricaoState | DoacaoState | SubscricaoExistenteState;
@@ -50,6 +53,7 @@ interface DuracaoWithExtras {
   Meses: number;
   Desconto: number;
   Valor: number;
+  origin?: 'admin' | 'cliente';
 }
 
 const MbwayConfirmPage: React.FC = () => {
@@ -209,6 +213,7 @@ useEffect(() => {
           MetodoPagamentoId: locationState.metodoId,
           NIFPagamento: nifPagamento,
           TelemovelMbway: telemovelLimpo,
+          token: locationState.token
         });
         navigate('/mbway-details', { state: { paymentId: res.pagamento.PagamentoId } });
       } else if (locationState.tipo === 'subscricao-existente') {
