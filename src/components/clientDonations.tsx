@@ -38,7 +38,7 @@ const ClientDonations: React.FC = () => {
 
         {/* Se quiseres adicionar um botão para nova doação, ativa este */}
         <button
-          onClick={() => navigate('/nova-doacao')}
+          onClick={() => navigate('/client-create-donation')}
           className="flex items-center px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
         >
           <HeartIcon className="w-5 h-5 mr-2" />
