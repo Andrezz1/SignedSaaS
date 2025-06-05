@@ -15,7 +15,7 @@ const HistoricoDoacoesPage = ({ user }: { user: AuthUser }) => {
     <DefaultLayout user={user}>
       {/* Título + botão lado a lado */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Histórico de Doações</h2>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Lista de Doações</h2>
         <button
           onClick={handleAddDoacao}
           className="flex items-center px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition"

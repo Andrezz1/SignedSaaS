@@ -83,7 +83,7 @@ const ClientDonations: React.FC = () => {
         </ul>
       ) : (
         <p className="text-center text-gray-500">
-          Ainda não fizeste nenhuma doação.
+          Ainda não tem nenhuma doação.
         </p>
       )}
     </div>
