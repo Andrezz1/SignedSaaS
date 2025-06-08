@@ -33,6 +33,7 @@ interface DoacaoState {
   utilizadorId: number;
   valor: number;
   nota: string;
+  token: string;
 }
 
 interface SubscricaoExistenteState {
@@ -149,6 +150,7 @@ const DinheiroConfirmPage: React.FC = () => {
           NotaDoacao: notaExtra,
           MetodoPagamentoId: locationState.metodoId,
           NIFPagamento: nifPagamento,
+          token: locationState.token,
         });
         pagamentoId = res.pagamento.PagamentoId;
       } else { // subscrição existente
